@@ -1,0 +1,31 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+    </plugin-info>
+
+    <module-type key="webHookModuleDescriptor" class="com.atlassian.webhooks.plugin.module.WebHookModuleDescriptor" />
+
+    <component key="webhookRegistrationManager" class="com.atlassian.webhooks.plugin.WebHookRegistrationManager" />
+
+    <component key="webhookPublisher" class="com.atlassian.webhooks.plugin.WebHookPublisherImpl"/>
+
+    <component key="pluginWebHookProvider" public="true"
+               interface="com.atlassian.webhooks.spi.provider.WebHookProvider"
+               class="com.atlassian.webhooks.plugin.provider.PluginWebHookProvider" />
+
+    <component key="pluginUriResolver" class="com.atlassian.webhooks.plugin.impl.PluginUriResolverImpl" />
+
+    <component key="waitableServiceTrackerFactory" class="com.atlassian.osgi.tracker.WaitableServiceTrackerFactory" />
+
+    <component key="startableForPlugins" class="com.atlassian.webhooks.plugin.module.StartableForPlugins" />
+
+    <component key="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClient" />
+    <component key="requestKiller" class="com.atlassian.httpclient.base.RequestKiller" />
+
+    <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher" />
+    <component-import key="consumerService" interface="com.atlassian.oauth.consumer.ConsumerService" />
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
+    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" />
+</atlassian-plugin>
