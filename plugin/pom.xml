@@ -16,7 +16,7 @@
     <properties>
         <oauth.version>1.6.1</oauth.version>
         <sal.version>2.7.0</sal.version>
-        <atlassian-plugins.version>2.14.0-m4</atlassian-plugins.version>
+        <atlassian-plugins.version>2.14.0-m5</atlassian-plugins.version>
     </properties>
 
     <dependencies>
