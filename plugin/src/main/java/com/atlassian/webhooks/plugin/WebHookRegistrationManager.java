@@ -27,8 +27,8 @@ public final class WebHookRegistrationManager implements DisposableBean
 {
     private static final Logger log = LoggerFactory.getLogger(WebHookRegistrationManager.class);
 
-    private final Map<String,WebHookRegistration> registrationsByKey;
-    private final SetMultimap<Class<?>,WebHookRegistration> registrationsByEvent;
+    private final Map<String, WebHookRegistration> registrationsByKey;
+    private final SetMultimap<Class<?>, WebHookRegistration> registrationsByEvent;
     private final Map<WebHookProvider, Set<WebHookRegistration>> registrationsByProvider;
     private final WebHookPublisher webHookPublisher;
     private final EventPublisher eventPublisher;
@@ -39,7 +39,7 @@ public final class WebHookRegistrationManager implements DisposableBean
         this.eventPublisher = checkNotNull(eventPublisher);
         this.registrationsByEvent = Multimaps.synchronizedSetMultimap(HashMultimap.<Class<?>, WebHookRegistration>create());
         this.registrationsByKey = new ConcurrentHashMap<String, WebHookRegistration>();
-        this.registrationsByProvider = new ConcurrentHashMap<WebHookProvider,Set<WebHookRegistration>>();
+        this.registrationsByProvider = new ConcurrentHashMap<WebHookProvider, Set<WebHookRegistration>>();
 
         factory.create(WebHookProvider.class, new WaitableServiceTrackerCustomizer<WebHookProvider>()
         {
@@ -103,6 +103,11 @@ public final class WebHookRegistrationManager implements DisposableBean
             // Trap exceptions to prevent them bubbling up outside this event listener
             log.warn(String.format("Failed to publish web-hooks for event %s", event.getClass().getName()), e);
         }
+    }
+
+    public Iterable<String> getIds()
+    {
+        return registrationsByKey.keySet();
     }
 
     @Override

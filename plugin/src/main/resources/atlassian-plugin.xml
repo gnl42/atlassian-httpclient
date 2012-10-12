@@ -5,7 +5,12 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
     </plugin-info>
 
-    <module-type key="webHookModuleDescriptor" class="com.atlassian.webhooks.plugin.module.WebHookModuleDescriptor" />
+    <module-type key="described-module-type" class="com.atlassian.plugin.schema.impl.DescribedModuleTypeModuleDescriptor" />
+
+    <described-module-type key="webhook" name="Web Hook" class="com.atlassian.webhooks.plugin.module.WebHookModuleDescriptor"
+                           schema-transformer-class="com.atlassian.webhooks.plugin.module.WebHookSchemaFactory">
+        <description>Registration for a web hook callback from an internal event</description>
+    </described-module-type>
 
     <component key="webhookRegistrationManager" class="com.atlassian.webhooks.plugin.WebHookRegistrationManager" />
 

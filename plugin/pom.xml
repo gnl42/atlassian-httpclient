@@ -17,6 +17,7 @@
     <properties>
         <oauth.version>1.6.1</oauth.version>
         <sal.version>2.7.0</sal.version>
+        <atlassian-plugins.version>2.14.0-m4</atlassian-plugins.version>
     </properties>
 
     <dependencies>
@@ -107,9 +108,27 @@
         <dependency>
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-core</artifactId>
-            <version>2.14.0-m3</version>
+            <version>${atlassian-plugins.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-osgi</artifactId>
+            <version>${atlassian-plugins.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-schema</artifactId>
+            <version>${atlassian-plugins.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.4</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -134,18 +153,27 @@
                     <extractDependencies>true</extractDependencies>
                     <instructions>
                         <Import-Package>
-                            com.atlassian.oauth.consumer,
+                            com.atlassian.oauth*,
                             com.atlassian.plugin.*;version="2.8",
                             com.atlassian.sal.api*;version="${sal.version}",
+                            com.atlassian.plugin.schema.descriptor;version="${atlassian-plugins.version}",
+                            com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",
+                            com.atlassian.plugin.schema.spi;version="${atlassian-plugins.version}",
                             com.atlassian.util.concurrent*;version="${atlassian-util-concurrent.version}",
                             com.google.common*;version="${guava.version}",
                             javax.net.ssl,
+                            javax.xml*,
+                            org.dom4j*,
                             org.osgi*,
                             org.slf4j*;version="1.5",
                             org.springframework*,
+                            org.xml.sax*,
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.webhooks.spi*;version="${project.version}",
+                            com.atlassian.plugin.schema.descriptor;version="${atlassian-plugins.version}",
+                            com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",
+                            com.atlassian.plugin.schema.spi;version="${atlassian-plugins.version}",
                             com.atlassian.util.concurrent*;version="${atlassian-util-concurrent.version}"
                         </Export-Package>
                         <Spring-Context>*;timeout:=60</Spring-Context>
