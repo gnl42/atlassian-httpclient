@@ -236,5 +236,5 @@ public interface BaseResponsePromise<V> extends Promise<V>
      * @return This instance for chaining
      */
     @Override
-    BaseResponsePromise<V> on(FutureCallback<V> callback);
+    BaseResponsePromise<V> then(FutureCallback<V> callback);
 }

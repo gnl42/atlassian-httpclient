@@ -181,9 +181,9 @@ abstract class WrappingBaseResponsePromise<V> extends ForwardingListenableFuture
     }
 
     @Override
-    public final BaseResponsePromise<V> on(FutureCallback<V> callback)
+    public final BaseResponsePromise<V> then(FutureCallback<V> callback)
     {
-        delegatePromise().on(callback);
+        delegatePromise().then(callback);
         return this;
     }
 
