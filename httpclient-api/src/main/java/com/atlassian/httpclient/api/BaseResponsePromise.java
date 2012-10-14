@@ -187,7 +187,7 @@ public interface BaseResponsePromise<V> extends Promise<V>
     BaseResponsePromise<V> notSuccessful(Effect<V> callback);
 
     /**
-     * Register a callback to respond to all other HTTP responses (i.e. those not explcitly registered for).
+     * Register a callback to respond to all other HTTP responses (i.e. those not explicitly registered for).
      *
      * @param callback The callback
      * @return This instance for chaining
