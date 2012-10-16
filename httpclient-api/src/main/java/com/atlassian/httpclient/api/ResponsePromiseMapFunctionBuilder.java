@@ -1,13 +1,11 @@
 package com.atlassian.httpclient.api;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Map;
 
+import static com.atlassian.httpclient.api.ResponsePromiseMapFunction.*;
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.Maps.*;
 
@@ -18,7 +16,7 @@ public final class ResponsePromiseMapFunctionBuilder<O>
 
     private Function<Response, ? extends O> othersFunction;
 
-    public ResponsePromiseMapFunctionBuilder()
+    ResponsePromiseMapFunctionBuilder()
     {
         functions = newHashMap();
     }
@@ -147,44 +145,7 @@ public final class ResponsePromiseMapFunctionBuilder<O>
 
     public Function<? super Response, O> build()
     {
-        return new Function<Response, O>()
-        {
-            @Override
-            public O apply(Response response)
-            {
-                final int statusCode = response.getStatusCode();
-                final Map<StatusRange, Function<Response, ? extends O>> matchingFunctions = Maps.filterKeys(functions, new Predicate<StatusRange>()
-                {
-                    @Override
-                    public boolean apply(StatusRange input)
-                    {
-                        return input.isIn(statusCode);
-                    }
-                });
-
-                if (matchingFunctions.isEmpty())
-                {
-                    if (othersFunction != null)
-                    {
-                        return othersFunction.apply(response);
-                    }
-                    throw new IllegalStateException("Could not match any function to status " + statusCode);
-                }
-
-                if (matchingFunctions.size() > 1)
-                {
-                    throw new IllegalStateException("Found multiple functions for status " + statusCode);
-                }
-
-                // when there we found one and only one function!
-                return Iterables.getLast(matchingFunctions.values()).apply(response);
-            }
-        };
-    }
-
-    private static interface StatusRange
-    {
-        boolean isIn(int code);
+        return new ResponsePromiseMapFunction<O>(functions, othersFunction);
     }
 
     private static final class SingleStatusRange implements StatusRange

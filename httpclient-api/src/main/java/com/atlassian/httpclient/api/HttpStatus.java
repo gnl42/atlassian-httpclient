@@ -1,7 +1,7 @@
 package com.atlassian.httpclient.api;
 
 /**
- * See:
+ * HTTP Status code, for reference see:
  * <ul>
  *     <li><a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">the wikipedia page.</a></li>
  *     <li>Hypertext Transfer Protocol -- HTTP/1.1, <a href="https://tools.ietf.org/html/rfc2616">RFC 2616</a></li>
@@ -135,67 +135,326 @@ enum HttpStatus
      */
     NOT_MODIFIED(304),
 
-
+    /**
+     *
+     */
     USE_PROXY(305),
+
+    /**
+     * No longer used. Originally meant "Subsequent requests should use the specified proxy."
+     */
     SWITCH_PROXY(306),
+
+    /**
+     * In this case, the request should be repeated with another URI; however, future requests should still use the
+     * original URI. In contrast to how 302 was historically implemented, the request method is not allowed to be
+     * changed when reissuing the original request. For instance, a POST request repeated using another POST request.
+     */
     TEMPORARY_REDIRECT(307),
+
+    /**
+     * The request, and all future requests should be repeated using another URI. 307 and 308 (as proposed) parallel the
+     * behaviours of 302 and 301, but do not allow the HTTP method to change. So, for example, submitting a form to a
+     * permanently redirected resource may continue smoothly.
+     */
     PERMANENT_REDIRECT(308),
+
+    /**
+     * The request cannot be fulfilled due to bad syntax.
+     */
     BAD_REQUEST(400),
+
+    /**
+     * Similar to 403 Forbidden, but specifically for use when authentication is required and has failed or has not yet
+     * been provided. The response must include a WWW-Authenticate header field containing a challenge applicable to
+     * the requested resource.
+     */
     UNAUTHORIZED(401),
+
+    /**
+     * Reserved for future use. The original intention was that this code might be used as part of some form of digital
+     * cash or micropayment scheme, but that has not happened, and this code is not usually used. As an example of its
+     * use, however, Apple's MobileMe service generates a 402 error if the MobileMe account is delinquent.
+     */
     PAYMENT_REQUIRED(402),
+
+    /**
+     * The request was a valid request, but the server is refusing to respond to it. Unlike a 401 Unauthorized response,
+     * authenticating will make no difference. On servers where authentication is required, this commonly means that the
+     * provided credentials were successfully authenticated but that the credentials still do not grant the client
+     * permission to access the resource (e.g. a recognized user attempting to access restricted content).
+     */
     FORBIDDEN(403),
+
+    /**
+     * The requested resource could not be found but may be available again in the future. Subsequent requests by the
+     * client are permissible.
+     */
     NOT_FOUND(404),
+
+    /**
+     * A request was made of a resource using a request method not supported by that resource; for example, using GET on
+     * a form which requires data to be presented via POST, or using PUT on a read-only resource.
+     */
     METHOD_NOT_ALLOWED(405),
+
+    /**
+     * The requested resource is only capable of generating content not acceptable according to the Accept headers sent
+     * in the request.
+     */
     NOT_ACCEPTABLE(406),
+
+    /**
+     * The client must first authenticate itself with the proxy.
+     */
     PROXY_AUTHENTICATION_REQUIRED(407),
+
+    /**
+     * The server timed out waiting for the request. According to W3 HTTP specifications: "The client did not produce a
+     * request within the time that the server was prepared to wait. The client MAY repeat the request without
+     * modifications at any later time."
+     */
     REQUEST_TIMEOUT(408),
+
+    /**
+     * Indicates that the request could not be processed because of conflict in the request, such as an edit conflict.
+     */
     CONFLICT(409),
+
+    /**
+     * Indicates that the resource requested is no longer available and will not be available again. This should be used
+     * when a resource has been intentionally removed and the resource should be purged. Upon receiving a 410 status code,
+     * the client should not request the resource again in the future. Clients such as search engines should remove the
+     * resource from their indices. Most use cases do not require clients and search engines to purge the resource, and
+     * a "404 Not Found" may be used instead.
+     */
     GONE(410),
+
+    /**
+     * The request did not specify the length of its content, which is required by the requested resource.
+     */
     LENGTH_REQUIRED(411),
+
+    /**
+     * The server does not meet one of the preconditions that the requester put on the request.
+     */
     PRECONDITION_FAILED(412),
+
+    /**
+     * The request is larger than the server is willing or able to process.
+     */
     REQUEST_ENTITY_TOO_LARGE(413),
+
+    /**
+     * The URI provided was too long for the server to process.
+     */
     REQUEST_URI_TOO_LONG(414),
+
+    /**
+     * The request entity has a media type which the server or resource does not support. For example, the client uploads
+     * an image as image/svg+xml, but the server requires that images use a different format.
+     */
     UNSUPPORTED_MEDIA_TYPE(415),
+
+    /**
+     * The client has asked for a portion of the file, but the server cannot supply that portion. For example, if the
+     * client asked for a part of the file that lies beyond the end of the file.
+     */
     REQUEST_RANGE_NOT_SATISFIABLE(416),
+
+    /**
+     * The server cannot meet the requirements of the Expect request-header field.
+     */
     EXPECTATION_FAILED(417),
+
+    /**
+     * This code was defined in 1998 as one of the traditional IETF April Fools' jokes, in RFC 2324, Hyper Text Coffee
+     * Pot Control Protocol, and is not expected to be implemented by actual HTTP servers.
+     */
     I_M_A_TEAPOT(418),
+
+    /**
+     * Not part of the HTTP standard, but returned by the Twitter Search and Trends API when the client is being rate
+     * limited. Other services may wish to implement the 429 Too Many Requests response code instead.
+     */
     ENHANCE_YOUR_CALM(420),
+
+    /**
+     * The request was well-formed but was unable to be followed due to semantic errors.
+     */
     UNPROCESSABLE_ENTITY(422),
+
+    /**
+     * The resource that is being accessed is locked.
+     */
     LOCKED(423),
-    FAILED_DEPENDENCY(424),
+
+    /**
+     * Indicates the method was not executed on a particular resource within its scope because some part of the method's
+     * execution failed causing the entire method to be aborted.
+     */
+    METHOD_FAILURE(424),
+
+    /**
+     * Defined in drafts of "WebDAV Advanced Collections Protocol",[15] but not present in "Web Distributed Authoring
+     * and Versioning (WebDAV) Ordered Collections Protocol".[16]
+     */
     UNORDERED_COLLECTION(425),
+
+    /**
+     * The client should switch to a different protocol such as TLS/1.0.
+     */
     UPGRADE_REQUIRED(426),
+
+    /**
+     * The origin server requires the request to be conditional. Intended to prevent "the 'lost update' problem, where
+     * a client GETs a resource's state, modifies it, and PUTs it back to the server, when meanwhile a third party has
+     * modified the state on the server, leading to a conflict."
+     */
     PRECONDITION_REQUIRED(428),
+
+    /**
+     * The user has sent too many requests in a given amount of time. Intended for use with rate limiting schemes.
+     */
     TOO_MANY_REQUESTS(429),
+
+    /**
+     * The server is unwilling to process the request because either an individual header field, or all the header
+     * fields collectively, are too large.[18]
+     */
     REQUEST_HEADER_FIELDS_TOO_LARGE(431),
+
     /**
      * Used in Nginx logs to indicate that the server has returned no information to the client and closed the connection (useful as a deterrent for malware).
      */
     NO_RESPONSE(444),
+
+    /**
+     * A Microsoft extension. The request should be retried after performing the appropriate action.
+     */
     RETRY_WITH(449),
+
+    /**
+     * A Microsoft extension. This error is given when Windows Parental Controls are turned on and are blocking access to the given webpage.
+     */
     BLOCKED_BY_WINDOWS_PARENTAL_CONTROLS(450),
+
+    /**
+     * Defined in the internet draft "A New HTTP Status Code for Legally-restricted Resources". Intended to be used when
+     * resource access is denied for legal reasons, e.g. censorship or government-mandated blocked access. A reference
+     * to the 1953 dystopian novel Fahrenheit 451, where books are outlawed.
+     */
     UNAVAILABLE_FOR_LEGAL_REASONS(451),
     //    REDIRECT(451),
-    REQUEST_HEADER_TOO_LARGE(494),
-    CERT_ERROR(495),
-    NO_CERT(496),
-    HTTP_TO_HTTPS(497),
-    CLIENT_CLOSED_REQUEST(499),
-    INTERNAL_SERVER_ERROR(500),
-    NOT_IMPLEMENTED(501),
-    BAD_GATEWAY(502),
-    SERVICE_UNAVAILABLE(503),
-    GATEWAY_TIMEOUT(504),
-    HTTP_VERSION_NOT_SUPPORTED(505),
-    VARIANT_ALSO_NEGOTIATES(506),
-    INSUFFICIENT_STORAGE(507),
-    LOOP_DETECTED(508),
-    BANDWIDTH_LIMIT_EXCEEDED(509),
-    NOT_EXTENDED(510),
-    NETWORK_AUTHENTICATION_REQUIRED(511),
-    NETWORK_READ_TIMEOUT_ERROR(598),
-    NETWORK_CONNECT_TIMEOUT_ERROR(599);
 
+    /**
+     * Nginx internal code similar to 431 but it was introduced earlier.
+     */
+    REQUEST_HEADER_TOO_LARGE(494),
+
+    /**
+     * Nginx internal code used when SSL client certificate error occured to distinguish it from 4XX in a log and an
+     * error page redirection.
+     */
+    CERT_ERROR(495),
+
+    /**
+     * Nginx internal code used when client didn't provide certificate to distinguish it from 4XX in a log and an error
+     * page redirection.
+     */
+    NO_CERT(496),
+
+    /**
+     * Nginx internal code used for the plain HTTP requests that are sent to HTTPS port to distinguish it from 4XX in a
+     * log and an error page redirection.
+     */
+    HTTP_TO_HTTPS(497),
+
+    /**
+     * Used in Nginx logs to indicate when the connection has been closed by client while the server is still processing
+     * its request, making server unable to send a status code back.
+     */
+    CLIENT_CLOSED_REQUEST(499),
+
+    /**
+     * A generic error message, given when no more specific message is suitable
+     */
+    INTERNAL_SERVER_ERROR(500),
+
+    /**
+     * The server either does not recognize the request method, or it lacks the ability to fulfill the request.
+     */
+    NOT_IMPLEMENTED(501),
+
+    /**
+     * The server was acting as a gateway or proxy and received an invalid response from the upstream server.
+     */
+    BAD_GATEWAY(502),
+
+    /**
+     * The server is currently unavailable (because it is overloaded or down for maintenance).Generally, this is a
+     * temporary state.
+     */
+    SERVICE_UNAVAILABLE(503),
+
+    /**
+     * The server was acting as a gateway or proxy and did not receive a timely response from the upstream server.
+     */
+    GATEWAY_TIMEOUT(504),
+
+    /**
+     * The server does not support the HTTP protocol version used in the request.
+     */
+    HTTP_VERSION_NOT_SUPPORTED(505),
+
+    /**
+     * <p>RFC 2295
+     * <p>Transparent content negotiation for the request results in a circular reference.
+     */
+    VARIANT_ALSO_NEGOTIATES(506),
+
+    /**
+     * <p>WebDAV; RFC 4918
+     * <p>The server is unable to store the representation needed to complete the request.[4]
+     */
+    INSUFFICIENT_STORAGE(507),
+
+    /**
+     * <p>WebDAV; RFC 5842
+     * <p>The server detected an infinite loop while processing the request (sent in lieu of 208).
+     */
+    LOOP_DETECTED(508),
+
+    /**
+     * This status code, while used by many servers, is not specified in any RFCs.
+     */
+    BANDWIDTH_LIMIT_EXCEEDED(509),
+
+    /**
+     * <p>RFC 2774
+     * <p>Further extensions to the request are required for the server to fulfill it.
+     */
+    NOT_EXTENDED(510),
+
+    /**
+     * <p>RFC 6585
+     * <p>The client needs to authenticate to gain network access. Intended for use by intercepting proxies used to control
+     * access to the network (e.g. "captive portals" used to require agreement to Terms of Service before granting full
+     * Internet access via a Wi-Fi hotspot).
+     */
+    NETWORK_AUTHENTICATION_REQUIRED(511),
+
+    /**
+     * This status code is not specified in any RFCs, but is used by Microsoft Corp. HTTP proxies to signal a network
+     * read timeout behind the proxy to a client in front of the proxy.
+     */
+    NETWORK_READ_TIMEOUT_ERROR(598),
+
+    /**
+     * This status code is not specified in any RFCs, but is used by Microsoft Corp. HTTP proxies to signal a network
+     * connect timeout behind the proxy to a client in front of the proxy.
+     */
+    NETWORK_CONNECT_TIMEOUT_ERROR(599);
 
     public final int code;
 
