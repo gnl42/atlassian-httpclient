@@ -1,7 +1,6 @@
 package com.atlassian.webhooks.plugin.module;
 
 import com.atlassian.webhooks.plugin.WebHookPublisher;
-import com.atlassian.oauth.consumer.ConsumerService;
 import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.descriptors.AbstractModuleDescriptor;
@@ -21,17 +20,14 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
     private final WebHookPublisher webHookPublisher;
     private final StartableForPlugins startableForPlugins;
     private final ApplicationProperties applicationProperties;
-    private final ConsumerService consumerService;
 
     public WebHookModuleDescriptor(WebHookPublisher webHookPublisher,
                                    StartableForPlugins startableForPlugins,
-                                   ApplicationProperties applicationProperties,
-                                   ConsumerService consumerService)
+                                   ApplicationProperties applicationProperties)
     {
         this.webHookPublisher = webHookPublisher;
         this.startableForPlugins = startableForPlugins;
         this.applicationProperties = applicationProperties;
-        this.consumerService = consumerService;
     }
 
     @Override
@@ -65,8 +61,6 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
                     webHookPublisher.publish(eventIdentifier, EventMatcher.ALWAYS_TRUE,
                             EventSerializers.forMap(null, ImmutableMap.<String, Object>of(
                                     "key", getPluginKey(),
-                                    "serverKey", WebHookModuleDescriptor.this.consumerService.getConsumer().getKey(),
-                                    "baseurl", (baseUrl != null ? baseUrl : ""),
                                     "baseUrl", (baseUrl != null ? baseUrl : ""))));
                 }
             });
