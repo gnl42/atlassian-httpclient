@@ -14,8 +14,6 @@
     <name>Atlassian WebHooks Plugin</name>
 
     <properties>
-        <oauth.version>1.6.1</oauth.version>
-        <sal.version>2.7.0</sal.version>
         <atlassian-plugins.version>2.14.0-m5</atlassian-plugins.version>
     </properties>
 
@@ -49,7 +47,6 @@
         <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
-            <version>${sal.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -41,8 +41,7 @@ public final class HttpClientOptions
         }
     };
 
-
-    private String userAgent = "Atlassian HttpClient";
+    private String userAgent = "Default";
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.

@@ -8,12 +8,12 @@ import com.atlassian.httpclient.base.RequestKiller;
 import com.atlassian.httpclient.api.factory.SettableFutureHandler;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
+import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.util.concurrent.ThreadFactories;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.methods.AbortableHttpRequest;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
@@ -24,8 +24,6 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.ClientConnectionRequest;
-import org.apache.http.conn.ConnectionReleaseTrigger;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
 import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
@@ -52,30 +50,34 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import static com.google.common.base.Preconditions.*;
+
 public class DefaultHttpClient extends AbstractHttpClient implements HttpClient, DisposableBean
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final RequestKiller requestKiller;
     private final EventPublisher eventPublisher;
+    private final ApplicationProperties applicationProperties;
+    private final HttpClientOptions httpClientOptions;
+
+    private final RequestKiller requestKiller;
     private final HttpAsyncClient httpClient;
     private final HttpAsyncClient nonCachingHttpClient;
-
-    private final HttpClientOptions httpClientOptions;
     private final FlushableHttpCacheStorage httpCacheStorage;
 
-    public DefaultHttpClient(EventPublisher eventPublisher)
+    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties)
     {
-        this(eventPublisher, new HttpClientOptions());
+        this(eventPublisher, applicationProperties, new HttpClientOptions());
     }
 
-    public DefaultHttpClient(EventPublisher eventPublisher, HttpClientOptions options)
+    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties, HttpClientOptions options)
     {
+        this.eventPublisher = checkNotNull(eventPublisher);
+        this.applicationProperties = checkNotNull(applicationProperties);
+        this.httpClientOptions = checkNotNull(options);
         this.requestKiller = new RequestKiller(options.getThreadPrefix());
-        this.eventPublisher = eventPublisher;
-        this.httpClientOptions = options;
 
-        DefaultHttpAsyncClient client;
+        final DefaultHttpAsyncClient client;
         try
         {
             IOReactorConfig ioReactorConfig = new IOReactorConfig();
@@ -126,7 +128,7 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
 
         HttpParams params = client.getParams();
         // @todo add plugin version to UA string
-        HttpProtocolParams.setUserAgent(params, options.getUserAgent());
+        HttpProtocolParams.setUserAgent(params, getUserAgent(options));
 
         HttpConnectionParams.setConnectionTimeout(params, (int) options.getConnectionTimeout());
         HttpConnectionParams.setSoTimeout(params, (int) options.getSocketTimeout());
@@ -150,6 +152,16 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
 
         httpClient.start();
         requestKiller.start();
+    }
+
+    private String getUserAgent(HttpClientOptions options)
+    {
+        return String.format("Atlassian HttpClient %s / %s-%s (%s) / %s",
+                MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api"),
+                applicationProperties.getDisplayName(),
+                applicationProperties.getVersion(),
+                applicationProperties.getBuildNumber(),
+                options.getUserAgent());
     }
 
     public ResponsePromise execute(final DefaultRequest request)
