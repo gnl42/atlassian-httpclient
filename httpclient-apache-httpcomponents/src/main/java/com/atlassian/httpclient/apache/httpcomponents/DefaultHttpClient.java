@@ -1,13 +1,11 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.httpclient.api.HttpClient;
-import com.atlassian.httpclient.api.Response;
-import com.atlassian.httpclient.api.ResponsePromise;
-import com.atlassian.httpclient.api.ResponsePromises;
+import com.atlassian.httpclient.api.*;
+import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.RequestKiller;
-import com.atlassian.httpclient.base.concurrent.SettableFutureHandler;
+import com.atlassian.httpclient.api.factory.SettableFutureHandler;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
 import com.atlassian.util.concurrent.ThreadFactories;
@@ -28,6 +26,8 @@ import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.conn.ClientConnectionRequest;
 import org.apache.http.conn.ConnectionReleaseTrigger;
+import org.apache.http.impl.client.cache.CacheConfig;
+import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
 import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
 import org.apache.http.impl.nio.conn.AsyncSchemeRegistryFactory;
 import org.apache.http.impl.nio.conn.PoolingClientAsyncConnectionManager;
@@ -50,6 +50,7 @@ import java.net.ProxySelector;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
 public class DefaultHttpClient extends AbstractHttpClient implements HttpClient, DisposableBean
 {
@@ -58,22 +59,32 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
     private final RequestKiller requestKiller;
     private final EventPublisher eventPublisher;
     private final HttpAsyncClient httpClient;
+    private final HttpAsyncClient nonCachingHttpClient;
 
-    public DefaultHttpClient(RequestKiller requestKiller, EventPublisher eventPublisher)
+    private final HttpClientOptions httpClientOptions;
+    private final FlushableHttpCacheStorage httpCacheStorage;
+
+    public DefaultHttpClient(EventPublisher eventPublisher)
     {
-        this.requestKiller = requestKiller;
+        this(eventPublisher, new HttpClientOptions());
+    }
+
+    public DefaultHttpClient(EventPublisher eventPublisher, HttpClientOptions options)
+    {
+        this.requestKiller = new RequestKiller(options.getThreadPrefix());
         this.eventPublisher = eventPublisher;
+        this.httpClientOptions = options;
 
         DefaultHttpAsyncClient client;
         try
         {
             IOReactorConfig ioReactorConfig = new IOReactorConfig();
-            ioReactorConfig.setIoThreadCount(10);
-            ioReactorConfig.setSelectInterval(100);
+            ioReactorConfig.setIoThreadCount(options.getIoThreadCount());
+            ioReactorConfig.setSelectInterval(options.getIoSelectInterval());
             ioReactorConfig.setInterestOpQueued(true);
             DefaultConnectingIOReactor reactor = new DefaultConnectingIOReactor(
                     ioReactorConfig,
-                    ThreadFactories.namedThreadFactory("ra-async-http",
+                    ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io",
                             ThreadFactories.Type.DAEMON));
             reactor.setExceptionHandler(new IOReactorExceptionHandler()
             {
@@ -91,7 +102,8 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
                     return false;
                 }
             });
-            client = new DefaultHttpAsyncClient(new PoolingClientAsyncConnectionManager(reactor, AsyncSchemeRegistryFactory.createDefault(), 3, TimeUnit.SECONDS)
+            final PoolingClientAsyncConnectionManager connmgr = new PoolingClientAsyncConnectionManager(reactor,
+                    AsyncSchemeRegistryFactory.createDefault(), options.getConnectionPoolTimeToLive(), TimeUnit.MILLISECONDS)
             {
                 @Override
                 protected void finalize() throws Throwable
@@ -101,19 +113,23 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
                     // PluginEventListener to make sure the shutdown method is called while the plugin classloader
                     // is still active.
                 }
-            });
+            };
+
+            connmgr.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
+
+            client = new DefaultHttpAsyncClient(connmgr);
         }
         catch (IOReactorException e)
         {
-            throw new RuntimeException("Reactor not set up correctly", e);
+            throw new RuntimeException("Reactor " + options.getThreadPrefix() + "not set up correctly", e);
         }
 
         HttpParams params = client.getParams();
         // @todo add plugin version to UA string
-        HttpProtocolParams.setUserAgent(params, "Atlassian-RemoteApps");
+        HttpProtocolParams.setUserAgent(params, options.getUserAgent());
 
-        HttpConnectionParams.setConnectionTimeout(params, 10 * 1000);
-        HttpConnectionParams.setSoTimeout(params, 20 * 1000);
+        HttpConnectionParams.setConnectionTimeout(params, (int) options.getConnectionTimeout());
+        HttpConnectionParams.setSoTimeout(params, (int) options.getSocketTimeout());
         HttpConnectionParams.setSocketBufferSize(params, 8 * 1024);
         HttpConnectionParams.setTcpNoDelay(params, true);
 
@@ -122,12 +138,24 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
                 ProxySelector.getDefault());
         client.setRoutePlanner(routePlanner);
 
-        httpClient = client;
+        CacheConfig cacheConfig = new CacheConfig();
+        cacheConfig.setMaxCacheEntries(options.getMaxCacheEntries());
+        cacheConfig.setSharedCache(false);
+        cacheConfig.setMaxObjectSize(options.getMaxCacheObjectSize());
+        cacheConfig.setNeverCache1_0ResponsesWithQueryString(false);
+
+        this.nonCachingHttpClient = client;
+        this.httpCacheStorage = new FlushableHttpCacheStorage(cacheConfig);
+        httpClient = new CachingHttpAsyncClient(client, httpCacheStorage, cacheConfig);
+
         httpClient.start();
+        requestKiller.start();
     }
 
     public ResponsePromise execute(final DefaultRequest request)
     {
+        httpClientOptions.getRequestPreparer().apply(request);
+
         // validate the request state
         request.validate();
 
@@ -137,7 +165,7 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
         final long start = System.currentTimeMillis();
         final HttpRequestBase op;
         final String uri = request.getUri().toString();
-        DefaultRequest.Method method = request.getMethod();
+        DefaultRequest.Method method = request.getMethodEnum();
         switch (method)
         {
             case GET:
@@ -182,7 +210,7 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
         }
 
         HttpContext localContext = new BasicHttpContext();
-        final SettableFutureHandler<Response> future = request.getSettableFutureHandler();
+        final SettableFutureHandler<Response> future = httpClientOptions.getResponseSettableFutureHandlerFactory().create();
         FutureCallback<HttpResponse> futureCallback = new FutureCallback<HttpResponse>()
         {
             @Override
@@ -231,14 +259,16 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
             }
         };
 
-        requestKiller.registerRequest(new NotifyingAbortableHttpRequest(op, futureCallback), 30);
-        httpClient.execute(op, localContext, futureCallback);
+        requestKiller.registerRequest(op, httpClientOptions.getRequestTimeout());
+        HttpAsyncClient actualClient = request.isCacheDisabled() ? nonCachingHttpClient : httpClient;
+        actualClient.execute(op, localContext, futureCallback);
         return ResponsePromises.toResponsePromise(future.getFuture());
     }
 
     @Override
     public void destroy() throws Exception
     {
+        requestKiller.stop();
         httpClient.getConnectionManager().shutdown();
     }
 
@@ -246,7 +276,7 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
             throws IOException
     {
         StatusLine status = httpResponse.getStatusLine();
-        DefaultResponse response = new DefaultResponse();
+        DefaultResponse response = new DefaultResponse(httpClientOptions.getMaxEntitySize());
         response.setStatusCode(status.getStatusCode());
         response.setStatusText(status.getReasonPhrase());
         Header[] httpHeaders = httpResponse.getAllHeaders();
@@ -262,42 +292,9 @@ public class DefaultHttpClient extends AbstractHttpClient implements HttpClient,
         return response;
     }
 
-    /**
-     * This is a huge hack because the httpclient async lib doesn't seem to support aborting
-     * requests
-     */
-    private class NotifyingAbortableHttpRequest implements AbortableHttpRequest
+    @Override
+    public void flushCacheByUriPattern(Pattern urlPattern)
     {
-        private final AbortableHttpRequest delegate;
-        private final FutureCallback<HttpResponse> callback;
-
-        private NotifyingAbortableHttpRequest(AbortableHttpRequest delegate, FutureCallback<HttpResponse> callback)
-        {
-            this.delegate = delegate;
-            this.callback = callback;
-        }
-
-        @Override
-        public void setConnectionRequest(ClientConnectionRequest connRequest) throws IOException
-        {
-            delegate.setConnectionRequest(connRequest);
-        }
-
-        @Override
-        public void setReleaseTrigger(ConnectionReleaseTrigger releaseTrigger) throws IOException
-        {
-            delegate.setReleaseTrigger(releaseTrigger);
-        }
-
-        @Override
-        public void abort()
-        {
-            delegate.abort();
-            // workaround as this doesn't seem to be getting called during an abort.  In fact,
-            // the request doesn't seem to be killed at all.  Note, this means the remote server
-            // is perodically sending back data enough to evade the socket timeout and has
-            // instead triggered the request killer.
-            callback.cancelled();
-        }
+        httpCacheStorage.flushByUriPattern(urlPattern);
     }
 }

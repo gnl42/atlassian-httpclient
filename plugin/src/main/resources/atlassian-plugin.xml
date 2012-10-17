@@ -26,8 +26,11 @@
 
     <component key="startableForPlugins" class="com.atlassian.webhooks.plugin.module.StartableForPlugins" />
 
-    <component key="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClient" />
-    <component key="requestKiller" class="com.atlassian.httpclient.base.RequestKiller" />
+    <component key="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClient"
+            interface="com.atlassian.httpclient.api.HttpClient" public="true" />
+
+    <component key="httpClientFactory" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClientFactory"
+               interface="com.atlassian.httpclient.api.factory.HttpClientFactory" public="true" />
 
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher" />
     <component-import key="consumerService" interface="com.atlassian.oauth.consumer.ConsumerService" />

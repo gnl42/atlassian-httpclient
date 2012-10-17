@@ -1,4 +1,4 @@
-package com.atlassian.httpclient.base.concurrent;
+package com.atlassian.httpclient.api.factory;
 
 import com.google.common.util.concurrent.SettableFuture;
 
@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 /**
  * Simple handler that just creates and wraps a normal future
  */
-public final class DefaultSettableFutureHandler<V> implements SettableFutureHandler<V>
+final class DefaultSettableFutureHandler<V> implements SettableFutureHandler<V>
 {
     private final SettableFuture<V> future = SettableFuture.create();
 

@@ -40,6 +40,13 @@ public interface Request extends Message
     Request setAccept(String accept);
 
     /**
+     * Bypasses the cache for this request
+     *
+     * @return This object, for builder-style chaining
+     */
+    Request setCacheDisabled();
+
+    /**
      * Sets an attribute on the request.  Attributes are request metadata that are forwarded to the
      * analytics plugin when enabled.
      *
@@ -48,6 +55,15 @@ public interface Request extends Message
      * @return This object, for builder-style chaining
      */
     Request setAttribute(String name, String value);
+
+    /**
+     * Sets attributes on the request.  Attributes are request metadata that are forwarded to the
+     * analytics plugin when enabled.
+     *
+     * @param properties A map of attributes
+     * @return This object, for builder-style chaining
+     */
+    Request setAttributes(Map<String, String> properties);
 
     /**
      * Gets an attribute from the request.  Attributes are request metadata that are forwarded to the
@@ -150,4 +166,6 @@ public interface Request extends Message
 
     @Override
     Request setEntityStream(InputStream entityStream);
+
+    String getMethod();
 }

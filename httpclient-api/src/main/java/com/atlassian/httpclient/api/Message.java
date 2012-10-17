@@ -91,9 +91,11 @@ public interface Message
      * standard of "ISO-8859-1" if no content charset has been specified.
      *
      * @return The entity string, or null if no entity has been set
-     * @throws IOException If the conversion of the underlying entity stream to a string fails
+     * @throws IllegalStateException If the non-null entity has already been accessed once, through
+     *         any accessor for this object.  Also thrown if underlying body cannot be converted into a String
+     * @throws IllegalArgumentException If the entity exceeds the maximum size
      */
-    String getEntity() throws IOException, IllegalStateException;
+    String getEntity() throws IllegalStateException, IllegalArgumentException;
 
     /**
      * Sets this object's entity stream from a string.  Using this method of setting the entity

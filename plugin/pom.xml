@@ -185,8 +185,10 @@
                             org.slf4j*;version="1.5",
                             org.springframework*,
                             org.xml.sax*,
+                            *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
+                            com.atlassian.httpclient.api*;version="${project.version}",
                             com.atlassian.webhooks.spi*;version="${project.version}",
                             com.atlassian.plugin.schema.descriptor;version="${atlassian-plugins.version}",
                             com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",

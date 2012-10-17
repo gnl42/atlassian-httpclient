@@ -7,6 +7,8 @@ import com.atlassian.httpclient.api.ResponsePromises;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.google.common.util.concurrent.SettableFuture;
 
+import java.util.regex.Pattern;
+
 public final class SleepingHttpClient extends AbstractHttpClient
 {
     @Override
@@ -21,5 +23,10 @@ public final class SleepingHttpClient extends AbstractHttpClient
         {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void flushCacheByUriPattern(Pattern urlPattern)
+    {
     }
 }

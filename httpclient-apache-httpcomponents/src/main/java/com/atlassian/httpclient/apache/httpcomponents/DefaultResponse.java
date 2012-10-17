@@ -10,6 +10,11 @@ public final class DefaultResponse extends DefaultMessage implements Response
     private int statusCode;
     private String statusText;
 
+    public DefaultResponse(long maxEntitySize)
+    {
+        super(maxEntitySize);
+    }
+
     @Override
     public int getStatusCode()
     {

@@ -1,4 +1,4 @@
-package com.atlassian.httpclient.base.concurrent;
+package com.atlassian.httpclient.api.factory;
 
 import com.google.common.util.concurrent.SettableFuture;
 
@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 /**
  * Handler for a settable future that allows us to wrap calls to set and setException with whatever
- * wrapping logic we need, like transfering request context information.
+ * wrapping logic we need, like transferring request context information.
  *
  */
 public interface SettableFutureHandler<V>

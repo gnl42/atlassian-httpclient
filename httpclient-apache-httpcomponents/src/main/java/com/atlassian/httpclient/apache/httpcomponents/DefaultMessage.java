@@ -2,15 +2,12 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.Message;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
-import com.google.common.io.InputSupplier;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.util.CharArrayBuffer;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
@@ -29,9 +26,16 @@ abstract class DefaultMessage implements Message
     private boolean hasRead;
     private Map<String, String> headers;
     private boolean isFrozen;
+    private final long maxEntitySize;
 
     public DefaultMessage()
     {
+        this(Integer.MAX_VALUE);
+    }
+
+    public DefaultMessage(long maxEntitySize)
+    {
+        this.maxEntitySize = maxEntitySize;
         headers = newHashMap();
     }
 
@@ -62,6 +66,7 @@ abstract class DefaultMessage implements Message
     public InputStream getEntityStream() throws IllegalStateException
     {
         checkRead();
+        checkValidSize();
         return entityStream;
     }
 
@@ -81,22 +86,53 @@ abstract class DefaultMessage implements Message
         return this;
     }
 
-    public String getEntity() throws IOException, IllegalStateException
+    public String getEntity() throws IllegalStateException, IllegalArgumentException
     {
         String entity = null;
         if (hasEntity())
         {
             final String charsetAsString = getContentCharset();
-            // TODO: ISO-8859-1 by default really?
-            final Charset charset = charsetAsString != null ? Charset.forName(charsetAsString) : Charset.forName("ISO-8859-1");
-            entity = CharStreams.toString(CharStreams.newReaderSupplier(new InputSupplier<InputStream>()
+            final Charset charset = charsetAsString != null ? Charset.forName(charsetAsString) : Charset.forName(
+                    "UTF-8");
+            try
             {
-                @Override
-                public InputStream getInput() throws IOException
+                InputStream instream = getEntityStream();
+                if (instream == null)
                 {
-                    return getEntityStream();
+                    return null;
                 }
-            }, charset));
+                try
+                {
+                    int bufferLength = 4096;
+                    String lengthHeader = getHeader("Content-Length");
+                    if (lengthHeader != null)
+                    {
+                        bufferLength = Integer.parseInt(lengthHeader);
+                    }
+
+                    Reader reader = new InputStreamReader(instream, charset);
+                    CharArrayBuffer buffer = new CharArrayBuffer(bufferLength);
+                    char[] tmp = new char[1024];
+                    int l;
+                    while ((l = reader.read(tmp)) != -1)
+                    {
+                        if (buffer.length() + l > maxEntitySize)
+                        {
+                            throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
+                        }
+                        buffer.append(tmp, 0, l);
+                    }
+                    return buffer.toString();
+                }
+                finally
+                {
+                    instream.close();
+                }
+            }
+            catch (IOException e)
+            {
+                throw new IllegalStateException("Unable to convert response body to String", e);
+            }
         }
         return entity;
     }
@@ -162,7 +198,7 @@ abstract class DefaultMessage implements Message
 
     public Map<String, String> getHeaders()
     {
-        Map<String,String> headers = newHashMap(this.headers);
+        Map<String, String> headers = newHashMap(this.headers);
         if (contentType != null)
         {
             headers.put("Content-Type", buildContentType());
@@ -174,7 +210,7 @@ abstract class DefaultMessage implements Message
     {
         checkMutable();
         this.headers.clear();
-        for (Map.Entry<String,String> entry : headers.entrySet())
+        for (Map.Entry<String, String> entry : headers.entrySet())
         {
             setHeader(entry.getKey(), entry.getValue());
         }
@@ -227,6 +263,20 @@ abstract class DefaultMessage implements Message
                 throw new IllegalStateException("Entity may only be accessed once");
             }
             hasRead = true;
+        }
+    }
+
+    private void checkValidSize() throws IllegalArgumentException
+    {
+        Integer contentLength = null;
+        String lengthHeader = getHeader("Content-Length");
+        if (lengthHeader != null)
+        {
+            contentLength = Integer.parseInt(lengthHeader);
+            if (contentLength > maxEntitySize)
+            {
+                throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
+            }
         }
     }
 

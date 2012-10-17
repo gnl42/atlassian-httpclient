@@ -16,30 +16,28 @@ import static com.google.common.collect.Sets.*;
  * this thread kills requests that may be trickling content down in such a way that doesn't trip
  * the socket timeout.
  */
-public final class RequestKiller implements Runnable, InitializingBean, DisposableBean
+public final class RequestKiller implements Runnable
 {
     private final Set<RequestEntry> activeRequests = new CopyOnWriteArraySet<RequestEntry>();
     private final Thread killerThread;
 
-    public RequestKiller()
+    public RequestKiller(String namePrefix)
     {
-        killerThread = new Thread(this, "http-request-killer");
+        killerThread = new Thread(this, namePrefix + "-req-killer");
     }
 
-    public void registerRequest(AbortableHttpRequest request, int secondsToLive)
+    public void registerRequest(AbortableHttpRequest request, long millisToLive)
     {
-        RequestEntry entry = new RequestEntry(request, secondsToLive);
+        RequestEntry entry = new RequestEntry(request, millisToLive);
         activeRequests.add(entry);
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception
+    public void start()
     {
         killerThread.start();
     }
 
-    @Override
-    public void destroy() throws Exception
+    public void stop() throws Exception
     {
         killerThread.interrupt();
     }
@@ -89,10 +87,10 @@ public final class RequestKiller implements Runnable, InitializingBean, Disposab
             this.expiry = 0;
         }
 
-        private RequestEntry(AbortableHttpRequest request, int secondsToLive)
+        private RequestEntry(AbortableHttpRequest request, long millisToLive)
         {
             this.request = request;
-            this.expiry = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(secondsToLive);
+            this.expiry = System.currentTimeMillis() + millisToLive;
         }
 
         public void abort()

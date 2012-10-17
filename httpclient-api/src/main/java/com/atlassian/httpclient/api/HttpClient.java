@@ -1,6 +1,7 @@
 package com.atlassian.httpclient.api;
 
 import java.net.URI;
+import java.util.regex.Pattern;
 
 /**
  * A service providing asynchronous HTTP request creation and execution.
@@ -62,4 +63,11 @@ public interface HttpClient
      * @return The new request object
      */
     Request newRequest(String uri, String contentType, String entity);
+
+    /**
+     * Flush the cache entries by matching the URI using a regular expression
+     *
+     * @param uriPattern The regular expression to match
+     */
+    void flushCacheByUriPattern(Pattern uriPattern);
 }

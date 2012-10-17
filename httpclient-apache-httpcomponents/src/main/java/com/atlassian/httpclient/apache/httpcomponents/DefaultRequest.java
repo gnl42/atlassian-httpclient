@@ -2,11 +2,8 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.EntityBuilder;
 import com.atlassian.httpclient.api.Request;
-import com.atlassian.httpclient.api.Response;
 import com.atlassian.httpclient.api.ResponsePromise;
 import com.atlassian.httpclient.base.AbstractHttpClient;
-import com.atlassian.httpclient.base.concurrent.SettableFutureHandler;
-import com.atlassian.httpclient.base.concurrent.DefaultSettableFutureHandler;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -18,22 +15,22 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class DefaultRequest extends DefaultMessage implements Request
 {
-    public enum Method { GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE;}
+    public enum Method { GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE }
 
     private AbstractHttpClient httpClient;
+
     private Method method;
 
     private URI uri;
+    private boolean cacheDisabled;
+
     private Map<String, String> attributes;
-    private SettableFutureHandler<Response> settableFutureHandler;
     public DefaultRequest(AbstractHttpClient httpClient)
     {
         this.httpClient = httpClient;
         attributes = newHashMap();
-        settableFutureHandler = new DefaultSettableFutureHandler<Response>();
         setAccept("*/*");
     }
-
     public DefaultRequest(AbstractHttpClient httpClient, URI uri)
     {
         this(httpClient, uri, null, null);
@@ -43,16 +40,6 @@ public class DefaultRequest extends DefaultMessage implements Request
     {
         this(httpClient);
         setUri(uri).setContentType(contentType).setEntity(entity);
-    }
-
-    public void setSettableFutureHandler(SettableFutureHandler<Response> futureHandler)
-    {
-        this.settableFutureHandler = futureHandler;
-    }
-
-    public SettableFutureHandler<Response> getSettableFutureHandler()
-    {
-        return settableFutureHandler;
     }
 
     @Override
@@ -104,7 +91,13 @@ public class DefaultRequest extends DefaultMessage implements Request
         return httpClient.execute(this);
     }
 
-    public Method getMethod()
+    @Override
+    public String getMethod()
+    {
+        return method.toString();
+    }
+
+    public Method getMethodEnum()
     {
         return method;
     }
@@ -145,10 +138,26 @@ public class DefaultRequest extends DefaultMessage implements Request
     }
 
     @Override
+    public Request setCacheDisabled()
+    {
+        checkMutable();
+        this.cacheDisabled = true;
+        return this;
+    }
+
+    @Override
     public Request setAttribute(String name, String value)
     {
         checkMutable();
         attributes.put(name, value);
+        return this;
+    }
+
+    @Override
+    public Request setAttributes(Map<String, String> properties)
+    {
+        checkMutable();
+        attributes.putAll(properties);
         return this;
     }
 
@@ -247,6 +256,11 @@ public class DefaultRequest extends DefaultMessage implements Request
     {
         super.setEntityStream(entityStream);
         return this;
+    }
+
+    public boolean isCacheDisabled()
+    {
+        return cacheDisabled;
     }
 
     @Override
