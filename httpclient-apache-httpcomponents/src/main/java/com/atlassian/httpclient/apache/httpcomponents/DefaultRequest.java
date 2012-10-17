@@ -15,8 +15,6 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class DefaultRequest extends DefaultMessage implements Request
 {
-    public enum Method { GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE }
-
     private AbstractHttpClient httpClient;
 
     private Method method;
@@ -92,12 +90,7 @@ public class DefaultRequest extends DefaultMessage implements Request
     }
 
     @Override
-    public String getMethod()
-    {
-        return method.toString();
-    }
-
-    public Method getMethodEnum()
+    public Method getMethod()
     {
         return method;
     }

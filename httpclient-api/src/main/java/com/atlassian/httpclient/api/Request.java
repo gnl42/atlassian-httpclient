@@ -9,6 +9,8 @@ import java.util.Map;
  */
 public interface Request extends Message
 {
+    public enum Method { GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE }
+
     /**
      * Returns this request's URI, if set.
      *
@@ -146,6 +148,8 @@ public interface Request extends Message
      */
     ResponsePromise trace();
 
+    Method getMethod();
+
     @Override
     Request setContentType(String contentType);
 
@@ -166,6 +170,4 @@ public interface Request extends Message
 
     @Override
     Request setEntityStream(InputStream entityStream);
-
-    String getMethod();
 }
