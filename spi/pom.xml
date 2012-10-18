@@ -11,6 +11,9 @@
 
     <artifactId>atlassian-webhooks-spi</artifactId>
 
+    <name>Atlassian WebHooks Plugin's SPI</name>
+    <description>This the library that should be used for those plugins/products that need to register webhooks.</description>
+
     <dependencies>
         <dependency>
             <groupId>org.json</groupId>

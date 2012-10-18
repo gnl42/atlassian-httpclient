@@ -15,11 +15,25 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>Atlassian WebHooks Plugin Project</name>
+    <description>Project for the WebHooks plugin</description>
+    <inceptionYear>2012</inceptionYear>
+
     <scm>
         <connection>scm:git:git@bitbucket.org:atlassian/atlassian-webhooks-plugin.git</connection>
         <developerConnection>scm:git:git@bitbucket.org:atlassian/atlassian-webhooks-plugin.git</developerConnection>
         <url>https://bitbucket.org/atlassian/atlassian-webhooks-plugin</url>
     </scm>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://ecosystem.atlassian.net/browse/WEBHOOKS</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>Bamboo</system>
+        <url>https://bamboo.extranet.atlassian.com/browse/WEBHOOKS</url>
+    </ciManagement>
 
     <modules>
         <module>spi</module>

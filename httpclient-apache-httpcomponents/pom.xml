@@ -12,6 +12,9 @@
     <groupId>com.atlassian.httpclient</groupId>
     <artifactId>atlassian-httpclient-apache-httpcomponents</artifactId>
 
+    <name>Atlassian HTTP Client, Apache HTTP components impl</name>
+    <description>Implementation of the HTTP Client API based on Apache HTTP Components</description>
+
     <dependencies>
         <dependency>
             <groupId>com.atlassian.httpclient</groupId>

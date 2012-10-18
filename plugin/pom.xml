@@ -12,6 +12,7 @@
 
     <artifactId>atlassian-webhooks-plugin</artifactId>
     <packaging>atlassian-plugin</packaging>
+
     <name>Atlassian WebHooks Plugin</name>
     <description>Send events over HTTP to registered listeners.</description>
 
