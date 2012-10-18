@@ -35,6 +35,13 @@
         <url>https://bamboo.extranet.atlassian.com/browse/WEBHOOKS</url>
     </ciManagement>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/</url>
+        </license>
+    </licenses>
+
     <modules>
         <module>spi</module>
         <module>plugin</module>
