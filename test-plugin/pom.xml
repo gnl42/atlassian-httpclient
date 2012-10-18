@@ -18,6 +18,8 @@
     <properties>
         <atlassian-plugins.version>2.14.0-m5</atlassian-plugins.version>
         <refapp.version>2.18.0-m2</refapp.version>
+        <jira.version>5.1.2</jira.version>
+        <confluence.version>4.2.13</confluence.version>
         <functest-plugin.version>0.3</functest-plugin.version>
     </properties>
 
@@ -70,6 +72,17 @@
                         <product>
                             <id>refapp</id>
                             <version>${refapp.version}</version>
+                            <log4jProperties>src/test/aps/log4j-refapp.properties</log4jProperties>
+                        </product>
+                        <product>
+                            <id>jira</id>
+                            <version>${jira.version}</version>
+                            <log4jProperties>src/test/aps/log4j-jira.properties</log4jProperties>
+                        </product>
+                        <product>
+                            <id>confluence</id>
+                            <version>${confluence.version}</version>
+                            <log4jProperties>src/test/aps/log4j-confluence.properties</log4jProperties>
                         </product>
                     </products>
                     <testGroups>
@@ -81,9 +94,24 @@
                             <includes>
                                 <include>it/**</include>
                             </includes>
-                            <excludes>
-                                <exclude>it/junit/**</exclude>
-                            </excludes>
+                        </testGroup>
+                        <testGroup>
+                            <id>jira</id>
+                            <productIds>
+                                <productId>jira</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/**</include>
+                            </includes>
+                        </testGroup>
+                        <testGroup>
+                            <id>confluence</id>
+                            <productIds>
+                                <productId>confluence</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/**</include>
+                            </includes>
                         </testGroup>
                     </testGroups>
                 </configuration>
