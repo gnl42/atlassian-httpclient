@@ -1,0 +1,21 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}"
+                  plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    </plugin-info>
+
+    <junit key="all" package="com.atlassian.webhooks.plugin.junit"/>
+
+    <servlet key="webHookServlet" class="com.atlassian.webhooks.plugin.test.WebHookServlet">
+        <url-pattern>/webhook</url-pattern>
+    </servlet>
+
+    <webhook key="testWebhook" event="test_event" url="/plugins/servlet/webhook" />
+
+    <component key="serviceAccessor" class="com.atlassian.webhooks.plugin.test.ServiceAccessor"/>
+    <component key="testWebHookProvier" class="com.atlassian.webhooks.plugin.test.TestWebHookProvider"
+               interface="com.atlassian.webhooks.spi.provider.WebHookProvider" public="true" />
+    <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
+</atlassian-plugin>
