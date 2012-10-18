@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.collect.Iterables.*;
 import static org.junit.Assert.assertEquals;
@@ -241,20 +242,96 @@ public final class ResponseTransformationPromiseTest
     }
 
     @Test
-    public void testImmediateExecutionStillTransforms()
+    public void testDelayedExecutionExecutesOnce()
     {
+        final AtomicInteger counter = new AtomicInteger(0);
         ResponseTransformationPromise<String> responsePromise =
                 new DefaultResponseTransformationPromise<String>(ResponsePromises.toResponsePromise(responseSettableFuture));
+        when(response.getStatusCode()).thenReturn(200);
+
+        Promise<String> promise = responsePromise
+                .ok(new Function<Response, String>()
+                {
+                    @Override
+                    public String apply(@Nullable Response input)
+                    {
+                        return "foo" + counter.getAndIncrement();
+                    }
+                })
+                .fail(new Function<Throwable, String>()
+                {
+                    @Override
+                    public String apply(@Nullable Throwable input)
+                    {
+                        throw new IllegalStateException();
+                    }
+                });
         responseSettableFuture.set(response);
-        Promise<String> promise = responsePromise.done(new Function<Response, String>()
+        assertEquals("foo0", promise.claim());
+    }
+    @Test
+    public void testDelayedExecutionExecutesDoneOnceWithException()
+    {
+        final AtomicInteger counter = new AtomicInteger(0);
+        ResponseTransformationPromise<String> responsePromise =
+                new DefaultResponseTransformationPromise<String>(ResponsePromises.toResponsePromise(responseSettableFuture));
+        when(response.getStatusCode()).thenReturn(200);
+
+        Promise<String> promise = responsePromise
+                .ok(new Function<Response, String>()
+                {
+                    @Override
+                    public String apply(@Nullable Response input)
+                    {
+                        throw new IllegalArgumentException("foo" + counter.getAndIncrement());
+                    }
+                })
+                .fail(new Function<Throwable, String>()
+                {
+                    @Override
+                    public String apply(@Nullable Throwable input)
+                    {
+                        return null;
+                    }
+                });
+        responseSettableFuture.set(response);
+        try
         {
-            @Override
-            public String apply(@Nullable Response input)
-            {
-                return "foo";
-            }
-        });
-        assertEquals("foo", promise.claim());
+            promise.claim();
+        }
+        catch (IllegalArgumentException ex)
+        {
+            assertEquals("foo0", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testDelayedExecutionExecutesFailOnce()
+    {
+        final AtomicInteger counter = new AtomicInteger(0);
+        ResponseTransformationPromise<String> responsePromise =
+                new DefaultResponseTransformationPromise<String>(ResponsePromises.toResponsePromise(responseSettableFuture));
+        when(response.getStatusCode()).thenReturn(200);
+
+        Promise<String> promise = responsePromise
+                .fail(new Function<Throwable, String>()
+                {
+                    @Override
+                    public String apply(@Nullable Throwable input)
+                    {
+                        return "foo" + counter.getAndIncrement();
+                    }
+                })
+                .ok(new Function<Response, String>()
+                {
+                    @Override
+                    public String apply(@Nullable Response input)
+                    {
+                        throw new IllegalStateException();
+                    }
+                });
+        responseSettableFuture.set(response);
+        assertEquals("foo0", promise.claim());
     }
 
     @Test

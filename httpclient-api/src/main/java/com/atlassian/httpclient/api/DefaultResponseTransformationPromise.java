@@ -22,16 +22,17 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
     private volatile Promise<O> delegate;
     private final ResponsePromise responsePromise;
 
-    private ThrowableDelegatingFunction throwableHandler;
-
-    private final ResponsePromiseMapFunction<O> responsePromiseMapFunction;
+    private SingleMatchDelegatingFunction<Throwable, Function<Throwable, ? extends O>> failFunction;
+    private SingleMatchDelegatingFunction<Response, ResponsePromiseMapFunction<O>> doneFunction;
 
     DefaultResponseTransformationPromise(ResponsePromise baseResponsePromise)
     {
         checkNotNull(baseResponsePromise);
         this.responsePromise = baseResponsePromise;
-        this.throwableHandler = new ThrowableDelegatingFunction();
-        this.responsePromiseMapFunction = new ResponsePromiseMapFunction<O>();
+        this.failFunction = new SingleMatchDelegatingFunction
+                <Throwable, Function<Throwable, ? extends O>>(defaultThrowableHandler());
+        this.doneFunction = new SingleMatchDelegatingFunction<Response, ResponsePromiseMapFunction<O>>(
+                new ResponsePromiseMapFunction<O>());
     }
 
     /**
@@ -159,7 +160,9 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
     @Override
     public ResponseTransformationPromise<O> error(Function<Response, ? extends O> f)
     {
-        responsePromiseMapFunction.addStatusRangeFunction(new OrStatusRange(new HundredsStatusRange(HttpStatus.BAD_REQUEST), new HundredsStatusRange(HttpStatus.INTERNAL_SERVER_ERROR)), f);
+        doneFunction.delegate.addStatusRangeFunction(
+                new OrStatusRange(new HundredsStatusRange(HttpStatus.BAD_REQUEST),
+                        new HundredsStatusRange(HttpStatus.INTERNAL_SERVER_ERROR)), f);
 
         applyFold();
         return this;
@@ -167,9 +170,9 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
 
     private void applyFold()
     {
-        if (!responsePromiseMapFunction.isMatched() && !throwableHandler.isMatched())
+        if (!doneFunction.isMatched() && !failFunction.isMatched())
         {
-            delegate = responsePromise.fold(throwableHandler, responsePromiseMapFunction);
+            delegate = responsePromise.fold(failFunction, doneFunction);
         }
     }
 
@@ -177,7 +180,8 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
     @Override
     public ResponseTransformationPromise<O> notSuccessful(Function<Response, ? extends O> f)
     {
-        responsePromiseMapFunction.addStatusRangeFunction(new NotInStatusRange(new HundredsStatusRange(HttpStatus.OK)), f);
+        doneFunction.delegate.addStatusRangeFunction(
+                new NotInStatusRange(new HundredsStatusRange(HttpStatus.OK)), f);
 
         applyFold();
         return this;
@@ -186,7 +190,7 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
     @Override
     public ResponseTransformationPromise<O> others(Function<Response, ? extends O> f)
     {
-        responsePromiseMapFunction.setOthersFunction(f);
+        doneFunction.delegate.setOthersFunction(f);
         applyFold();
         return this;
     }
@@ -223,21 +227,21 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
     @Override
     public ResponseTransformationPromise<O> fail(Function<Throwable, ? extends O> f)
     {
-        throwableHandler.setDelegate(f);
+        failFunction.setDelegate(f);
         applyFold();
         return this;
     }
 
     private ResponseTransformationPromise<O> addSingle(HttpStatus status, Function<Response, ? extends O> f)
     {
-        responsePromiseMapFunction.addStatusRangeFunction(new SingleStatusRange(status), f);
+        doneFunction.delegate.addStatusRangeFunction(new SingleStatusRange(status), f);
         applyFold();
         return this;
     }
 
     private ResponseTransformationPromise<O> addRange(HttpStatus status, Function<Response, ? extends O> f)
     {
-        responsePromiseMapFunction.addStatusRangeFunction(new HundredsStatusRange(status), f);
+        doneFunction.delegate.addStatusRangeFunction(new HundredsStatusRange(status), f);
         applyFold();
         return this;
     }
@@ -338,33 +342,67 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
         };
     }
 
-    final class ThrowableDelegatingFunction implements Function<Throwable, O>
+    /**
+     * This class memorizes a single match, whether it was the target object, a runtime exception,
+     * or an error, and replays no many times it is invoked.
+     */
+    final class SingleMatchDelegatingFunction<INPUT, DELEGATE extends Function<INPUT, ? extends O>> implements Function<INPUT, O>
     {
-        private Function<Throwable, ? extends O> delegate = defaultThrowableHandler();
-        private volatile boolean matched;
+        private DELEGATE delegate;
+        private volatile O matchValue;
+        private volatile RuntimeException thrownExceptionMatch;
+        private volatile Error thrownErrorMatch;
+        private volatile boolean match;
 
-        @Override
-        public O apply(@Nullable Throwable input)
+        public SingleMatchDelegatingFunction(DELEGATE delegateDefault)
         {
-            if (matched)
-            {
-                throw new IllegalStateException("Already matched");
-            }
-            matched = true;
-            return delegate.apply(input);
+            delegate = delegateDefault;
         }
 
-        public void setDelegate(Function<Throwable, ? extends O> delegate)
+        @Override
+        public O apply(@Nullable INPUT input)
+        {
+            if (thrownErrorMatch != null)
+            {
+                throw thrownErrorMatch;
+            }
+            else if (thrownExceptionMatch != null)
+            {
+                throw thrownExceptionMatch;
+            }
+            else if (match)
+            {
+                return matchValue;
+            }
+
+            try
+            {
+                matchValue = delegate.apply(input);
+                match = true;
+                return matchValue;
+            }
+            catch (RuntimeException ex)
+            {
+                thrownExceptionMatch = ex;
+                throw ex;
+            }
+            catch (Error err)
+            {
+                thrownErrorMatch = err;
+                throw err;
+            }
+        }
+
+        public void setDelegate(DELEGATE delegate)
         {
             this.delegate = delegate;
         }
 
         public boolean isMatched()
         {
-            return matched;
+            return match || thrownErrorMatch != null | thrownExceptionMatch != null;
         }
     }
-
 
     static final class SingleStatusRange implements StatusRange
     {
