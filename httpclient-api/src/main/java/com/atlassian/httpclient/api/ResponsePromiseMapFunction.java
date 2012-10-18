@@ -20,7 +20,6 @@ final class ResponsePromiseMapFunction<O> implements Function<Response, O>
         this.othersFunction = othersFunction;
     }
 
-
     public static <T> Function<Response, T> newUnexpectedResponseFunction()
     {
         return new Function<Response, T>()
