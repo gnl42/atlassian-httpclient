@@ -10,7 +10,7 @@ package com.atlassian.httpclient.api;
  *     <li>Delta encoding in HTTP, <a href="https://tools.ietf.org/html/rfc3229">RFC 3229</a></li>
  * </ul>
  */
-enum HttpStatus
+public enum HttpStatus
 {
     /**
      * <p>This means that the server has received the request headers, and that the client should proceed to send the
