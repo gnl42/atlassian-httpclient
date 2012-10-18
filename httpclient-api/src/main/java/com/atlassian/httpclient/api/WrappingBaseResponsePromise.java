@@ -4,26 +4,116 @@ import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Promise;
 import com.atlassian.util.concurrent.Promises;
 import com.google.common.base.Function;
-import com.google.common.util.concurrent.ForwardingListenableFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static com.google.common.collect.Sets.*;
 
-abstract class WrappingBaseResponsePromise<V> extends ForwardingListenableFuture.SimpleForwardingListenableFuture<V> implements BaseResponsePromise<V>
+abstract class WrappingBaseResponsePromise<V> implements BaseResponsePromise<V>
 {
+    private final Promise<V> delegate;
     private final Set<Integer> statuses;
     private final Set<StatusSet> statusSets;
 
     public WrappingBaseResponsePromise(ListenableFuture<V> delegate)
     {
-        super(Promises.forListenableFuture(delegate));
+        this.delegate = Promises.forListenableFuture(delegate);
         this.statuses = newHashSet();
         this.statusSets = newHashSet();
+    }
+
+    @Override
+    public BaseResponsePromise<V> done(Effect<V> callback)
+    {
+        delegate.done(callback);
+        return this;
+    }
+
+    @Override
+    public BaseResponsePromise<V> fail(Effect<Throwable> callback)
+    {
+        delegate.fail(callback);
+        return this;
+    }
+
+    @Override
+    public BaseResponsePromise<V> then(FutureCallback<V> callback)
+    {
+        delegate.then(callback);
+        return this;
+    }
+
+    @Override
+    public V claim()
+    {
+        return delegate.claim();
+    }
+
+    @Override
+    public <B> Promise<B> map(Function<? super V, ? extends B> function)
+    {
+        return delegate.map(function);
+    }
+
+    @Override
+    public <B> Promise<B> flatMap(Function<? super V, Promise<B>> function)
+    {
+        return delegate.flatMap(function);
+    }
+
+    @Override
+    public Promise<V> recover(Function<Throwable, ? extends V> handleThrowable)
+    {
+        return delegate.recover(handleThrowable);
+    }
+
+    @Override
+    public <B> Promise<B> fold(Function<Throwable, ? extends B> handleThrowable, Function<? super V, ? extends B> function)
+    {
+        return delegate.fold(handleThrowable, function);
+    }
+
+    @Override
+    public void addListener(Runnable listener, Executor executor)
+    {
+        delegate.addListener(listener, executor);
+    }
+
+    @Override
+    public boolean cancel(boolean b)
+    {
+        return delegate.cancel(b);
+    }
+
+    @Override
+    public boolean isCancelled()
+    {
+        return delegate.isCancelled();
+    }
+
+    @Override
+    public boolean isDone()
+    {
+        return delegate.isDone();
+    }
+
+    @Override
+    public V get() throws InterruptedException, ExecutionException
+    {
+        return delegate.get();
+    }
+
+    @Override
+    public V get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException
+    {
+        return delegate.get(l, timeUnit);
     }
 
     @Override
@@ -158,50 +248,6 @@ abstract class WrappingBaseResponsePromise<V> extends ForwardingListenableFuture
     {
         done(newOthersSelector(statuses, statusSets, callback));
         return this;
-    }
-
-    @Override
-    public final V claim()
-    {
-        return delegatePromise().claim();
-    }
-
-    @Override
-    public final BaseResponsePromise<V> done(Effect<V> callback)
-    {
-        delegatePromise().done(callback);
-        return this;
-    }
-
-    @Override
-    public final BaseResponsePromise<V> fail(Effect<Throwable> callback)
-    {
-        delegatePromise().fail(callback);
-        return this;
-    }
-
-    @Override
-    public final BaseResponsePromise<V> then(FutureCallback<V> callback)
-    {
-        delegatePromise().then(callback);
-        return this;
-    }
-
-    @Override
-    public final <T> Promise<T> map(Function<? super V, ? extends T> function)
-    {
-        return Promises.forListenableFuture(Futures.transform(delegate(), function));
-    }
-
-    @Override
-    public final <T> Promise<T> flatMap(Function<? super V, Promise<T>> function)
-    {
-        return Promises.forListenableFuture(Futures.chain(delegate(), function));
-    }
-
-    protected final Promise<V> delegatePromise()
-    {
-        return (Promise<V>) delegate();
     }
 
     protected abstract Effect<V> newStatusSelector(int statusCode, Effect<V> callback);

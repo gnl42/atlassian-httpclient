@@ -9,7 +9,7 @@ import com.google.common.collect.Maps;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public final class ResponsePromiseMapFunction<O> implements Function<Response, O>
+final class ResponsePromiseMapFunction<O> implements Function<Response, O>
 {
     private final Map<StatusRange, Function<Response, ? extends O>> functions;
     private final Function<Response, ? extends O> othersFunction;
@@ -20,10 +20,6 @@ public final class ResponsePromiseMapFunction<O> implements Function<Response, O
         this.othersFunction = othersFunction;
     }
 
-    public static <T> ResponsePromiseMapFunctionBuilder<T> builder()
-    {
-        return new ResponsePromiseMapFunctionBuilder<T>();
-    }
 
     public static <T> Function<Response, T> newUnexpectedResponseFunction()
     {

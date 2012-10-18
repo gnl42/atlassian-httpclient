@@ -17,6 +17,11 @@ final class WrappingResponsePromise extends WrappingBaseResponsePromise<Response
         super(Promises.forListenableFuture(delegate));
     }
 
+    public <T> ResponsePromiseTransformationBuilder<T> transform()
+    {
+        return new ResponsePromiseTransformationBuilder<T>(this);
+    }
+
     @Override
     public BaseResponsePromise<Response> otherwise(final Effect<Throwable> callback)
     {

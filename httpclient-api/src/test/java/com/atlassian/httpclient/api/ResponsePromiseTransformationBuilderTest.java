@@ -2,6 +2,7 @@ package com.atlassian.httpclient.api;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.SettableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,9 +16,9 @@ import static com.google.common.collect.Iterables.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class ResponsePromiseMapFunctionBuilderTest
+public final class ResponsePromiseTransformationBuilderTest
 {
-    private ResponsePromiseMapFunctionBuilder<Object> builder;
+    private ResponsePromiseTransformationBuilder<Object> builder;
 
     @Mock
     private Response response;
@@ -78,9 +79,12 @@ public final class ResponsePromiseMapFunctionBuilderTest
 
     private Set<Function<Response, Object>> allFunctions;
 
+    private SettableFuture<Response> responseSettableFuture;
+
     @Before
     public void setUp()
     {
+        responseSettableFuture = SettableFuture.create();
         allFunctions = ImmutableSet.<Function<Response, Object>>builder()
                 .add(informationalFunction)
                 .add(successfulFunction)
@@ -221,7 +225,7 @@ public final class ResponsePromiseMapFunctionBuilderTest
     @Test
     public void testNotSuccessfulFunctionCalled()
     {
-        final ResponsePromiseMapFunctionBuilder<Object> builder = newBuilder()
+        final ResponsePromiseTransformationBuilder<Object> builder = newBuilder()
                 .notSuccessful(clientErrorFunction)
                 .others(successfulFunction);
 
@@ -242,7 +246,7 @@ public final class ResponsePromiseMapFunctionBuilderTest
     @Test
     public void testErrorFunctionCalled()
     {
-        final ResponsePromiseMapFunctionBuilder<Object> builder = newBuilder()
+        final ResponsePromiseTransformationBuilder<Object> builder = newBuilder()
                 .error(clientErrorFunction)
                 .others(successfulFunction);
 
@@ -291,22 +295,23 @@ public final class ResponsePromiseMapFunctionBuilderTest
                 statusCode);
     }
 
-    private void testFunctionCalledForStatus(ResponsePromiseMapFunctionBuilder<Object> builder, Function<Response, Object> function, int statusCode)
+    private void testFunctionCalledForStatus(ResponsePromiseTransformationBuilder<Object> builder, Function<Response, Object> function, int statusCode)
     {
         when(response.getStatusCode()).thenReturn(statusCode);
 
-        builder.build().apply(response);
+        builder.toPromise();
+        responseSettableFuture.set(response);
 
         verify(function).apply(response);
         verifyNoMoreInteractions(allFunctionsAsArray());
     }
 
-    private ResponsePromiseMapFunctionBuilder<Object> newBuilder()
+    private ResponsePromiseTransformationBuilder<Object> newBuilder()
     {
-        return new ResponsePromiseMapFunctionBuilder<Object>();
+        return new ResponsePromiseTransformationBuilder<Object>(ResponsePromises.toResponsePromise(responseSettableFuture));
     }
 
-    private ResponsePromiseMapFunctionBuilder<Object> rangesBuilder()
+    private ResponsePromiseTransformationBuilder<Object> rangesBuilder()
     {
         return newBuilder()
                 .successful(successfulFunction)
