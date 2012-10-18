@@ -2,39 +2,47 @@ package com.atlassian.httpclient.api;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
-import javax.annotation.Nullable;
 import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 final class ResponsePromiseMapFunction<O> implements Function<Response, O>
 {
-    private final Map<StatusRange, Function<Response, ? extends O>> functions;
-    private final Function<Response, ? extends O> othersFunction;
+    private final Map<StatusRange, Function<Response, ? extends O>> functions = newHashMap();
+    private Function<Response, ? extends O> othersFunction;
 
-    ResponsePromiseMapFunction(Map<StatusRange, Function<Response, ? extends O>> functions, Function<Response, ? extends O> othersFunction)
+    private volatile boolean matched;
+
+    ResponsePromiseMapFunction()
     {
-        this.functions = ImmutableMap.copyOf(functions);
+    }
+
+    public void addStatusRangeFunction(StatusRange range, Function<Response, ? extends O> func)
+    {
+        functions.put(range, func);
+    }
+
+    public void setOthersFunction(Function<Response, ? extends O> othersFunction)
+    {
         this.othersFunction = othersFunction;
     }
 
-    public static <T> Function<Response, T> newUnexpectedResponseFunction()
+    public boolean isMatched()
     {
-        return new Function<Response, T>()
-        {
-            @Override
-            public T apply(@Nullable Response response)
-            {
-                throw new UnexpectedResponseException(response);
-            }
-        };
+        return matched;
     }
 
     @Override
     public O apply(Response response)
     {
+        if (matched)
+        {
+            throw new IllegalStateException("Already matched");
+        }
+
         final int statusCode = response.getStatusCode();
         final Map<StatusRange, Function<Response, ? extends O>> matchingFunctions = Maps.filterKeys(functions, new Predicate<StatusRange>()
         {
@@ -49,6 +57,7 @@ final class ResponsePromiseMapFunction<O> implements Function<Response, O>
         {
             if (othersFunction != null)
             {
+                matched = true;
                 return othersFunction.apply(response);
             }
             throw new IllegalStateException("Could not match any function to status " + statusCode);
@@ -58,6 +67,8 @@ final class ResponsePromiseMapFunction<O> implements Function<Response, O>
         {
             throw new IllegalStateException("Found multiple functions for status " + statusCode);
         }
+
+        matched = true;
 
         // when there we found one and only one function!
         return Iterables.getLast(matchingFunctions.values()).apply(response);

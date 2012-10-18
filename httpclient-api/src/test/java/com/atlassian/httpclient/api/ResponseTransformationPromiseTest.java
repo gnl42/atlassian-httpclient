@@ -1,5 +1,6 @@
 package com.atlassian.httpclient.api;
 
+import com.atlassian.util.concurrent.Promise;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.SettableFuture;
@@ -10,15 +11,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 import static com.google.common.collect.Iterables.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class ResponsePromiseTransformationBuilderTest
+public final class ResponseTransformationPromiseTest
 {
-    private ResponsePromiseTransformationBuilder<Object> builder;
+    private ResponseTransformationPromise<Object> promise;
 
     @Mock
     private Response response;
@@ -222,22 +225,55 @@ public final class ResponsePromiseTransformationBuilderTest
         testFunctionCalledForStatus(serviceUnavailableFunction, HttpStatus.SERVICE_UNAVAILABLE.code);
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testFailThrowsException()
+    {
+        Promise<Object> promise = newBuilder().fail(new Function<Throwable, Object>()
+        {
+            @Override
+            public Object apply(@Nullable Throwable input)
+            {
+                throw new IllegalStateException("foo");
+            }
+        });
+        responseSettableFuture.setException(new RuntimeException());
+        promise.claim();
+    }
+
+    @Test
+    public void testImmediateExecutionStillTransforms()
+    {
+        ResponseTransformationPromise<String> responsePromise =
+                new DefaultResponseTransformationPromise<String>(ResponsePromises.toResponsePromise(responseSettableFuture));
+        responseSettableFuture.set(response);
+        Promise<String> promise = responsePromise.done(new Function<Response, String>()
+        {
+            @Override
+            public String apply(@Nullable Response input)
+            {
+                return "foo";
+            }
+        });
+        assertEquals("foo", promise.claim());
+    }
+
     @Test
     public void testNotSuccessfulFunctionCalled()
     {
-        final ResponsePromiseTransformationBuilder<Object> builder = newBuilder()
-                .notSuccessful(clientErrorFunction)
-                .others(successfulFunction);
+
 
         for (int statusCode = HttpStatus.CONTINUE.code; statusCode < 600; statusCode++)
         {
+            final ResponseTransformationPromise<Object> promise = newBuilder()
+                    .notSuccessful(clientErrorFunction)
+                    .others(successfulFunction);
             if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code)
             {
-                testFunctionCalledForStatus(builder, successfulFunction, statusCode);
+                testFunctionCalledForStatus(promise, successfulFunction, statusCode);
             }
             else
             {
-                testFunctionCalledForStatus(builder, clientErrorFunction, statusCode);
+                testFunctionCalledForStatus(promise, clientErrorFunction, statusCode);
             }
             resetAllMocks();
         }
@@ -246,19 +282,19 @@ public final class ResponsePromiseTransformationBuilderTest
     @Test
     public void testErrorFunctionCalled()
     {
-        final ResponsePromiseTransformationBuilder<Object> builder = newBuilder()
-                .error(clientErrorFunction)
-                .others(successfulFunction);
 
         for (int statusCode = HttpStatus.CONTINUE.code; statusCode < 600; statusCode++)
         {
+            final ResponseTransformationPromise<Object> promise = newBuilder()
+                    .error(clientErrorFunction)
+                    .others(successfulFunction);
             if (HttpStatus.BAD_REQUEST.code <= statusCode && statusCode < 600)
             {
-                testFunctionCalledForStatus(builder, clientErrorFunction, statusCode);
+                testFunctionCalledForStatus(promise, clientErrorFunction, statusCode);
             }
             else
             {
-                testFunctionCalledForStatus(builder, successfulFunction, statusCode);
+                testFunctionCalledForStatus(promise, successfulFunction, statusCode);
             }
             resetAllMocks();
         }
@@ -295,23 +331,22 @@ public final class ResponsePromiseTransformationBuilderTest
                 statusCode);
     }
 
-    private void testFunctionCalledForStatus(ResponsePromiseTransformationBuilder<Object> builder, Function<Response, Object> function, int statusCode)
+    private void testFunctionCalledForStatus(ResponseTransformationPromise<Object> promise, Function<Response, Object> function, int statusCode)
     {
         when(response.getStatusCode()).thenReturn(statusCode);
 
-        builder.toPromise();
         responseSettableFuture.set(response);
 
         verify(function).apply(response);
         verifyNoMoreInteractions(allFunctionsAsArray());
     }
 
-    private ResponsePromiseTransformationBuilder<Object> newBuilder()
+    private ResponseTransformationPromise<Object> newBuilder()
     {
-        return new ResponsePromiseTransformationBuilder<Object>(ResponsePromises.toResponsePromise(responseSettableFuture));
+        return new DefaultResponseTransformationPromise<Object>(ResponsePromises.toResponsePromise(responseSettableFuture));
     }
 
-    private ResponsePromiseTransformationBuilder<Object> rangesBuilder()
+    private ResponseTransformationPromise<Object> rangesBuilder()
     {
         return newBuilder()
                 .successful(successfulFunction)
@@ -330,5 +365,6 @@ public final class ResponsePromiseTransformationBuilderTest
     private void resetAllMocks()
     {
         Mockito.reset(allFunctionsAsArray());
+        responseSettableFuture = SettableFuture.create();
     }
 }

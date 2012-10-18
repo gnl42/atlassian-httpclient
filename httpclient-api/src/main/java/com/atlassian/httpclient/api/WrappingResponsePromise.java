@@ -1,132 +1,117 @@
 package com.atlassian.httpclient.api;
 
 import com.atlassian.util.concurrent.Effect;
+import com.atlassian.util.concurrent.Promise;
 import com.atlassian.util.concurrent.Promises;
+import com.google.common.base.Function;
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
- * Extends WrappingBaseResponsePromise with the ResponsePromise interface
  */
-final class WrappingResponsePromise extends WrappingBaseResponsePromise<Response> implements ResponsePromise
+final class WrappingResponsePromise implements ResponsePromise
 {
+    private final Promise<Response> delegate;
+
     public WrappingResponsePromise(ListenableFuture<Response> delegate)
     {
-        super(Promises.forListenableFuture(delegate));
-    }
-
-    public <T> ResponsePromiseTransformationBuilder<T> transform()
-    {
-        return new ResponsePromiseTransformationBuilder<T>(this);
+        this.delegate = Promises.forListenableFuture(delegate);
     }
 
     @Override
-    public BaseResponsePromise<Response> otherwise(final Effect<Throwable> callback)
+    public <T> ResponseTransformationPromise<T> transform()
     {
-        others(new Effect<Response>()
-        {
-            @Override
-            public void apply(Response response)
-            {
-                callback.apply(new UnexpectedResponseException(response));
-            }
-        });
-        fail(callback);
-        return this;
+        return new DefaultResponseTransformationPromise<T>(this);
     }
 
     @Override
-    protected Effect<Response> newStatusSelector(int statusCode, Effect<Response> callback)
+    public Response claim()
     {
-        return new StatusSelector(statusCode, callback);
+        return delegate.claim();
     }
 
     @Override
-    protected Effect<Response> newStatusSetSelector(StatusSet statusSet, Effect<Response> callback)
+    public Promise<Response> done(Effect<Response> e)
     {
-        return new StatusSetSelector(statusSet, callback);
+        return delegate.done(e);
     }
 
     @Override
-    protected Effect<Response> newOthersSelector(Set<Integer> statuses, Set<StatusSet> statusSets, Effect<Response> callback)
+    public Promise<Response> fail(Effect<Throwable> e)
     {
-        return new OthersSelector(statuses, statusSets, callback);
+        return delegate.fail(e);
     }
 
-    private static class StatusSelector implements Effect<Response>
+    @Override
+    public Promise<Response> then(FutureCallback<Response> callback)
     {
-        private final int statusCode;
-        private final Effect<Response> callback;
-
-        private StatusSelector(int statusCode, Effect<Response> callback)
-        {
-            this.statusCode = statusCode;
-            this.callback = callback;
-        }
-
-        @Override
-        public void apply(Response response)
-        {
-            if (response.getStatusCode() == statusCode)
-            {
-                callback.apply(response);
-            }
-        }
+        return delegate.then(callback);
     }
 
-    private static class StatusSetSelector implements Effect<Response>
+    @Override
+    public <B> Promise<B> map(Function<? super Response, ? extends B> function)
     {
-        private StatusSet statusSet;
-        private final Effect<Response> callback;
-
-        private StatusSetSelector(StatusSet statusSet, Effect<Response> callback)
-        {
-            this.statusSet = statusSet;
-            this.callback = callback;
-        }
-
-        @Override
-        public void apply(Response response)
-        {
-            if (statusSet.contains(response.getStatusCode()))
-            {
-                callback.apply(response);
-            }
-        }
+        return delegate.map(function);
     }
 
-    private static class OthersSelector implements Effect<Response>
+    @Override
+    public <B> Promise<B> flatMap(Function<? super Response, Promise<B>> function)
     {
-        private final Effect<Response> callback;
-        private final Set<Integer> statuses;
-        private final Set<StatusSet> statusSets;
+        return delegate.flatMap(function);
+    }
 
-        private OthersSelector(Set<Integer> statuses, Set<StatusSet> statusSets, Effect<Response> callback)
-        {
-            this.statuses = new HashSet<Integer>(statuses);
-            this.statusSets = new HashSet<StatusSet>(statusSets);
-            this.callback = callback;
-        }
+    @Override
+    public Promise<Response> recover(Function<Throwable, ? extends Response> handleThrowable)
+    {
+        return delegate.recover(handleThrowable);
+    }
 
-        @Override
-        public void apply(Response response)
-        {
-            int status = response.getStatusCode();
-            boolean inStatusSets = false;
-            for (StatusSet statusSet : statusSets)
-            {
-                if (statusSet.contains(status))
-                {
-                    inStatusSets = true;
-                    break;
-                }
-            }
-            if (!inStatusSets && !statuses.contains(status))
-            {
-                callback.apply(response);
-            }
-        }
+    @Override
+    public <B> Promise<B> fold(Function<Throwable, ? extends B> handleThrowable,
+            Function<? super Response, ? extends B> function)
+    {
+        return delegate.fold(handleThrowable, function);
+    }
+
+    @Override
+    public void addListener(Runnable listener, Executor executor)
+    {
+        delegate.addListener(listener, executor);
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning)
+    {
+        return delegate.cancel(mayInterruptIfRunning);
+    }
+
+    @Override
+    public boolean isCancelled()
+    {
+        return delegate.isCancelled();
+    }
+
+    @Override
+    public boolean isDone()
+    {
+        return delegate.isDone();
+    }
+
+    @Override
+    public Response get() throws InterruptedException, ExecutionException
+    {
+        return delegate.get();
+    }
+
+    @Override
+    public Response get(long timeout, TimeUnit unit) throws InterruptedException,
+            ExecutionException, TimeoutException
+    {
+        return delegate.get(timeout, unit);
     }
 }

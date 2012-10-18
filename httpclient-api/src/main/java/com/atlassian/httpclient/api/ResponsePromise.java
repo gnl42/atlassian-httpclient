@@ -1,12 +1,13 @@
 package com.atlassian.httpclient.api;
 
+import com.atlassian.util.concurrent.Promise;
 import com.google.common.base.Function;
 
 /**
- * A specific type of BaseResponsePromise for handling a response promise
- * for a single HTTP request
+ * A specific type of Promise for transforming a promise with a response into another object
+ * with functions for different HTTP codes and situations
  */
-public interface ResponsePromise extends BaseResponsePromise<Response>
+public interface ResponsePromise extends Promise<Response>
 {
     /**
      * Helps transforming this response promise into a new promise using {@link Function} to transform response into a
@@ -15,5 +16,5 @@ public interface ResponsePromise extends BaseResponsePromise<Response>
      * @param <T> the type of the expected object once transformed.
      * @return a {@link com.atlassian.util.concurrent.Promise<T>}
      */
-    public <T> ResponsePromiseTransformationBuilder<T> transform();
+    public <T> ResponseTransformationPromise<T> transform();
 }
