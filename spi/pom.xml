@@ -19,5 +19,11 @@
             <groupId>org.json</groupId>
             <artifactId>org.json</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.httpclient</groupId>
+            <artifactId>atlassian-httpclient-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

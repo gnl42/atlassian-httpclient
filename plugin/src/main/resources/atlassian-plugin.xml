@@ -22,6 +22,8 @@
 
     <component key="pluginUriResolver" class="com.atlassian.webhooks.plugin.impl.PluginUriResolverImpl" />
 
+    <component key="requestSigner" class="com.atlassian.webhooks.plugin.impl.RequestSignerImpl" />
+
     <component key="waitableServiceTrackerFactory" class="com.atlassian.osgi.tracker.WaitableServiceTrackerFactory" />
 
     <component key="startableForPlugins" class="com.atlassian.webhooks.plugin.module.StartableForPlugins" />

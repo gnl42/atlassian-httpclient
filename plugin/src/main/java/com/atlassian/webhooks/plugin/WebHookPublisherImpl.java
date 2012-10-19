@@ -2,11 +2,13 @@ package com.atlassian.webhooks.plugin;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.httpclient.api.HttpClient;
+import com.atlassian.httpclient.api.Request;
 import com.atlassian.webhooks.plugin.event.WebHookPublishQueueFullEvent;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.uri.Uri;
 import com.atlassian.uri.UriBuilder;
 import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
+import com.atlassian.webhooks.spi.plugin.RequestSigner;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.EventSerializer;
 import com.google.common.base.Supplier;
@@ -41,11 +43,18 @@ public final class WebHookPublisherImpl implements WebHookPublisher, DisposableB
     private final EventPublisher eventPublisher;
     private final UserManager userManager;
     private final PluginUriResolver pluginUriResolver;
+    private final RequestSigner requestSigner;
 
     private final Multimap<String, Registration> registrationsByEvent = newMultimap();
 
-    public WebHookPublisherImpl(HttpClient httpClient, EventPublisher eventPublisher, UserManager userManager, PluginUriResolver pluginUriResolver)
+    public WebHookPublisherImpl(HttpClient httpClient,
+                                EventPublisher eventPublisher,
+                                UserManager userManager,
+                                PluginUriResolver pluginUriResolver,
+                                RequestSigner requestSigner
+    )
     {
+        this.requestSigner = requestSigner;
         this.httpClient = checkNotNull(httpClient);
         this.eventPublisher = checkNotNull(eventPublisher);
         this.userManager = checkNotNull(userManager);
@@ -75,7 +84,8 @@ public final class WebHookPublisherImpl implements WebHookPublisher, DisposableB
             {
                 body = body != null ? body : eventSerializer.getJson();
                 final String username = userManager.getRemoteUsername();
-                final PublishTask task = new PublishTask(httpClient, registration, username != null ? username : "", body, pluginUriResolver);
+                final PublishTask task = new PublishTask(httpClient, registration, username != null ? username : "", body, pluginUriResolver,
+                        requestSigner);
                 try
                 {
                     publisher.execute(task);
@@ -119,9 +129,17 @@ public final class WebHookPublisherImpl implements WebHookPublisher, DisposableB
         private final String body;
         private final HttpClient httpClient;
         private final PluginUriResolver pluginUriResolver;
+        private final RequestSigner requestSigner;
 
-        public PublishTask(HttpClient httpClient, Registration registration, String userName, String body, PluginUriResolver pluginUriResolver)
+        public PublishTask(HttpClient httpClient,
+                           Registration registration,
+                           String userName,
+                           String body,
+                           PluginUriResolver pluginUriResolver,
+                           RequestSigner requestSigner
+        )
         {
+            this.requestSigner = requestSigner;
             this.httpClient = checkNotNull(httpClient);
             this.registration = checkNotNull(registration);
             this.userName = checkNotNull(userName);
@@ -138,13 +156,15 @@ public final class WebHookPublisherImpl implements WebHookPublisher, DisposableB
             log.debug("Posting to web hook at " + url + "\n" + body);
 
             // our job is just to send this, not worry about whether it failed or not
-            httpClient
+            Request request = httpClient
                     .newRequest(url, "application/json", body)
-//                  .setHeader("Authorization", authorization)
-                            // attributes capture optional properties sent to analytics
+
+                    // attributes capture optional properties sent to analytics
                     .setAttribute("purpose", "web-hook-notification")
-                    .setAttribute("pluginKey", registration.getPluginKey())
-                    .post();
+                    .setAttribute("pluginKey", registration.getPluginKey());
+
+            requestSigner.sign(registration.getPluginKey(), request);
+            request.post();
         }
 
         @Override
