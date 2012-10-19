@@ -14,13 +14,28 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
     // Custom Selectors
 
     /**
-     * Register a function to transform HTTP responses with a specific status code.
+     * Register a function to transform HTTP responses with a specific status.
      * Use this as a fallback if the status code you're interested in does not have
      * a more explicit registration method for it.
+     *
+     * @param status The HTTP status to select on
+     * @param f The transformation function
+     * @return This instance for chaining
+     * @see #on(int, com.google.common.base.Function)
+     */
+    ResponseTransformationPromise<O> on(HttpStatus status, Function<Response, ? extends O> f);
+
+    /**
+     * <p>Register a function to transform HTTP responses with a specific status code.
+     * Use this as a fallback if the status code you're interested in does not have
+     * a more explicit registration method for it.
+     * <p>Prefer the {@link #on(HttpStatus, com.google.common.base.Function)} method if you're using <em>standard</em>
+     * HTTP status.
      *
      * @param statusCode The code to select on
      * @param f The transformation function
      * @return This instance for chaining
+     * @see #on(HttpStatus, com.google.common.base.Function)
      */
     ResponseTransformationPromise<O> on(int statusCode, Function<Response, ? extends O> f);
 

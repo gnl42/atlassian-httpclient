@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.*;
 
-public class DefaultHttpClient extends AbstractHttpClient implements HttpClient, DisposableBean
+public final class DefaultHttpClient extends AbstractHttpClient implements HttpClient, DisposableBean
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 

@@ -17,37 +17,30 @@ import static com.google.common.base.Preconditions.*;
 
 @NotThreadSafe
 final class DefaultResponseTransformationPromise<O> implements ResponseTransformationPromise<O>
-
 {
     private volatile Promise<O> delegate;
     private final ResponsePromise responsePromise;
 
-    private SingleMatchDelegatingFunction<Throwable, Function<Throwable, ? extends O>> failFunction;
-    private SingleMatchDelegatingFunction<Response, ResponsePromiseMapFunction<O>> doneFunction;
+    private final SingleMatchDelegatingFunction<Throwable, Function<Throwable, ? extends O>> failFunction;
+    private final SingleMatchDelegatingFunction<Response, ResponsePromiseMapFunction<O>> doneFunction;
 
     DefaultResponseTransformationPromise(ResponsePromise baseResponsePromise)
     {
-        checkNotNull(baseResponsePromise);
-        this.responsePromise = baseResponsePromise;
-        this.failFunction = new SingleMatchDelegatingFunction
-                <Throwable, Function<Throwable, ? extends O>>(defaultThrowableHandler());
-        this.doneFunction = new SingleMatchDelegatingFunction<Response, ResponsePromiseMapFunction<O>>(
-                new ResponsePromiseMapFunction<O>());
+        this.responsePromise = checkNotNull(baseResponsePromise);
+        this.failFunction = new SingleMatchDelegatingFunction<Throwable, Function<Throwable, ? extends O>>(defaultThrowableHandler());
+        this.doneFunction = new SingleMatchDelegatingFunction<Response, ResponsePromiseMapFunction<O>>(new ResponsePromiseMapFunction<O>());
     }
 
-    /**
-     * Register a function to transform a HTTP response with a specific status code.
-     * Use this as a fallback if the status code you're interested in does not have
-     * a more explicit registration method for it.
-     *
-     * @param statusCode The code to select on
-     * @param f The transforming function
-     * @return This instance for chaining
-     */
+    @Override
+    public ResponseTransformationPromise<O> on(HttpStatus status, Function<Response, ? extends O> f)
+    {
+        return addSingle(status, f);
+    }
+
     @Override
     public ResponseTransformationPromise<O> on(int statusCode, Function<Response, ? extends O> f)
     {
-        return addSingle(HttpStatus.fromCode(statusCode), f);
+        return addSingle(statusCode, f);
     }
 
     @Override
@@ -234,7 +227,12 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
 
     private ResponseTransformationPromise<O> addSingle(HttpStatus status, Function<Response, ? extends O> f)
     {
-        doneFunction.delegate.addStatusRangeFunction(new SingleStatusRange(status), f);
+        return addSingle(status.code, f);
+    }
+
+    private ResponseTransformationPromise<O> addSingle(int statusCode, Function<Response, ? extends O> f)
+    {
+        doneFunction.delegate.addStatusRangeFunction(new SingleStatusRange(statusCode), f);
         applyFold();
         return this;
     }
@@ -283,8 +281,7 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
         return delegate.recover(throwableFunction);
     }
 
-    public <B> Promise<B> fold(Function<Throwable, ? extends B> throwableFunction,
-            Function<? super O, ? extends B> function)
+    public <B> Promise<B> fold(Function<Throwable, ? extends B> throwableFunction, Function<? super O, ? extends B> function)
     {
         return delegate.fold(throwableFunction, function);
     }
@@ -406,17 +403,17 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
 
     static final class SingleStatusRange implements StatusRange
     {
-        private final HttpStatus status;
+        private final int statusCode;
 
-        SingleStatusRange(HttpStatus status)
+        SingleStatusRange(int statusCode)
         {
-            this.status = checkNotNull(status);
+            this.statusCode = checkNotNull(statusCode);
         }
 
         @Override
         public boolean isIn(int code)
         {
-            return this.status.code == code;
+            return this.statusCode == code;
         }
     }
 

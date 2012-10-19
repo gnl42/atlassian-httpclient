@@ -386,6 +386,19 @@ public final class ResponseTransformationPromiseTest
                 HttpStatus.OK.code);
     }
 
+    @Test
+    public void testFunctionAddedOnNonStandardHttpStatus()
+    {
+        newBuilder().on(601, new Function<Response, Object>()
+        {
+            @Override
+            public Object apply(@Nullable Response input)
+            {
+                return null;
+            }
+        });
+    }
+
     private void testFunctionCalledForStatus(Function<Response, Object> function, int statusCode)
     {
         testFunctionCalledForStatus(
