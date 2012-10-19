@@ -10,6 +10,7 @@ import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.util.concurrent.ThreadFactories;
+import com.google.common.util.concurrent.SettableFuture;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -164,7 +165,22 @@ public final class DefaultHttpClient extends AbstractHttpClient implements HttpC
                 options.getUserAgent());
     }
 
-    public ResponsePromise execute(final DefaultRequest request)
+    @Override
+    public final ResponsePromise execute(final DefaultRequest request)
+    {
+        try
+        {
+            return doExecute(request);
+        }
+        catch (Throwable t)
+        {
+            final SettableFuture<Response> future = SettableFuture.create();
+            future.setException(t);
+            return ResponsePromises.toResponsePromise(future);
+        }
+    }
+
+    private ResponsePromise doExecute(final DefaultRequest request)
     {
         httpClientOptions.getRequestPreparer().apply(request);
 
