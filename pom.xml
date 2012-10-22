@@ -46,6 +46,7 @@
         <module>plugin</module>
         <module>test-plugin</module>
         <module>httpclient-api</module>
+        <module>httpclient-spi</module>
         <module>httpclient-apache-httpcomponents</module>
     </modules>
 
@@ -56,6 +57,9 @@
         <atlassian-util-concurrent.version>2.4.0-M8</atlassian-util-concurrent.version>
         <guava.version>10.0.1</guava.version>
         <spring.version>2.5.6</spring.version>
+        <refapp.version>2.18.0-m2</refapp.version>
+        <jira.version>5.1.2</jira.version>
+        <confluence.version>4.2.13</confluence.version>
         <sdk.version>4.0</sdk.version>
     </properties>
 

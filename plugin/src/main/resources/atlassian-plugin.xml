@@ -28,13 +28,23 @@
 
     <component key="startableForPlugins" class="com.atlassian.webhooks.plugin.module.StartableForPlugins" />
 
-    <component key="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClient"
-            interface="com.atlassian.httpclient.api.HttpClient" public="true" />
-
     <component key="httpClientFactory" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClientFactory"
                interface="com.atlassian.httpclient.api.factory.HttpClientFactory" public="true" />
 
-    <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher" />
-    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
-    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" />
+    <!-- Refapp -->
+    <component key="refappThreadLocalContextManager" class="com.atlassian.webhooks.plugin.refapp.RefappThreadLocalContextManager"
+               interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="refapp"/>
+    <component-import key="refappAuthenticationContext" interface="com.atlassian.seraph.auth.AuthenticationContext" application="refapp"/>
+
+    <!-- Confluence -->
+    <component key="confluenceThreadContextManager" class="com.atlassian.webhooks.plugin.confluence.ConfluenceThreadLocalContextManager"
+               interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="confluence"/>
+
+    <!-- JIRA -->
+    <component key="jiraThreadContextManager" class="com.atlassian.webhooks.plugin.jira.JiraThreadLocalContextManager"
+               interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="jira"/>
+
+    <component-import key="jiraAuthenticationContext" interface="com.atlassian.jira.security.JiraAuthenticationContext" application="jira" />
+    <component-import key="jiraVelocityRequestContextFactory" interface="com.atlassian.jira.util.velocity.VelocityRequestContextFactory" application="jira" />
+    <component-import key="jiraTenantReference" interface="com.atlassian.multitenant.TenantReference" application="jira" />
 </atlassian-plugin>

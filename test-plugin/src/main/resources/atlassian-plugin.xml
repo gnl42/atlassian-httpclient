@@ -15,7 +15,24 @@
     <webhook key="testWebhook" event="test_event" url="/plugins/servlet/webhook" />
 
     <component key="serviceAccessor" class="com.atlassian.webhooks.plugin.test.ServiceAccessor"/>
-    <component key="testWebHookProvier" class="com.atlassian.webhooks.plugin.test.TestWebHookProvider"
+    <component key="testWebHookProvider" class="com.atlassian.webhooks.plugin.test.TestWebHookProvider"
                interface="com.atlassian.webhooks.spi.provider.WebHookProvider" public="true" />
+
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
+    <component-import key="httpClient" interface="com.atlassian.httpclient.api.HttpClient"/>
+
+    <!-- Refapp -->
+    <component key="checkThreadContextRefapp" class="com.atlassian.webhooks.plugin.test.refapp.CheckThreadContextRefapp"
+               interface="com.atlassian.webhooks.plugin.test.CheckThreadContext" application="refapp" />
+    <component-import key="refappAuthenticationContext" interface="com.atlassian.seraph.auth.AuthenticationContext" application="refapp"/>
+
+    <!-- Confluence -->
+    <component key="checkThreadContextConfluence" class="com.atlassian.webhooks.plugin.test.confluence.CheckThreadContextConfluence"
+            interface="com.atlassian.webhooks.plugin.test.CheckThreadContext" application="confluence"/>
+
+    <!-- JIRA -->
+    <component key="checkThreadContextJIRA" class="com.atlassian.webhooks.plugin.test.jira.CheckThreadContextJira"
+               interface="com.atlassian.webhooks.plugin.test.CheckThreadContext" application="jira"/>
+    <component-import key="jiraAuthenticationContext" interface="com.atlassian.jira.security.JiraAuthenticationContext" application="jira" />
 </atlassian-plugin>

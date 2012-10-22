@@ -11,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
 
+import static com.atlassian.util.concurrent.Promises.*;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -25,7 +26,7 @@ public final class WrappingResponsePromiseTest
         final String message = "This is the message for the test!";
 
         final SettableFuture<Response> future = SettableFuture.create();
-        final ResponsePromise responsePromise = new WrappingResponsePromise(future);
+        final ResponsePromise responsePromise = new WrappingResponsePromise(forListenableFuture(future));
 
         final OnTimeEffect onFail = new OnTimeEffect()
         {

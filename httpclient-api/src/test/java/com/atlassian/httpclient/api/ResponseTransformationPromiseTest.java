@@ -15,6 +15,8 @@ import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.atlassian.httpclient.api.ResponsePromises.toResponsePromise;
+import static com.atlassian.util.concurrent.Promises.forListenableFuture;
 import static com.google.common.collect.Iterables.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
@@ -246,7 +248,7 @@ public final class ResponseTransformationPromiseTest
     {
         final AtomicInteger counter = new AtomicInteger(0);
         ResponseTransformationPromise<String> responsePromise =
-                new DefaultResponseTransformationPromise<String>(ResponsePromises.toResponsePromise(responseSettableFuture));
+                new DefaultResponseTransformationPromise<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
         when(response.getStatusCode()).thenReturn(200);
 
         Promise<String> promise = responsePromise
@@ -274,7 +276,7 @@ public final class ResponseTransformationPromiseTest
     {
         final AtomicInteger counter = new AtomicInteger(0);
         ResponseTransformationPromise<String> responsePromise =
-                new DefaultResponseTransformationPromise<String>(ResponsePromises.toResponsePromise(responseSettableFuture));
+                new DefaultResponseTransformationPromise<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
         when(response.getStatusCode()).thenReturn(200);
 
         Promise<String> promise = responsePromise
@@ -310,7 +312,7 @@ public final class ResponseTransformationPromiseTest
     {
         final AtomicInteger counter = new AtomicInteger(0);
         ResponseTransformationPromise<String> responsePromise =
-                new DefaultResponseTransformationPromise<String>(ResponsePromises.toResponsePromise(responseSettableFuture));
+                new DefaultResponseTransformationPromise<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
         when(response.getStatusCode()).thenReturn(200);
 
         Promise<String> promise = responsePromise
@@ -433,7 +435,7 @@ public final class ResponseTransformationPromiseTest
 
     private ResponseTransformationPromise<Object> newBuilder()
     {
-        return new DefaultResponseTransformationPromise<Object>(ResponsePromises.toResponsePromise(responseSettableFuture));
+        return new DefaultResponseTransformationPromise<Object>(toResponsePromise(forListenableFuture(responseSettableFuture)));
     }
 
     private ResponseTransformationPromise<Object> rangesBuilder()

@@ -1,10 +1,12 @@
 package com.atlassian.httpclient.api.factory;
 
 import com.atlassian.httpclient.api.Request;
-import com.atlassian.httpclient.api.Response;
 import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Effects;
+import com.atlassian.util.concurrent.ThreadFactories;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,17 +33,9 @@ public final class HttpClientOptions
 
     private Effect<Request> requestPreparer = Effects.noop();
 
-    private SettableFutureHandlerFactory<Response> responseSettableFutureHandlerFactory
-            = new SettableFutureHandlerFactory<Response>()
-    {
-        @Override
-        public SettableFutureHandler<Response> create()
-        {
-            return new DefaultSettableFutureHandler<Response>();
-        }
-    };
-
     private String userAgent = "Default";
+
+    private ExecutorService callbackExecutor;
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
@@ -92,6 +86,7 @@ public final class HttpClientOptions
 
     /**
      * Sets how long, in milliseconds, to wait for a TCP connection
+     *
      * @param connectionTimeout Timeout value, defaults to 5000 milliseconds
      * @param timeUnit The time unit
      */
@@ -168,7 +163,7 @@ public final class HttpClientOptions
 
     /**
      * @return How long, in milliseconds, to allow connections to live in the pool.  Defaults
-     * to 30 seconds.
+     *         to 30 seconds.
      */
     public long getConnectionPoolTimeToLive()
     {
@@ -233,25 +228,6 @@ public final class HttpClientOptions
     }
 
     /**
-     * @return The factory for creating the object responsible for managing settable futures
-     */
-    public SettableFutureHandlerFactory<Response> getResponseSettableFutureHandlerFactory()
-    {
-        return responseSettableFutureHandlerFactory;
-    }
-
-    /**
-     * @param responseSettableFutureHandlerFactory The {@link SettableFutureHandler} instance that
-     *                                             will manage the creation of the response
-     *                                             future
-     */
-    public void setResponseSettableFutureHandlerFactory(
-            SettableFutureHandlerFactory<Response> responseSettableFutureHandlerFactory)
-    {
-        this.responseSettableFutureHandlerFactory = responseSettableFutureHandlerFactory;
-    }
-
-    /**
      * @return The effect to apply before the request is executed
      */
     public Effect<Request> getRequestPreparer()
@@ -281,5 +257,20 @@ public final class HttpClientOptions
     public void setMaxEntitySize(long maxEntitySize)
     {
         this.maxEntitySize = maxEntitySize;
+    }
+
+    public void setCallbackExecutor(ExecutorService callbackExecutor)
+    {
+        this.callbackExecutor = callbackExecutor;
+    }
+
+    public ExecutorService getCallbackExecutor()
+    {
+        return callbackExecutor != null ? callbackExecutor : defaultCallbackExecutor();
+    }
+
+    private ExecutorService defaultCallbackExecutor()
+    {
+        return Executors.newCachedThreadPool(ThreadFactories.namedThreadFactory(getThreadPrefix() + "-callbacks", ThreadFactories.Type.DAEMON));
     }
 }

@@ -1,16 +1,21 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.httpclient.api.*;
+import com.atlassian.httpclient.api.HttpClient;
+import com.atlassian.httpclient.api.Request;
+import com.atlassian.httpclient.api.Response;
+import com.atlassian.httpclient.api.ResponsePromise;
+import com.atlassian.httpclient.api.ResponsePromises;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.RequestKiller;
-import com.atlassian.httpclient.api.factory.SettableFutureHandler;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
+import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.util.concurrent.ThreadFactories;
-import com.google.common.util.concurrent.SettableFuture;
+import com.google.common.base.Function;
+import com.google.common.base.Throwables;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -24,7 +29,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpTrace;
-import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
 import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
@@ -39,7 +43,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -47,18 +50,21 @@ import org.springframework.beans.factory.DisposableBean;
 import java.io.IOException;
 import java.net.ProxySelector;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import static com.atlassian.util.concurrent.Promises.*;
 import static com.google.common.base.Preconditions.*;
 
-public final class DefaultHttpClient extends AbstractHttpClient implements HttpClient, DisposableBean
+public final class DefaultHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final EventPublisher eventPublisher;
     private final ApplicationProperties applicationProperties;
+    private final ThreadLocalContextManager<C> threadLocalContextManager;
+    private final ExecutorService callbackExecutor;
     private final HttpClientOptions httpClientOptions;
 
     private final RequestKiller requestKiller;
@@ -66,15 +72,16 @@ public final class DefaultHttpClient extends AbstractHttpClient implements HttpC
     private final HttpAsyncClient nonCachingHttpClient;
     private final FlushableHttpCacheStorage httpCacheStorage;
 
-    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties)
+    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager)
     {
-        this(eventPublisher, applicationProperties, new HttpClientOptions());
+        this(eventPublisher, applicationProperties, threadLocalContextManager, new HttpClientOptions());
     }
 
-    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties, HttpClientOptions options)
+    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
     {
         this.eventPublisher = checkNotNull(eventPublisher);
         this.applicationProperties = checkNotNull(applicationProperties);
+        this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
         this.httpClientOptions = checkNotNull(options);
         this.requestKiller = new RequestKiller(options.getThreadPrefix());
 
@@ -87,8 +94,7 @@ public final class DefaultHttpClient extends AbstractHttpClient implements HttpC
             ioReactorConfig.setInterestOpQueued(true);
             DefaultConnectingIOReactor reactor = new DefaultConnectingIOReactor(
                     ioReactorConfig,
-                    ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io",
-                            ThreadFactories.Type.DAEMON));
+                    ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io", ThreadFactories.Type.DAEMON));
             reactor.setExceptionHandler(new IOReactorExceptionHandler()
             {
                 @Override
@@ -151,6 +157,7 @@ public final class DefaultHttpClient extends AbstractHttpClient implements HttpC
         this.httpCacheStorage = new FlushableHttpCacheStorage(cacheConfig);
         httpClient = new CachingHttpAsyncClient(client, httpCacheStorage, cacheConfig);
 
+        callbackExecutor = httpClientOptions.getCallbackExecutor();
         httpClient.start();
         requestKiller.start();
     }
@@ -174,9 +181,7 @@ public final class DefaultHttpClient extends AbstractHttpClient implements HttpC
         }
         catch (Throwable t)
         {
-            final SettableFuture<Response> future = SettableFuture.create();
-            future.setException(t);
-            return ResponsePromises.toResponsePromise(future);
+            return ResponsePromises.toResponsePromise(rejected(t, Response.class));
         }
     }
 
@@ -237,71 +242,62 @@ public final class DefaultHttpClient extends AbstractHttpClient implements HttpC
             op.setHeader(entry.getKey(), entry.getValue());
         }
 
-        HttpContext localContext = new BasicHttpContext();
-        final SettableFutureHandler<Response> future = httpClientOptions.getResponseSettableFutureHandlerFactory().create();
-        FutureCallback<HttpResponse> futureCallback = new FutureCallback<HttpResponse>()
-        {
-            @Override
-            public void completed(HttpResponse httpResponse)
-            {
-                requestKiller.completedRequest(op);
-                long elapsed = System.currentTimeMillis() - start;
-                int statusCode = httpResponse.getStatusLine().getStatusCode();
-                if (statusCode >= 200 && statusCode < 300)
-                {
-                    eventPublisher.publish(new HttpRequestCompletedEvent(uri, statusCode, elapsed, request.getAttributes()));
-                }
-                else
-                {
-                    eventPublisher.publish(new HttpRequestFailedEvent(uri, statusCode, elapsed, request.getAttributes()));
-                }
-                try
-                {
-                    DefaultResponse response = translate(httpResponse);
-                    response.freeze();
-                    future.set(response);
-                }
-                catch (IOException ex)
-                {
-                    this.failed(ex);
-                }
-            }
-
-            @Override
-            public void failed(Exception ex)
-            {
-                requestKiller.completedRequest(op);
-                long elapsed = System.currentTimeMillis() - start;
-                eventPublisher.publish(new HttpRequestFailedEvent(uri, ex.toString(), elapsed, request.getAttributes()));
-                future.setException(ex);
-            }
-
-            @Override
-            public void cancelled()
-            {
-                requestKiller.completedRequest(op);
-                TimeoutException ex = new TimeoutException();
-                long elapsed = System.currentTimeMillis() - start;
-                eventPublisher.publish(new HttpRequestFailedEvent(uri, ex.toString(), elapsed, request.getAttributes()));
-                future.setException(ex);
-            }
-        };
-
         requestKiller.registerRequest(op, httpClientOptions.getRequestTimeout());
-        HttpAsyncClient actualClient = request.isCacheDisabled() ? nonCachingHttpClient : httpClient;
-        actualClient.execute(op, localContext, futureCallback);
-        return ResponsePromises.toResponsePromise(future.getFuture());
+        return ResponsePromises.toResponsePromise(getPromiseHttpAsyncClient(request).execute(op, new BasicHttpContext()).fold(
+                new Function<Throwable, Response>()
+                {
+                    @Override
+                    public Response apply(Throwable ex)
+                    {
+                        requestKiller.completedRequest(op);
+                        long elapsed = System.currentTimeMillis() - start;
+                        eventPublisher.publish(new HttpRequestFailedEvent(uri, ex.toString(), elapsed, request.getAttributes()));
+                        throw Throwables.propagate(ex);
+                    }
+                },
+                new Function<HttpResponse, Response>()
+                {
+                    @Override
+                    public Response apply(HttpResponse httpResponse)
+                    {
+                        requestKiller.completedRequest(op);
+                        long elapsed = System.currentTimeMillis() - start;
+                        int statusCode = httpResponse.getStatusLine().getStatusCode();
+                        if (statusCode >= 200 && statusCode < 300)
+                        {
+                            eventPublisher.publish(new HttpRequestCompletedEvent(uri, statusCode, elapsed, request.getAttributes()));
+                        }
+                        else
+                        {
+                            eventPublisher.publish(new HttpRequestFailedEvent(uri, statusCode, elapsed, request.getAttributes()));
+                        }
+                        try
+                        {
+                            return translate(httpResponse).freeze();
+                        }
+                        catch (IOException e)
+                        {
+                            throw Throwables.propagate(e);
+                        }
+                    }
+                }
+        ));
+    }
+
+    private PromiseHttpAsyncClient getPromiseHttpAsyncClient(DefaultRequest request)
+    {
+        return new SettableFuturePromiseHttpPromiseAsyncClient<C>(request.isCacheDisabled() ? nonCachingHttpClient : httpClient, threadLocalContextManager, callbackExecutor);
     }
 
     @Override
     public void destroy() throws Exception
     {
+        callbackExecutor.shutdown();
         requestKiller.stop();
         httpClient.getConnectionManager().shutdown();
     }
 
-    private DefaultResponse translate(HttpResponse httpResponse)
-            throws IOException
+    private DefaultResponse translate(HttpResponse httpResponse) throws IOException
     {
         StatusLine status = httpResponse.getStatusLine();
         DefaultResponse response = new DefaultResponse(httpClientOptions.getMaxEntitySize());

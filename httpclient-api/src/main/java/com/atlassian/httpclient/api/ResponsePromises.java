@@ -1,7 +1,7 @@
 package com.atlassian.httpclient.api;
 
+import com.atlassian.util.concurrent.Promise;
 import com.google.common.base.Function;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import javax.annotation.Nullable;
 
@@ -10,11 +10,13 @@ import javax.annotation.Nullable;
  */
 public final class ResponsePromises
 {
-    private ResponsePromises() { }
-
-    public static ResponsePromise toResponsePromise(ListenableFuture<Response> future)
+    private ResponsePromises()
     {
-        return new WrappingResponsePromise(future);
+    }
+
+    public static ResponsePromise toResponsePromise(Promise<Response> promise)
+    {
+        return new WrappingResponsePromise(promise);
     }
 
     public static <T> Function<Response, T> newUnexpectedResponseFunction()

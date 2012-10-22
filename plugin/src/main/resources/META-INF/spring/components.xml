@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:osgi="http://www.springframework.org/schema/osgi"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                                 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+    <osgi:service id="httpClientService" ref="httpClient" interface="com.atlassian.httpclient.api.HttpClient"/>
+
+    <beans:bean id="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClient">
+        <beans:constructor-arg ref="eventPublisher"/>
+        <beans:constructor-arg ref="applicationProperties"/>
+        <beans:constructor-arg>
+            <beans:bean class="com.atlassian.webhooks.plugin.http.OsgiThreadLocalContextManager">
+                <beans:constructor-arg ref="bundleContext"/>
+            </beans:bean>
+        </beans:constructor-arg>
+    </beans:bean>
+</beans:beans>

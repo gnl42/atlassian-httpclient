@@ -54,7 +54,7 @@
         <dependency>
             <groupId>com.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -144,6 +144,18 @@
             <version>1.2.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.jira</groupId>
+            <artifactId>atlassian-jira</artifactId>
+            <version>${jira.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -173,6 +185,7 @@
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.httpclient.api*;version="${project.version}",
+                            com.atlassian.httpclient.spi*;version="${project.version}",
                             com.atlassian.webhooks.spi*;version="${project.version}",
                             com.atlassian.plugin.schema.descriptor;version="${atlassian-plugins.version}",
                             com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",
