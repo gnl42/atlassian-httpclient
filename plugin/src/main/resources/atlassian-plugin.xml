@@ -28,9 +28,6 @@
 
     <component key="startableForPlugins" class="com.atlassian.webhooks.plugin.module.StartableForPlugins" />
 
-    <component key="httpClientFactory" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClientFactory"
-               interface="com.atlassian.httpclient.api.factory.HttpClientFactory" public="true" />
-
     <!-- Refapp -->
     <component key="refappThreadLocalContextManager" class="com.atlassian.webhooks.plugin.refapp.RefappThreadLocalContextManager"
                interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="refapp"/>

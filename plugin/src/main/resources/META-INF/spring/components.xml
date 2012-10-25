@@ -6,8 +6,19 @@
                                  http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
     <osgi:service id="httpClientService" ref="httpClient" interface="com.atlassian.httpclient.api.HttpClient"/>
+    <osgi:service id="httpClientFactoryService" ref="httpClientFactory" interface="com.atlassian.httpclient.api.factory.HttpClientFactory"/>
 
     <beans:bean id="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClient">
+        <beans:constructor-arg ref="eventPublisher"/>
+        <beans:constructor-arg ref="applicationProperties"/>
+        <beans:constructor-arg>
+            <beans:bean class="com.atlassian.webhooks.plugin.http.OsgiThreadLocalContextManager">
+                <beans:constructor-arg ref="bundleContext"/>
+            </beans:bean>
+        </beans:constructor-arg>
+    </beans:bean>
+
+    <beans:bean id="httpClientFactory" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClientFactory">
         <beans:constructor-arg ref="eventPublisher"/>
         <beans:constructor-arg ref="applicationProperties"/>
         <beans:constructor-arg>
