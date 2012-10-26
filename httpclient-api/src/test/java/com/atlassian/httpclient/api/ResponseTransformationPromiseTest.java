@@ -5,6 +5,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.SettableFuture;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -271,6 +272,7 @@ public final class ResponseTransformationPromiseTest
         responseSettableFuture.set(response);
         assertEquals("foo0", promise.claim());
     }
+
     @Test
     public void testDelayedExecutionExecutesDoneOnceWithException()
     {
@@ -399,6 +401,30 @@ public final class ResponseTransformationPromiseTest
                 return null;
             }
         });
+    }
+
+    @Test
+    @Ignore("WEBHOOK-1")
+    public void testFailCanTransformExceptions()
+    {
+        responseSettableFuture.setException(new Throwable("Some message"));
+        assertEquals("Some message", newBuilder()
+                .ok(new Function<Response, String>()
+                {
+                    @Override
+                    public String apply(Response input)
+                    {
+                        return "Ok";
+                    }
+                })
+                .fail(new Function<Throwable, String>()
+                {
+                    @Override
+                    public String apply(Throwable input)
+                    {
+                        return input.getMessage();
+                    }
+                }).claim());
     }
 
     private void testFunctionCalledForStatus(Function<Response, Object> function, int statusCode)
