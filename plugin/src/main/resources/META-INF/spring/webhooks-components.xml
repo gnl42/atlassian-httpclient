@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:osgi="http://www.springframework.org/schema/osgi"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                                 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+    <beans:bean class="com.atlassian.webhooks.plugin.WebHookEventsProcessor">
+        <beans:constructor-arg index="0" ref="eventPublisher"/>
+        <beans:constructor-arg index="1" ref="pluginEventManager"/>
+        <beans:constructor-arg index="2" ref="webHookPublisher"/>
+        <beans:constructor-arg index="3">
+            <beans:list>
+                <beans:ref bean="webHookRegistry"/>
+            </beans:list>
+        </beans:constructor-arg>
+    </beans:bean>
+
+    <beans:bean id="webHookRegistry" class="com.atlassian.webhooks.plugin.OsgiWebHookProviderWebHookRegistry">
+        <beans:constructor-arg ref="waitableServiceTrackerFactory"/>
+    </beans:bean>
+
+    <beans:bean id="webHookPublisher" class="com.atlassian.webhooks.plugin.WebHookPublisherImpl">
+        <beans:constructor-arg index="0" ref="moduleDescriptorWebHookRegistry"/>
+        <beans:constructor-arg index="1">
+            <beans:bean class="com.atlassian.webhooks.plugin.PublishTaskFactoryImpl">
+                <beans:constructor-arg index="0" ref="httpClient"/>
+                <beans:constructor-arg index="1" ref="requestSigner"/>
+                <beans:constructor-arg index="2" ref="pluginUriResolver"/>
+                <beans:constructor-arg index="3" ref="userManager"/>
+            </beans:bean>
+        </beans:constructor-arg>
+        <beans:constructor-arg index="2" ref="eventPublisher"/>
+    </beans:bean>
+
+    <beans:bean id="moduleDescriptorWebHookRegistry"
+                class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookRegistryImpl"/>
+
+    <beans:bean id="requestSigner" class="com.atlassian.webhooks.plugin.impl.RequestSignerImpl">
+        <beans:constructor-arg ref="bundleContext"/>
+    </beans:bean>
+
+    <beans:bean id="pluginUriResolver" class="com.atlassian.webhooks.plugin.impl.PluginUriResolverImpl">
+        <beans:constructor-arg index="0" ref="applicationProperties"/>
+        <beans:constructor-arg index="1" ref="bundleContext"/>
+    </beans:bean>
+
+    <beans:bean id="waitableServiceTrackerFactory" class="com.atlassian.osgi.tracker.WaitableServiceTrackerFactory">
+        <beans:constructor-arg ref="bundleContext"/>
+    </beans:bean>
+</beans:beans>

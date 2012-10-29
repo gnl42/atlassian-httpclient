@@ -13,13 +13,21 @@ import java.util.concurrent.TimeUnit;
 
 public final class WebHookServlet extends HttpServlet
 {
+    static volatile BlockingDeque<Hook> pluginEnabledHook = new LinkedBlockingDeque<Hook>();
     static volatile BlockingDeque<Hook> hooks = new LinkedBlockingDeque<Hook>();
 
     @Override
     protected void doPost(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        final String body = CharStreams.toString(req.getReader());
-        push(new Hook(body));
+        final Hook hook = new Hook(CharStreams.toString(req.getReader()));
+        if (req.getPathInfo().endsWith("plugin_enabled"))
+        {
+            pluginEnabledHook.push(hook);
+        }
+        else
+        {
+            push(hook);
+        }
     }
 
     static void push(Hook hook)
@@ -29,12 +37,22 @@ public final class WebHookServlet extends HttpServlet
 
     public static Hook waitAndPop() throws InterruptedException
     {
-        return hooks.poll(30, TimeUnit.SECONDS);
+        return hooks.poll(5, TimeUnit.SECONDS);
+    }
+
+    public static Hook waitAndPopPluginEnabled() throws InterruptedException
+    {
+        return pluginEnabledHook.poll(5, TimeUnit.SECONDS);
     }
 
     public static boolean hasHooks()
     {
         return !hooks.isEmpty();
+    }
+
+    public static boolean hasPluginEnabledHooks()
+    {
+        return !pluginEnabledHook.isEmpty();
     }
 
     public static class Hook

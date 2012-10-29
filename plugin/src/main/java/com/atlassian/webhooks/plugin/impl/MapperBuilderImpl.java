@@ -5,13 +5,15 @@ import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.EventSerializerFactory;
 import com.atlassian.webhooks.spi.provider.MapperBuilder;
 
+import static com.google.common.base.Preconditions.*;
+
 public class MapperBuilderImpl<E> implements MapperBuilder<E>
 {
     private final WebHookRegistration registration;
 
     public MapperBuilderImpl(WebHookRegistration registration)
     {
-        this.registration = registration;
+        this.registration = checkNotNull(registration);
     }
 
     @Override

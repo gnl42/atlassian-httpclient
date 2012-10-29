@@ -3,6 +3,7 @@ package com.atlassian.webhooks.plugin.impl;
 import com.atlassian.webhooks.plugin.WebHookRegistration;
 import com.atlassian.webhooks.spi.provider.EventBuilder;
 import com.atlassian.webhooks.spi.provider.WebHookRegistrar;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
@@ -11,7 +12,7 @@ import static com.google.common.collect.Sets.*;
 public final class WebHookRegistrarImpl implements WebHookRegistrar
 {
     private final Set<WebHookRegistration> registrations = newHashSet();
-    
+
     @Override
     public EventBuilder webhook(String id)
     {
@@ -22,6 +23,6 @@ public final class WebHookRegistrarImpl implements WebHookRegistrar
 
     public Set<WebHookRegistration> getRegistrations()
     {
-        return registrations;
+        return ImmutableSet.copyOf(registrations);
     }
 }

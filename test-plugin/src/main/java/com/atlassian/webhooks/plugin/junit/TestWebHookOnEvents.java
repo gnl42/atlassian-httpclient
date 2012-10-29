@@ -10,6 +10,15 @@ import static org.junit.Assert.*;
 public final class TestWebHookOnEvents
 {
     @Test
+    public void testPluginEnabledWebHook() throws Exception
+    {
+        final WebHookServlet.Hook hook = WebHookServlet.waitAndPopPluginEnabled();
+        assertNotNull(hook);
+        assertFalse(WebHookServlet.hasPluginEnabledHooks());
+//        assertTrue(hook.body.contains(eventValue));
+    }
+
+    @Test
     public void testWebHookConfiguredFromProvider() throws Exception
     {
         assertFalse(WebHookServlet.hasHooks());

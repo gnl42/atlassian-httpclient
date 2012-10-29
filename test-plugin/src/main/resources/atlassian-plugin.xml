@@ -9,10 +9,11 @@
     <junit key="all" package="com.atlassian.webhooks.plugin.junit"/>
 
     <servlet key="webHookServlet" class="com.atlassian.webhooks.plugin.test.WebHookServlet">
-        <url-pattern>/webhook</url-pattern>
+        <url-pattern>/webhook*</url-pattern>
     </servlet>
 
     <webhook key="testWebhook" event="test_event" url="/plugins/servlet/webhook" />
+    <webhook key="pluginEnabledWebhook" event="plugin_enabled" url="/plugins/servlet/webhook/plugin_enabled" />
 
     <component key="serviceAccessor" class="com.atlassian.webhooks.plugin.test.ServiceAccessor"/>
     <component key="testWebHookProvider" class="com.atlassian.webhooks.plugin.test.TestWebHookProvider"

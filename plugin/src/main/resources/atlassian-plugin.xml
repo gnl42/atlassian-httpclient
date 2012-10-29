@@ -12,21 +12,9 @@
         <description>Registration for a web hook callback from an internal event</description>
     </described-module-type>
 
-    <component key="webhookRegistrationManager" class="com.atlassian.webhooks.plugin.WebHookRegistrationManager" />
-
-    <component key="webhookPublisher" class="com.atlassian.webhooks.plugin.WebHookPublisherImpl"/>
-
     <component key="pluginWebHookProvider" public="true"
                interface="com.atlassian.webhooks.spi.provider.WebHookProvider"
                class="com.atlassian.webhooks.plugin.provider.PluginWebHookProvider" />
-
-    <component key="pluginUriResolver" class="com.atlassian.webhooks.plugin.impl.PluginUriResolverImpl" />
-
-    <component key="requestSigner" class="com.atlassian.webhooks.plugin.impl.RequestSignerImpl" />
-
-    <component key="waitableServiceTrackerFactory" class="com.atlassian.osgi.tracker.WaitableServiceTrackerFactory" />
-
-    <component key="startableForPlugins" class="com.atlassian.webhooks.plugin.module.StartableForPlugins" />
 
     <!-- Refapp -->
     <component key="refappThreadLocalContextManager" class="com.atlassian.webhooks.plugin.refapp.RefappThreadLocalContextManager"

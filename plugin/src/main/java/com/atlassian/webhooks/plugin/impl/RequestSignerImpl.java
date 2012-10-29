@@ -11,7 +11,7 @@ import org.springframework.beans.factory.DisposableBean;
 /**
  * Signer implementation which tries to first get an impl from an OSGi service
  */
-public class RequestSignerImpl implements RequestSigner, DisposableBean
+public final class RequestSignerImpl implements RequestSigner, DisposableBean
 {
     private final ServiceTracker serviceTracker;
     private static final RequestSigner NO_OP_REQUEST_SIGNER = new RequestSigner()

@@ -1,29 +1,29 @@
 package com.atlassian.webhooks.plugin.module;
 
 import com.atlassian.plugin.schema.spi.SchemaTransformer;
-import com.atlassian.webhooks.plugin.WebHookRegistrationManager;
+import com.atlassian.webhooks.plugin.WebHookRegistry;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * Registers a web hook module descriptor factory
  */
 public final class WebHookSchemaFactory implements SchemaTransformer
 {
-    private final WebHookRegistrationManager webHookRegistrationManager;
+    private final WebHookRegistry webHookRegistry;
 
-    public WebHookSchemaFactory(WebHookRegistrationManager webHookRegistrationManager)
+    public WebHookSchemaFactory(WebHookRegistry webHookRegistry)
     {
-        this.webHookRegistrationManager = checkNotNull(webHookRegistrationManager);
+        this.webHookRegistry = checkNotNull(webHookRegistry);
     }
 
     @Override
     public Document transform(Document document)
     {
         final Element parent = (Element) document.selectSingleNode("/xs:schema/xs:simpleType/xs:restriction");
-        for (String id : webHookRegistrationManager.getIds())
+        for (String id : webHookRegistry.getWebHookIds())
         {
             parent.addElement("xs:enumeration").addAttribute("value", id);
         }

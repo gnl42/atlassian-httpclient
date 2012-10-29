@@ -1,33 +1,27 @@
 package com.atlassian.webhooks.plugin.module;
 
-import com.atlassian.webhooks.plugin.WebHookPublisher;
 import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.descriptors.AbstractModuleDescriptor;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.util.concurrent.NotNull;
-import com.atlassian.webhooks.spi.provider.EventMatcher;
-import com.atlassian.webhooks.spi.provider.EventSerializers;
-import com.google.common.collect.ImmutableMap;
+import com.atlassian.webhooks.plugin.ModuleDescriptorWebHookConsumerRegistry;
 import org.dom4j.Element;
 
 import java.net.URI;
 
+import static com.google.common.base.Preconditions.*;
+
 public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void>
 {
+    private final ModuleDescriptorWebHookConsumerRegistry webHookConsumerRegistry;
+
     private String eventIdentifier;
     private URI url;
-    private final WebHookPublisher webHookPublisher;
-    private final StartableForPlugins startableForPlugins;
-    private final ApplicationProperties applicationProperties;
 
-    public WebHookModuleDescriptor(WebHookPublisher webHookPublisher,
-                                   StartableForPlugins startableForPlugins,
-                                   ApplicationProperties applicationProperties)
+    public WebHookModuleDescriptor(ModuleDescriptorWebHookConsumerRegistry webHookConsumerRegistry)
     {
-        this.webHookPublisher = webHookPublisher;
-        this.startableForPlugins = startableForPlugins;
-        this.applicationProperties = applicationProperties;
+        this.webHookConsumerRegistry = checkNotNull(webHookConsumerRegistry);
     }
 
     @Override
@@ -48,30 +42,14 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
     public void enabled()
     {
         super.enabled();
-        webHookPublisher.register(getPluginKey(), eventIdentifier, url);
-
-        if ("plugin_enabled".equals(eventIdentifier))
-        {
-            startableForPlugins.register(getPluginKey(), new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    final String baseUrl = WebHookModuleDescriptor.this.applicationProperties.getBaseUrl();
-                    webHookPublisher.publish(eventIdentifier, EventMatcher.ALWAYS_TRUE,
-                            EventSerializers.forMap(null, ImmutableMap.<String, Object>of(
-                                    "key", getPluginKey(),
-                                    "baseUrl", (baseUrl != null ? baseUrl : ""))));
-                }
-            });
-        }
+        webHookConsumerRegistry.register(getPluginKey(), eventIdentifier, url);
     }
 
     @Override
     public void disabled()
     {
+        webHookConsumerRegistry.unregister(getPluginKey(), eventIdentifier, url);
         super.disabled();
-        webHookPublisher.unregister(getPluginKey(), eventIdentifier, url);
     }
 
     private static String getOptionalAttribute(Element e, String name, Object defaultValue)

@@ -24,19 +24,21 @@ public final class WebHookRegistration
         return id;
     }
 
-    public void setEventTrigger(Class<?> eventClass)
+    public WebHookRegistration setEventTrigger(Class<?> eventClass)
     {
         this.eventClass = eventClass;
+        return this;
     }
 
-    public void setEventSerializerFactory(EventSerializerFactory eventSerializerFactory)
+    public WebHookRegistration setEventSerializerFactory(EventSerializerFactory<?> eventSerializerFactory)
     {
         this.eventSerializerFactory = eventSerializerFactory;
+        return this;
     }
 
     public EventSerializer getEventSerializer(Object event)
     {
-        return this.eventSerializerFactory.create(event);
+        return eventSerializerFactory.create(event);
     }
 
     public Class<?> getEventClass()
@@ -44,9 +46,10 @@ public final class WebHookRegistration
         return eventClass;
     }
 
-    public void setEventMatcher(EventMatcher<?> eventMatcher)
+    public WebHookRegistration setEventMatcher(EventMatcher<?> eventMatcher)
     {
         this.eventMatcher = eventMatcher;
+        return this;
     }
 
     public EventMatcher getEventMatcher()

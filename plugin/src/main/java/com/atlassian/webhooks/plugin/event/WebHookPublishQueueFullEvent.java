@@ -1,26 +1,21 @@
 package com.atlassian.webhooks.plugin.event;
 
+import static com.google.common.base.Preconditions.*;
+
 /**
  * Fired when the web hook publishing queue is full and the event will be discarded
  */
-public class WebHookPublishQueueFullEvent
+public final class WebHookPublishQueueFullEvent
 {
-    private final String eventIdentifier;
-    private final String appKey;
+    private final String webHookId;
 
-    public WebHookPublishQueueFullEvent(String eventIdentifier, String appKey)
+    public WebHookPublishQueueFullEvent(String webHookId)
     {
-        this.eventIdentifier = eventIdentifier;
-        this.appKey = appKey;
+        this.webHookId = checkNotNull(webHookId);
     }
 
-    public String getEventIdentifier()
+    public String getWebHookId()
     {
-        return eventIdentifier;
-    }
-
-    public String getAppKey()
-    {
-        return appKey;
+        return webHookId;
     }
 }

@@ -41,6 +41,6 @@ public final class TestWebHookInPlugin
 
     private String getBaseUrl()
     {
-        return System.getProperty("baseurl", "http://localhost:2990/jira");
+        return System.getProperty("baseurl", "http://localhost:5990/refapp");
     }
 }

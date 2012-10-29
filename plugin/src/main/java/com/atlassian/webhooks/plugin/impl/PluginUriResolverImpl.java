@@ -55,7 +55,6 @@ public final class PluginUriResolverImpl implements PluginUriResolver
                 bundleContext.ungetService(newPluginUriResolverReference);
             }
         }
-
         return null;
     }
 
