@@ -10,11 +10,7 @@
         <beans:constructor-arg index="0" ref="eventPublisher"/>
         <beans:constructor-arg index="1" ref="pluginEventManager"/>
         <beans:constructor-arg index="2" ref="webHookPublisher"/>
-        <beans:constructor-arg index="3">
-            <beans:list>
-                <beans:ref bean="webHookRegistry"/>
-            </beans:list>
-        </beans:constructor-arg>
+        <beans:constructor-arg index="3" ref="webHookRegistry"/>
     </beans:bean>
 
     <beans:bean id="webHookRegistry" class="com.atlassian.webhooks.plugin.OsgiWebHookProviderWebHookRegistry">

@@ -24,18 +24,14 @@ public final class WebHookEventsProcessorTest
     private WebHookPublisher webHookPublisher;
 
     @Mock
-    private WebHookRegistry webHookRegistry1;
-
-    @Mock
-    private WebHookRegistry webHookRegistry2;
+    private WebHookRegistry webHookRegistry;
 
     private WebHookEventsProcessor processor;
 
     @Before
     public void setUp()
     {
-        processor = new WebHookEventsProcessor(eventPublisher, pluginEventManager, webHookPublisher,
-                ImmutableList.of(webHookRegistry1, webHookRegistry2));
+        processor = new WebHookEventsProcessor(eventPublisher, pluginEventManager, webHookPublisher, webHookRegistry);
     }
 
     @Test
@@ -43,13 +39,11 @@ public final class WebHookEventsProcessorTest
     {
         final Object event = new Object();
 
-        when(webHookRegistry1.getWebHooks(anyObject())).thenReturn(ImmutableList.<WebHookEvent>of());
-        when(webHookRegistry2.getWebHooks(anyObject())).thenReturn(ImmutableList.<WebHookEvent>of());
+        when(webHookRegistry.getWebHooks(anyObject())).thenReturn(ImmutableList.<WebHookEvent>of());
 
         processor.onEvent(event);
 
-        verify(webHookRegistry1).getWebHooks(event);
-        verify(webHookRegistry2).getWebHooks(event);
+        verify(webHookRegistry).getWebHooks(event);
         verifyZeroInteractions(webHookPublisher);
     }
 
@@ -59,13 +53,11 @@ public final class WebHookEventsProcessorTest
         final Object event = new Object();
         final WebHookEvent webHookEvent = mock(WebHookEvent.class);
 
-        when(webHookRegistry1.getWebHooks(anyObject())).thenReturn(ImmutableList.<WebHookEvent>of());
-        when(webHookRegistry2.getWebHooks(anyObject())).thenReturn(ImmutableList.<WebHookEvent>of(webHookEvent));
+        when(webHookRegistry.getWebHooks(anyObject())).thenReturn(ImmutableList.<WebHookEvent>of(webHookEvent));
 
         processor.onEvent(event);
 
-        verify(webHookRegistry1).getWebHooks(event);
-        verify(webHookRegistry2).getWebHooks(event);
+        verify(webHookRegistry).getWebHooks(event);
         verify(webHookPublisher).publish(webHookEvent);
     }
 
@@ -74,6 +66,7 @@ public final class WebHookEventsProcessorTest
     {
         processor.afterPropertiesSet();
         verify(eventPublisher).register(processor);
+        verify(pluginEventManager).register(processor);
     }
 
     @Test
@@ -81,5 +74,6 @@ public final class WebHookEventsProcessorTest
     {
         processor.destroy();
         verify(eventPublisher).unregister(processor);
+        verify(pluginEventManager).unregister(processor);
     }
 }
