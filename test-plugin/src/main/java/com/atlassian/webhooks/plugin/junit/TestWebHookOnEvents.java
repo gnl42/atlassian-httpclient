@@ -1,5 +1,6 @@
 package com.atlassian.webhooks.plugin.junit;
 
+import com.atlassian.webhooks.plugin.AnnotatedEvent;
 import com.atlassian.webhooks.plugin.test.ServiceAccessor;
 import com.atlassian.webhooks.plugin.test.TestEvent;
 import com.atlassian.webhooks.plugin.test.WebHookServlet;
@@ -25,6 +26,20 @@ public final class TestWebHookOnEvents
 
         final String eventValue = "This is my value!";
         ServiceAccessor.eventPublisher.publish(new TestEvent(eventValue));
+
+        final WebHookServlet.Hook hook = WebHookServlet.waitAndPop();
+        assertNotNull(hook);
+        assertTrue(hook.body.contains(eventValue));
+        assertFalse(WebHookServlet.hasHooks());
+    }
+
+    @Test
+    public void testWebHookConfiguredWithAnnotation() throws Exception
+    {
+        assertFalse(WebHookServlet.hasHooks());
+
+        final String eventValue = "This is my _annotated_ value!";
+        ServiceAccessor.eventPublisher.publish(new AnnotatedEvent(eventValue));
 
         final WebHookServlet.Hook hook = WebHookServlet.waitAndPop();
         assertNotNull(hook);

@@ -12,7 +12,8 @@
         <url-pattern>/webhook*</url-pattern>
     </servlet>
 
-    <webhook key="testWebhook" event="test_event" url="/plugins/servlet/webhook" />
+    <webhook key="testWebhook" event="test_event" url="/plugins/servlet/webhook/test_event" />
+    <webhook key="annotatedWebhook" event="annotated_event" url="/plugins/servlet/webhook/annotated_event" />
     <webhook key="pluginEnabledWebhook" event="plugin_enabled" url="/plugins/servlet/webhook/plugin_enabled" />
 
     <component key="serviceAccessor" class="com.atlassian.webhooks.plugin.test.ServiceAccessor"/>

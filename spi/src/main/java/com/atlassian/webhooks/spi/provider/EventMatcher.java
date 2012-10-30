@@ -5,26 +5,12 @@ package com.atlassian.webhooks.spi.provider;
  */
 public interface EventMatcher<T>
 {
-    static final EventMatcher<Object> ALWAYS_TRUE = new EventMatcher<Object>()
-    {
-        @Override
-        public boolean matches(Object event, String pluginKey)
-        {
-            return true;
-        }
-    };
+    static final EventMatcher<Object> ALWAYS_TRUE = new AlwaysTrueEventMatcher();
 
     /**
      * Useful for registering events but then firing them manually outside the event system
      */
-    static final EventMatcher<Object> ALWAYS_FALSE = new EventMatcher<Object>()
-    {
-        @Override
-        public boolean matches(Object event, String pluginKey)
-        {
-            return false;
-        }
-    };
+    static final EventMatcher<Object> ALWAYS_FALSE = new AlwaysFalseEventMatcher();
 
     /**
      * Tells whether the fired event matches the web hook registration.
@@ -34,4 +20,22 @@ public interface EventMatcher<T>
      * @return {@code true} if this event matches the web hook registration, {@code false} otherwise.
      */
     boolean matches(T event, String pluginKey);
+
+    static final class AlwaysTrueEventMatcher implements EventMatcher<Object>
+    {
+        @Override
+        public boolean matches(Object event, String pluginKey)
+        {
+            return true;
+        }
+    }
+
+    static final class AlwaysFalseEventMatcher implements EventMatcher<Object>
+    {
+        @Override
+        public boolean matches(Object event, String pluginKey)
+        {
+            return false;
+        }
+    }
 }

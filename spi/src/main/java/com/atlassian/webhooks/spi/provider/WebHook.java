@@ -12,4 +12,18 @@ import static java.lang.annotation.RetentionPolicy.*;
 @Target(TYPE)
 public @interface WebHook
 {
+    String id();
+
+    Class<? extends EventMatcher> matcher() default EventMatcher.AlwaysTrueEventMatcher.class;
+
+    Class<? extends EventSerializerFactory> serializerFactory() default ReflectionEventSerializerFactory.class;
+
+    static final class ReflectionEventSerializerFactory implements EventSerializerFactory
+    {
+        @Override
+        public EventSerializer create(Object event)
+        {
+            return new EventSerializers.ReflectionEventSerializer(event);
+        }
+    }
 }

@@ -13,9 +13,17 @@
         <beans:constructor-arg index="3" ref="webHookRegistry"/>
     </beans:bean>
 
-    <beans:bean id="webHookRegistry" class="com.atlassian.webhooks.plugin.OsgiWebHookProviderWebHookRegistry">
-        <beans:constructor-arg ref="waitableServiceTrackerFactory"/>
+    <beans:bean id="webHookRegistry" class="com.atlassian.webhooks.plugin.DelegatingWebHookRegistry">
+        <beans:constructor-arg>
+            <beans:list>
+                <beans:bean class="com.atlassian.webhooks.plugin.OsgiWebHookProviderWebHookRegistry">
+                    <beans:constructor-arg ref="waitableServiceTrackerFactory"/>
+                </beans:bean>
+                <beans:bean class="com.atlassian.webhooks.plugin.AnnotationWebHookRegistry" />
+            </beans:list>
+        </beans:constructor-arg>
     </beans:bean>
+
 
     <beans:bean id="webHookPublisher" class="com.atlassian.webhooks.plugin.WebHookPublisherImpl">
         <beans:constructor-arg index="0" ref="moduleDescriptorWebHookRegistry"/>
