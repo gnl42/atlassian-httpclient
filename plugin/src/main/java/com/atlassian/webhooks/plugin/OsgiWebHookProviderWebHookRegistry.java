@@ -6,7 +6,6 @@ import com.atlassian.webhooks.plugin.impl.WebHookRegistrarImpl;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.WebHookProvider;
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
@@ -15,7 +14,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.Iterables.*;
@@ -32,7 +30,7 @@ public final class OsgiWebHookProviderWebHookRegistry implements WebHookRegistry
         this.registrationsByKey = new ConcurrentHashMap<String, WebHookRegistration>();
         this.registrationsByProvider = new ConcurrentHashMap<WebHookProvider, Set<WebHookRegistration>>();
 
-        checkNotNull(factory).create(WebHookProvider.class, new FilteringWaitableServiceTrackerCustomizer<WebHookProvider>(new WebHookProviderWaitableServiceTrackerCustomizer()));
+        checkNotNull(factory).create(WebHookProvider.class, new WebHookProviderWaitableServiceTrackerCustomizer());
     }
 
     @Override
@@ -134,74 +132,6 @@ public final class OsgiWebHookProviderWebHookRegistry implements WebHookRegistry
                     i.remove();
                 }
             }
-        }
-    }
-
-    // this class only exists to work around a but in WaitableServiceTracker where #adding can be called more than once
-    // if a Spring application context refresh occurs.
-    private static final class FilteringWaitableServiceTrackerCustomizer<T> implements WaitableServiceTrackerCustomizer<T>
-    {
-        private final WaitableServiceTrackerCustomizer<T> delegate;
-        private final Set<ServiceId> serviceIds;
-
-        private FilteringWaitableServiceTrackerCustomizer(WaitableServiceTrackerCustomizer<T> delegate)
-        {
-            this.delegate = checkNotNull(delegate);
-            this.serviceIds = new CopyOnWriteArraySet<ServiceId>();
-        }
-
-        @Override
-        public T adding(T service)
-        {
-            final ServiceId serviceId = new ServiceId(service);
-            if (!serviceIds.contains(serviceId))
-            {
-                serviceIds.add(serviceId);
-                return delegate.adding(service);
-            }
-            return service;
-        }
-
-        @Override
-        public void removed(T service)
-        {
-            serviceIds.remove(new ServiceId(service));
-        }
-    }
-
-    private static final class ServiceId
-    {
-        private final String className;
-        private final int identityHashCode;
-
-        ServiceId(Object service)
-        {
-            this.className = checkNotNull(service).getClass().getName();
-            this.identityHashCode = System.identityHashCode(service);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hashCode(className, identityHashCode);
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (o == null)
-            {
-                return false;
-            }
-            if (!(o instanceof ServiceId))
-            {
-                return false;
-            }
-
-            final ServiceId other = (ServiceId) o;
-
-            return Objects.equal(this.className, other.className)
-                    && Objects.equal(this.identityHashCode, other.identityHashCode);
         }
     }
 }

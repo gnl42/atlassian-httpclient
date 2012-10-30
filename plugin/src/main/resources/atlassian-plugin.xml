@@ -12,10 +12,6 @@
         <description>Registration for a web hook callback from an internal event</description>
     </described-module-type>
 
-    <component key="pluginWebHookProvider" public="true"
-               interface="com.atlassian.webhooks.spi.provider.WebHookProvider"
-               class="com.atlassian.webhooks.plugin.provider.PluginWebHookProvider" />
-
     <!-- Refapp -->
     <component key="refappThreadLocalContextManager" class="com.atlassian.webhooks.plugin.refapp.RefappThreadLocalContextManager"
                interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="refapp"/>

@@ -53,4 +53,10 @@
     <beans:bean id="waitableServiceTrackerFactory" class="com.atlassian.osgi.tracker.WaitableServiceTrackerFactory">
         <beans:constructor-arg ref="bundleContext"/>
     </beans:bean>
+
+    <osgi:service id="pluginWebHookProvider" interface="com.atlassian.webhooks.spi.provider.WebHookProvider">
+        <beans:bean class="com.atlassian.webhooks.plugin.provider.PluginWebHookProvider">
+            <beans:constructor-arg ref="applicationProperties"/>
+        </beans:bean>
+    </osgi:service>
 </beans:beans>
