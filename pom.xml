@@ -61,6 +61,7 @@
         <jira.version>5.1.2</jira.version>
         <confluence.version>4.2.13</confluence.version>
         <sdk.version>4.0</sdk.version>
+        <analytics.version>2.12</analytics.version>
     </properties>
 
     <dependencyManagement>
@@ -99,6 +100,12 @@
                 <groupId>com.atlassian.event</groupId>
                 <artifactId>atlassian-event</artifactId>
                 <version>2.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.analytics</groupId>
+                <artifactId>analytics-api</artifactId>
+                <version>${analytics.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>

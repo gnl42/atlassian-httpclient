@@ -1,7 +1,6 @@
 package com.atlassian.httpclient.base.event;
 
 import com.atlassian.analytics.api.annotations.Analytics;
-import com.atlassian.httpclient.base.event.AbstractHttpRequestEvent;
 
 import java.util.Map;
 

@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.atlassian.analytics</groupId>
             <artifactId>analytics-api</artifactId>
-            <version>2.12</version>
+            <version>${analytics.version}</version>
         </dependency>
 
         <dependency>
