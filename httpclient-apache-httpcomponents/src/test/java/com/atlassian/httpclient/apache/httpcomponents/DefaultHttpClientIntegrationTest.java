@@ -13,6 +13,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
@@ -121,5 +123,22 @@ public final class DefaultHttpClientIntegrationTest
 
         assertTrue(okFunctionCalled.get());
         assertNull(claimedObject);
+    }
+
+    @Test
+    public void contextClassLoaderSetForCallback()
+    {
+        ClassLoader tmpClassLoader = new URLClassLoader(new URL[0]);
+        Thread.currentThread().setContextClassLoader(tmpClassLoader);
+
+        ClassLoader callbackClassLoader = httpClient.newRequest(SERVER.newUri("/test")).get().<ClassLoader>transform().ok(new Function<Response, ClassLoader>()
+        {
+            @Override
+            public ClassLoader apply(Response response)
+            {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        }).claim();
+        assertEquals(tmpClassLoader, callbackClassLoader);
     }
 }

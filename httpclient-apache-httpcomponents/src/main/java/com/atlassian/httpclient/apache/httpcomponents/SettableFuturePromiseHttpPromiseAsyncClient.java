@@ -77,15 +77,34 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
         return Promises.forListenableFuture(future);
     }
 
+    private static <C> void runInContext(ThreadLocalContextManager<C> threadLocalContextManager, C threadLocalContext,
+                                     ClassLoader contextClassLoader, Runnable runnable)
+            {
+                ClassLoader oldCcl = Thread.currentThread().getContextClassLoader();
+                try
+                {
+                    Thread.currentThread().setContextClassLoader(contextClassLoader);
+                    threadLocalContextManager.setThreadLocalContext(threadLocalContext);
+                    runnable.run();
+                }
+                finally
+                {
+                    threadLocalContextManager.resetThreadLocalContext();
+                    Thread.currentThread().setContextClassLoader(oldCcl);
+                }
+            }
+
     private static abstract class ThreadLocalContextAwareFutureCallback<C, HttpResponse> implements FutureCallback<HttpResponse>
     {
         private final ThreadLocalContextManager<C> threadLocalContextManager;
         private final C threadLocalContext;
+        private final ClassLoader contextClassLoader;
 
         private ThreadLocalContextAwareFutureCallback(ThreadLocalContextManager<C> threadLocalContextManager)
         {
             this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
             this.threadLocalContext = threadLocalContextManager.getThreadLocalContext();
+            this.contextClassLoader = Thread.currentThread().getContextClassLoader();
         }
 
         abstract void doCompleted(HttpResponse response);
@@ -95,45 +114,42 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
         abstract void doCancelled();
 
         @Override
-        public final void completed(HttpResponse response)
+        public final void completed(final HttpResponse response)
         {
-            try
+            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, new Runnable()
             {
-                threadLocalContextManager.setThreadLocalContext(threadLocalContext);
-                doCompleted(response);
-            }
-            finally
-            {
-                threadLocalContextManager.resetThreadLocalContext();
-            }
+                @Override
+                public void run()
+                {
+                    doCompleted(response);
+                }
+            });
         }
 
         @Override
-        public final void failed(Exception ex)
+        public final void failed(final Exception ex)
         {
-            try
+            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, new Runnable()
             {
-                threadLocalContextManager.setThreadLocalContext(threadLocalContext);
-                doFailed(ex);
-            }
-            finally
-            {
-                threadLocalContextManager.resetThreadLocalContext();
-            }
+                @Override
+                public void run()
+                {
+                    doFailed(ex);
+                }
+            });
         }
 
         @Override
         public final void cancelled()
         {
-            try
+            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, new Runnable()
             {
-                threadLocalContextManager.setThreadLocalContext(threadLocalContext);
-                doCancelled();
-            }
-            finally
-            {
-                threadLocalContextManager.resetThreadLocalContext();
-            }
+                @Override
+                public void run()
+                {
+                    doCancelled();
+                }
+            });
         }
     }
 
@@ -158,6 +174,7 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
     {
         private final C context;
         private final Runnable delegate;
+        private final ClassLoader contextClassLoader;
         private final ThreadLocalContextManager<C> manager;
 
         ThreadLocalDelegateRunnable(ThreadLocalContextManager<C> manager, Runnable delegate)
@@ -165,19 +182,19 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
             this.delegate = delegate;
             this.manager = manager;
             this.context = manager.getThreadLocalContext();
+            this.contextClassLoader = Thread.currentThread().getContextClassLoader();
         }
 
         public void run()
         {
-            try
+            runInContext(manager, context, contextClassLoader, new Runnable()
             {
-                manager.setThreadLocalContext(context);
-                delegate.run();
-            }
-            finally
-            {
-                manager.resetThreadLocalContext();
-            }
+                @Override
+                public void run()
+                {
+                    delegate.run();
+                }
+            });
         }
     }
 }
