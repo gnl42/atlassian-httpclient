@@ -18,17 +18,19 @@ import static com.google.common.base.Preconditions.*;
 @NotThreadSafe
 final class DefaultResponseTransformationPromise<O> implements ResponseTransformationPromise<O>
 {
-    private volatile Promise<O> delegate;
     private final ResponsePromise responsePromise;
-
     private final SingleMatchDelegatingFunction<Throwable, Function<Throwable, ? extends O>> failFunction;
+
     private final SingleMatchDelegatingFunction<Response, ResponsePromiseMapFunction<O>> doneFunction;
+    private final DefaultThrowableHandlerFunction<O> defaultThrowableHandlerFunction = new DefaultThrowableHandlerFunction<O>();
+    private volatile Promise<O> delegate;
 
     DefaultResponseTransformationPromise(ResponsePromise baseResponsePromise)
     {
         this.responsePromise = checkNotNull(baseResponsePromise);
-        this.failFunction = new SingleMatchDelegatingFunction<Throwable, Function<Throwable, ? extends O>>(defaultThrowableHandler());
+        this.failFunction = new SingleMatchDelegatingFunction<Throwable, Function<Throwable, ? extends O>>(defaultThrowableHandlerFunction);
         this.doneFunction = new SingleMatchDelegatingFunction<Response, ResponsePromiseMapFunction<O>>(new ResponsePromiseMapFunction<O>());
+        applyFold();
     }
 
     @Override
@@ -244,12 +246,6 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
         return this;
     }
 
-    @Override
-    public O claim()
-    {
-        return delegate.claim();
-    }
-
     public Promise<O> done(Effect<O> oEffect)
     {
         return delegate.done(oEffect);
@@ -311,32 +307,37 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
     }
 
     @Override
+    public O claim()
+    {
+
+        O result = delegate.claim();
+        throwCaughtUnmatchedException();
+        return result;
+    }
+
+    @Override
     public O get() throws InterruptedException, ExecutionException
     {
-        return delegate.get();
+        O result = delegate.get();
+        throwCaughtUnmatchedException();
+        return result;
     }
 
     @Override
     public O get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
             TimeoutException
     {
-        return delegate.get(timeout, unit);
+        O result = delegate.get(timeout, unit);
+        throwCaughtUnmatchedException();
+        return result;
     }
 
-    private Function<Throwable, ? extends O> defaultThrowableHandler()
+    private void throwCaughtUnmatchedException()
     {
-        return new Function<Throwable, O>()
+        if (!doneFunction.isMatched() && !failFunction.isMatched())
         {
-            @Override
-            public O apply(Throwable throwable)
-            {
-                if (throwable instanceof RuntimeException)
-                {
-                    throw (RuntimeException) throwable;
-                }
-                throw new ResponseTransformationException(throwable);
-            }
-        };
+            defaultThrowableHandlerFunction.throwRuntimeException();
+        }
     }
 
     /**
@@ -375,6 +376,11 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
             try
             {
                 matchValue = delegate.apply(input);
+                if (delegate instanceof DefaultThrowableHandlerFunction)
+                {
+                    // don't record as match as we only want to record matches from user-provided functions
+                    return matchValue;
+                }
                 match = true;
                 return matchValue;
             }
@@ -466,5 +472,33 @@ final class DefaultResponseTransformationPromise<O> implements ResponseTransform
         {
             return one.isIn(code) || two.isIn(code);
         }
+    }
+
+    /**
+     * Default handler that records, but doesn't throw the exception
+     */
+    private static class DefaultThrowableHandlerFunction<O> implements Function<Throwable, O>
+    {
+        private volatile Throwable thrown;
+
+        @Override
+        public O apply(Throwable throwable)
+        {
+            this.thrown = throwable;
+            return null;
+        }
+
+        public void throwRuntimeException()
+        {
+            if (thrown != null)
+            {
+                if (thrown instanceof RuntimeException)
+                {
+                    throw (RuntimeException) thrown;
+                }
+                throw new ResponseTransformationException(thrown);
+            }
+        }
+
     }
 }

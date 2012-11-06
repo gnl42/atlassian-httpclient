@@ -404,7 +404,6 @@ public final class ResponseTransformationPromiseTest
     }
 
     @Test
-    @Ignore("WEBHOOK-1")
     public void testFailCanTransformExceptions()
     {
         responseSettableFuture.setException(new Throwable("Some message"));
@@ -425,6 +424,13 @@ public final class ResponseTransformationPromiseTest
                         return input.getMessage();
                     }
                 }).claim());
+    }
+
+    @Test(expected = IllegalMonitorStateException.class)
+    public void testFailExceptionsWithoutHandlersAreThrownAtClaim()
+    {
+        responseSettableFuture.setException(new IllegalMonitorStateException("Some message"));
+        newBuilder().claim();
     }
 
     private void testFunctionCalledForStatus(Function<Response, Object> function, int statusCode)
