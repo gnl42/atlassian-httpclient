@@ -4,11 +4,12 @@ import java.util.Map;
 
 abstract class AbstractHttpRequestEvent
 {
-    private String url;
+    private final String url;
+    private final long elapsed;
+    private final Map<String, String> properties;
+
     private int statusCode;
     private String error;
-    private long elapsed;
-    private Map<String, String> properties;
 
     public AbstractHttpRequestEvent(String url, int statusCode, long elapsed, Map<String, String> properties)
     {

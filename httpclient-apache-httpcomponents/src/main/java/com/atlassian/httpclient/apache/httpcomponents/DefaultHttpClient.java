@@ -2,6 +2,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.httpclient.api.HttpClient;
+import com.atlassian.httpclient.api.HttpStatus;
 import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.Response;
 import com.atlassian.httpclient.api.ResponsePromise;
@@ -251,7 +252,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
                     {
                         requestKiller.completedRequest(op);
                         long elapsed = System.currentTimeMillis() - start;
-                        eventPublisher.publish(new HttpRequestFailedEvent(uri, ex.toString(), elapsed, request.getAttributes()));
+                        publishEvent(request, elapsed, ex);
                         throw Throwables.propagate(ex);
                     }
                 },
@@ -262,15 +263,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
                     {
                         requestKiller.completedRequest(op);
                         long elapsed = System.currentTimeMillis() - start;
-                        int statusCode = httpResponse.getStatusLine().getStatusCode();
-                        if (statusCode >= 200 && statusCode < 300)
-                        {
-                            eventPublisher.publish(new HttpRequestCompletedEvent(uri, statusCode, elapsed, request.getAttributes()));
-                        }
-                        else
-                        {
-                            eventPublisher.publish(new HttpRequestFailedEvent(uri, statusCode, elapsed, request.getAttributes()));
-                        }
+                        publishEvent(request, elapsed, httpResponse.getStatusLine().getStatusCode());
                         try
                         {
                             return translate(httpResponse).freeze();
@@ -284,17 +277,26 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
         ));
     }
 
+    private void publishEvent(Request request, long elapsed, int statusCode)
+    {
+        if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code)
+        {
+            eventPublisher.publish(new HttpRequestCompletedEvent(request.getUri().toString(), statusCode, elapsed, request.getAttributes()));
+        }
+        else
+        {
+            eventPublisher.publish(new HttpRequestFailedEvent(request.getUri().toString(), statusCode, elapsed, request.getAttributes()));
+        }
+    }
+
+    private void publishEvent(Request request, long elapsed, Throwable ex)
+    {
+        eventPublisher.publish(new HttpRequestFailedEvent(request.getUri().toString(), ex.toString(), elapsed, request.getAttributes()));
+    }
+
     private PromiseHttpAsyncClient getPromiseHttpAsyncClient(DefaultRequest request)
     {
         return new SettableFuturePromiseHttpPromiseAsyncClient<C>(request.isCacheDisabled() ? nonCachingHttpClient : httpClient, threadLocalContextManager, callbackExecutor);
-    }
-
-    @Override
-    public void destroy() throws Exception
-    {
-        callbackExecutor.shutdown();
-        requestKiller.stop();
-        httpClient.getConnectionManager().shutdown();
     }
 
     private DefaultResponse translate(HttpResponse httpResponse) throws IOException
@@ -308,12 +310,20 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
         {
             response.setHeader(httpHeader.getName(), httpHeader.getValue());
         }
-        HttpEntity entity = httpResponse.getEntity();
+        final HttpEntity entity = httpResponse.getEntity();
         if (entity != null)
         {
             response.setEntityStream(entity.getContent());
         }
         return response;
+    }
+
+    @Override
+    public void destroy() throws Exception
+    {
+        callbackExecutor.shutdown();
+        requestKiller.stop();
+        httpClient.getConnectionManager().shutdown();
     }
 
     @Override
