@@ -5,25 +5,28 @@ import java.util.Map;
 abstract class AbstractHttpRequestEvent
 {
     private final String url;
-    private final long elapsed;
+    private final String httpMethod;
+    private final long requestDuration;
     private final Map<String, String> properties;
 
     private int statusCode;
     private String error;
 
-    public AbstractHttpRequestEvent(String url, int statusCode, long elapsed, Map<String, String> properties)
+    public AbstractHttpRequestEvent(String url, String httpMethod, int statusCode, long requestDuration, Map<String, String> properties)
     {
         this.url = url;
+        this.httpMethod = httpMethod;
         this.statusCode = statusCode;
-        this.elapsed = elapsed;
+        this.requestDuration = requestDuration;
         this.properties = properties;
     }
 
-    public AbstractHttpRequestEvent(String url, String error, long elapsed, Map<String, String> properties)
+    public AbstractHttpRequestEvent(String url, String httpMethod, String error, long requestDuration, Map<String, String> properties)
     {
         this.url = url;
+        this.httpMethod = httpMethod;
         this.error = error;
-        this.elapsed = elapsed;
+        this.requestDuration = requestDuration;
         this.properties = properties;
     }
 
@@ -42,9 +45,9 @@ abstract class AbstractHttpRequestEvent
         return error;
     }
 
-    public long getElapsed()
+    public long getRequestDuration()
     {
-        return elapsed;
+        return requestDuration;
     }
 
     public Map<String, String> getProperties()

@@ -4,16 +4,16 @@ import com.atlassian.analytics.api.annotations.Analytics;
 
 import java.util.Map;
 
-@Analytics("plugin.httprequestfailed")
+@Analytics("httpclient.requestfailed")
 public final class HttpRequestFailedEvent extends AbstractHttpRequestEvent
 {
-    public HttpRequestFailedEvent(String url, int statusCode, long elapsed, Map<String, String> properties)
+    public HttpRequestFailedEvent(String url, String httpMethod, int statusCode, long elapsed, Map<String, String> properties)
     {
-        super(url, statusCode, elapsed, properties);
+        super(url, httpMethod, statusCode, elapsed, properties);
     }
 
-    public HttpRequestFailedEvent(String url, String error, long elapsed, Map<String, String> properties)
+    public HttpRequestFailedEvent(String url, String httpMethod, String error, long elapsed, Map<String, String> properties)
     {
-        super(url, error, elapsed, properties);
+        super(url, httpMethod, error, elapsed, properties);
     }
 }

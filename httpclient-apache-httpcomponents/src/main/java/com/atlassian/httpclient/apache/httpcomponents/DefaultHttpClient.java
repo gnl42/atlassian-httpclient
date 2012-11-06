@@ -251,8 +251,8 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
                     public Response apply(Throwable ex)
                     {
                         requestKiller.completedRequest(op);
-                        long elapsed = System.currentTimeMillis() - start;
-                        publishEvent(request, elapsed, ex);
+                        final long requestDuration = System.currentTimeMillis() - start;
+                        publishEvent(request, requestDuration, ex);
                         throw Throwables.propagate(ex);
                     }
                 },
@@ -262,8 +262,8 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
                     public Response apply(HttpResponse httpResponse)
                     {
                         requestKiller.completedRequest(op);
-                        long elapsed = System.currentTimeMillis() - start;
-                        publishEvent(request, elapsed, httpResponse.getStatusLine().getStatusCode());
+                        final long requestDuration = System.currentTimeMillis() - start;
+                        publishEvent(request, requestDuration, httpResponse.getStatusLine().getStatusCode());
                         try
                         {
                             return translate(httpResponse).freeze();
@@ -277,21 +277,36 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
         ));
     }
 
-    private void publishEvent(Request request, long elapsed, int statusCode)
+    private void publishEvent(Request request, long requestDuration, int statusCode)
     {
         if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code)
         {
-            eventPublisher.publish(new HttpRequestCompletedEvent(request.getUri().toString(), statusCode, elapsed, request.getAttributes()));
+            eventPublisher.publish(new HttpRequestCompletedEvent(
+                    request.getUri().toString(),
+                    request.getMethod().name(),
+                    statusCode,
+                    requestDuration,
+                    request.getAttributes()));
         }
         else
         {
-            eventPublisher.publish(new HttpRequestFailedEvent(request.getUri().toString(), statusCode, elapsed, request.getAttributes()));
+            eventPublisher.publish(new HttpRequestFailedEvent(
+                    request.getUri().toString(),
+                    request.getMethod().name(),
+                    statusCode,
+                    requestDuration,
+                    request.getAttributes()));
         }
     }
 
-    private void publishEvent(Request request, long elapsed, Throwable ex)
+    private void publishEvent(Request request, long requestDuration, Throwable ex)
     {
-        eventPublisher.publish(new HttpRequestFailedEvent(request.getUri().toString(), ex.toString(), elapsed, request.getAttributes()));
+        eventPublisher.publish(new HttpRequestFailedEvent(
+                request.getUri().toString(),
+                request.getMethod().name(),
+                ex.toString(),
+                requestDuration,
+                request.getAttributes()));
     }
 
     private PromiseHttpAsyncClient getPromiseHttpAsyncClient(DefaultRequest request)

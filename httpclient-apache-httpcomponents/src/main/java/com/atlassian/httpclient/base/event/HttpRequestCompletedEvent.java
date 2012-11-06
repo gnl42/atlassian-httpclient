@@ -4,11 +4,11 @@ import com.atlassian.analytics.api.annotations.Analytics;
 
 import java.util.Map;
 
-@Analytics("plugin.httprequestcompleted")
+@Analytics("httpclient.requestcompleted")
 public final class HttpRequestCompletedEvent extends AbstractHttpRequestEvent
 {
-    public HttpRequestCompletedEvent(String url, int statusCode, long elapsed, Map<String, String> properties)
+    public HttpRequestCompletedEvent(String url, String httpMethod, int statusCode, long requestDuration, Map<String, String> properties)
     {
-        super(url, statusCode, elapsed, properties);
+        super(url, httpMethod, statusCode, requestDuration, properties);
     }
 }
