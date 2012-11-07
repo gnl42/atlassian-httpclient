@@ -1,7 +1,8 @@
 package com.atlassian.webhooks.plugin;
 
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.webhooks.plugin.event.WebHookPublishQueueFullEvent;
+import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedEvent;
+import com.atlassian.webhooks.plugin.event.WebHookPublishedEvent;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
@@ -11,6 +12,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.net.URI;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -55,6 +57,7 @@ public final class WebHookPublisherImplTest
     {
         final WebHookEvent event = mock(WebHookEvent.class);
         final WebHookConsumer consumer = mock(WebHookConsumer.class);
+        when(consumer.getPath()).thenReturn(new URI("/"));
         final PublishTask publishTask = mock(PublishTask.class);
 
         when(consumerRegistry.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
@@ -65,7 +68,7 @@ public final class WebHookPublisherImplTest
 
         verify(publishTaskFactory).getPublishTask(event, consumer);
         verify(executor).execute(publishTask);
-        verifyZeroInteractions(eventPublisher);
+        verify(eventPublisher).publish(isA(WebHookPublishedEvent.class));
     }
 
     @Test
@@ -74,6 +77,7 @@ public final class WebHookPublisherImplTest
         final WebHookEvent event = mock(WebHookEvent.class);
         when(event.getId()).thenReturn("webhook_id");
         final WebHookConsumer consumer = mock(WebHookConsumer.class);
+        when(consumer.getPath()).thenReturn(new URI("/"));
         final PublishTask publishTask = mock(PublishTask.class);
 
         when(consumerRegistry.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
@@ -85,7 +89,7 @@ public final class WebHookPublisherImplTest
 
         verify(publishTaskFactory).getPublishTask(event, consumer);
         verify(executor).execute(publishTask);
-        verify(eventPublisher).publish(isA(WebHookPublishQueueFullEvent.class));
+        verify(eventPublisher).publish(isA(WebHookPublishRejectedEvent.class));
     }
 
     @Test

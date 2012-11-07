@@ -1,7 +1,8 @@
 package com.atlassian.webhooks.plugin;
 
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.webhooks.plugin.event.WebHookPublishQueueFullEvent;
+import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedEvent;
+import com.atlassian.webhooks.plugin.event.WebHookPublishedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +61,13 @@ public final class WebHookPublisherImpl implements WebHookPublisher
         try
         {
             executor.execute(publishTask);
+            eventPublisher.publish(new WebHookPublishedEvent(webHookEvent.getId(), consumer.getPluginKey(), consumer.getPath().toString()));
         }
         catch (RejectedExecutionException ex)
         {
-            logger.warn("Web hook queue full, rejecting '{}'", publishTask);
-            eventPublisher.publish(new WebHookPublishQueueFullEvent(webHookEvent.getId()));
+            logger.warn("Executor rejected the web hook '{}' saying '{}'", publishTask, ex.getMessage());
+            logger.debug("Here is the full exception", ex);
+            eventPublisher.publish(new WebHookPublishRejectedEvent(webHookEvent.getId(), consumer.getPluginKey(), consumer.getPath().toString(), ex.getMessage()));
         }
     }
 
