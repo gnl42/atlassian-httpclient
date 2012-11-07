@@ -21,8 +21,8 @@ final class WrappingResponsePromise extends ForwardingPromise<Response> implemen
     }
 
     @Override
-    public <T> ResponseTransformationPromise<T> transform()
+    public <T> ResponseTransformation<T> transform()
     {
-        return new DefaultResponseTransformationPromise<T>(this);
+        return new DefaultResponseTransformation<T>(this);
     }
 }

@@ -4,12 +4,12 @@ import com.atlassian.util.concurrent.Promise;
 import com.google.common.base.Function;
 
 /**
- * Promise that allows for transforming functions based on different HTTP codes or exceptions.
- * Under the covers, all functions are used in a fold() call.
+ * Transforms the {@link ResponsePromise} into a target object, allowing for transforming functions based on different
+ * HTTP codes or exceptions. Under the covers, all functions are used in a fold() call.
  *
  * @param <O> The target object for the transformation.
  */
-public interface ResponseTransformationPromise<O> extends Promise<O>
+public interface ResponseTransformation<O>
 {
     // Custom Selectors
 
@@ -23,7 +23,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @return This instance for chaining
      * @see #on(int, com.google.common.base.Function)
      */
-    ResponseTransformationPromise<O> on(HttpStatus status, Function<Response, ? extends O> f);
+    ResponseTransformation<O> on(HttpStatus status, Function<Response, ? extends O> f);
 
     /**
      * <p>Register a function to transform HTTP responses with a specific status code.
@@ -37,7 +37,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @return This instance for chaining
      * @see #on(HttpStatus, com.google.common.base.Function)
      */
-    ResponseTransformationPromise<O> on(int statusCode, Function<Response, ? extends O> f);
+    ResponseTransformation<O> on(int statusCode, Function<Response, ? extends O> f);
 
     // Informational (1xx) Selectors
 
@@ -47,7 +47,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> informational(Function<Response, ? extends O> f);
+    ResponseTransformation<O> informational(Function<Response, ? extends O> f);
 
     // Successful (2xx) Selectors
 
@@ -57,7 +57,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> successful(Function<Response, ? extends O> f);
+    ResponseTransformation<O> successful(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'ok' (200) HTTP responses.
@@ -65,7 +65,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> ok(Function<Response, ? extends O> f);
+    ResponseTransformation<O> ok(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'created' (201) HTTP responses.
@@ -73,7 +73,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> created(Function<Response, ? extends O> f);
+    ResponseTransformation<O> created(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'no content' (204) HTTP responses.
@@ -81,7 +81,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> noContent(Function<Response, ? extends O> f);
+    ResponseTransformation<O> noContent(Function<Response, ? extends O> f);
 
     // Redirection (3xx) Selectors
 
@@ -91,7 +91,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> redirection(Function<Response, ? extends O> f);
+    ResponseTransformation<O> redirection(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'see other' (303) HTTP responses.
@@ -99,7 +99,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> seeOther(Function<Response, ? extends O> f);
+    ResponseTransformation<O> seeOther(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'not modified' (304) HTTP responses.
@@ -107,7 +107,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> notModified(Function<Response, ? extends O> f);
+    ResponseTransformation<O> notModified(Function<Response, ? extends O> f);
 
     // Client Error (4xx) Selectors
 
@@ -117,7 +117,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> clientError(Function<Response, ? extends O> f);
+    ResponseTransformation<O> clientError(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'bad request' (400) HTTP responses.
@@ -125,7 +125,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> badRequest(Function<Response, ? extends O> f);
+    ResponseTransformation<O> badRequest(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'unauthorized' (401) HTTP responses.
@@ -133,7 +133,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> unauthorized(Function<Response, ? extends O> f);
+    ResponseTransformation<O> unauthorized(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'forbidden' (403) HTTP responses.
@@ -141,7 +141,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> forbidden(Function<Response, ? extends O> f);
+    ResponseTransformation<O> forbidden(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'not found' (404) HTTP responses.
@@ -149,7 +149,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> notFound(Function<Response, ? extends O> f);
+    ResponseTransformation<O> notFound(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'conflict' (409) HTTP responses.
@@ -157,7 +157,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> conflict(Function<Response, ? extends O> f);
+    ResponseTransformation<O> conflict(Function<Response, ? extends O> f);
 
     // Server Error (5xx) Selectors
 
@@ -167,7 +167,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> serverError(Function<Response, ? extends O> f);
+    ResponseTransformation<O> serverError(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'internal server error' (500) HTTP responses.
@@ -175,7 +175,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> internalServerError(Function<Response, ? extends O> f);
+    ResponseTransformation<O> internalServerError(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform 'service unavailable' (503) HTTP responses.
@@ -183,7 +183,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> serviceUnavailable(Function<Response, ? extends O> f);
+    ResponseTransformation<O> serviceUnavailable(Function<Response, ? extends O> f);
 
     // Aggregate Selectors
 
@@ -193,7 +193,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> error(Function<Response, ? extends O> f);
+    ResponseTransformation<O> error(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform all non-'successful' (1xx, 3xx, 4xx, 5xx) HTTP responses.
@@ -201,7 +201,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> notSuccessful(Function<Response, ? extends O> f);
+    ResponseTransformation<O> notSuccessful(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform all other HTTP responses (i.e. those not explicitly registered for).
@@ -209,7 +209,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> others(Function<Response, ? extends O> f);
+    ResponseTransformation<O> others(Function<Response, ? extends O> f);
 
     /**
      * Register a function to transform both of the following events:
@@ -221,7 +221,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> otherwise(Function<Throwable, O> f);
+    ResponseTransformation<O> otherwise(Function<Throwable, O> f);
 
     /**
      * Register a function to transform all completed (1xx, 2xx, 3xx, 4xx, and 5xx) HTTP responses.
@@ -229,7 +229,7 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> done(Function<Response, O> f);
+    ResponseTransformation<O> done(Function<Response, O> f);
     
     // Exception Selectors
 
@@ -239,5 +239,21 @@ public interface ResponseTransformationPromise<O> extends Promise<O>
      * @param f The transformation function
      * @return This instance for chaining
      */
-    ResponseTransformationPromise<O> fail(Function<Throwable, ? extends O> f);
+    ResponseTransformation<O> fail(Function<Throwable, ? extends O> f);
+
+    /**
+     * Blocks the thread waiting for a result. Exceptions are thrown as runtime
+     * exceptions.  Convenience method for toPromise().claim()
+     *
+     * @return The final object
+     */
+    O claim();
+
+    /**
+     * Converts the transformation into a promise for further mapping
+     *
+     * @return A promise that will return the object
+     */
+    Promise<O> toPromise();
+
 }

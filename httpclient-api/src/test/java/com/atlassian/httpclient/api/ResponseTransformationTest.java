@@ -5,7 +5,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.SettableFuture;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -23,9 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class ResponseTransformationPromiseTest
+public final class ResponseTransformationTest
 {
-    private ResponseTransformationPromise<Object> promise;
+    private ResponseTransformation<Object> promise;
 
     @Mock
     private Response response;
@@ -239,7 +238,7 @@ public final class ResponseTransformationPromiseTest
             {
                 throw new IllegalStateException("foo");
             }
-        });
+        }).toPromise();
         responseSettableFuture.setException(new RuntimeException());
         promise.claim();
     }
@@ -248,11 +247,11 @@ public final class ResponseTransformationPromiseTest
     public void testDelayedExecutionExecutesOnce()
     {
         final AtomicInteger counter = new AtomicInteger(0);
-        ResponseTransformationPromise<String> responsePromise =
-                new DefaultResponseTransformationPromise<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
-        when(response.getStatusCode()).thenReturn(200);
+        ResponseTransformation<String> response =
+                new DefaultResponseTransformation<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
+        when(this.response.getStatusCode()).thenReturn(200);
 
-        Promise<String> promise = responsePromise
+        Promise<String> promise = response
                 .ok(new Function<Response, String>()
                 {
                     @Override
@@ -268,8 +267,8 @@ public final class ResponseTransformationPromiseTest
                     {
                         throw new IllegalStateException();
                     }
-                });
-        responseSettableFuture.set(response);
+                }).toPromise();
+        responseSettableFuture.set(this.response);
         assertEquals("foo0", promise.claim());
     }
 
@@ -277,11 +276,11 @@ public final class ResponseTransformationPromiseTest
     public void testDelayedExecutionExecutesDoneOnceWithException()
     {
         final AtomicInteger counter = new AtomicInteger(0);
-        ResponseTransformationPromise<String> responsePromise =
-                new DefaultResponseTransformationPromise<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
-        when(response.getStatusCode()).thenReturn(200);
+        ResponseTransformation<String> response =
+                new DefaultResponseTransformation<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
+        when(this.response.getStatusCode()).thenReturn(200);
 
-        Promise<String> promise = responsePromise
+        Promise<String> promise = response
                 .ok(new Function<Response, String>()
                 {
                     @Override
@@ -297,8 +296,8 @@ public final class ResponseTransformationPromiseTest
                     {
                         return null;
                     }
-                });
-        responseSettableFuture.set(response);
+                }).toPromise();
+        responseSettableFuture.set(this.response);
         try
         {
             promise.claim();
@@ -313,11 +312,11 @@ public final class ResponseTransformationPromiseTest
     public void testDelayedExecutionExecutesFailOnce()
     {
         final AtomicInteger counter = new AtomicInteger(0);
-        ResponseTransformationPromise<String> responsePromise =
-                new DefaultResponseTransformationPromise<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
-        when(response.getStatusCode()).thenReturn(200);
+        ResponseTransformation<String> response =
+                new DefaultResponseTransformation<String>(toResponsePromise(forListenableFuture(responseSettableFuture)));
+        when(this.response.getStatusCode()).thenReturn(200);
 
-        Promise<String> promise = responsePromise
+        Promise<String> promise = response
                 .fail(new Function<Throwable, String>()
                 {
                     @Override
@@ -333,8 +332,9 @@ public final class ResponseTransformationPromiseTest
                     {
                         throw new IllegalStateException();
                     }
-                });
-        responseSettableFuture.set(response);
+                })
+                .toPromise();
+        responseSettableFuture.set(this.response);
         assertEquals("foo0", promise.claim());
     }
 
@@ -345,7 +345,7 @@ public final class ResponseTransformationPromiseTest
 
         for (int statusCode = HttpStatus.CONTINUE.code; statusCode < 600; statusCode++)
         {
-            final ResponseTransformationPromise<Object> promise = newBuilder()
+            final ResponseTransformation<Object> promise = newBuilder()
                     .notSuccessful(clientErrorFunction)
                     .others(successfulFunction);
             if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code)
@@ -366,7 +366,7 @@ public final class ResponseTransformationPromiseTest
 
         for (int statusCode = HttpStatus.CONTINUE.code; statusCode < 600; statusCode++)
         {
-            final ResponseTransformationPromise<Object> promise = newBuilder()
+            final ResponseTransformation<Object> promise = newBuilder()
                     .error(clientErrorFunction)
                     .others(successfulFunction);
             if (HttpStatus.BAD_REQUEST.code <= statusCode && statusCode < 600)
@@ -403,11 +403,11 @@ public final class ResponseTransformationPromiseTest
         });
     }
 
-    @Test
-    public void testFailCanTransformExceptions()
+    @Test(expected = IllegalMonitorStateException.class)
+    public void testFailCanThrowExceptions()
     {
         responseSettableFuture.setException(new Throwable("Some message"));
-        assertEquals("Some message", newBuilder()
+        newBuilder()
                 .ok(new Function<Response, String>()
                 {
                     @Override
@@ -421,9 +421,9 @@ public final class ResponseTransformationPromiseTest
                     @Override
                     public String apply(Throwable input)
                     {
-                        return input.getMessage();
+                        throw new IllegalMonitorStateException();
                     }
-                }).claim());
+                }).claim();
     }
 
     @Test(expected = IllegalMonitorStateException.class)
@@ -455,22 +455,23 @@ public final class ResponseTransformationPromiseTest
                 statusCode);
     }
 
-    private void testFunctionCalledForStatus(ResponseTransformationPromise<Object> promise, Function<Response, Object> function, int statusCode)
+    private void testFunctionCalledForStatus(ResponseTransformation<Object> promise, Function<Response, Object> function, int statusCode)
     {
         when(response.getStatusCode()).thenReturn(statusCode);
-
         responseSettableFuture.set(response);
+
+        promise.claim();
 
         verify(function).apply(response);
         verifyNoMoreInteractions(allFunctionsAsArray());
     }
 
-    private ResponseTransformationPromise<Object> newBuilder()
+    private ResponseTransformation<Object> newBuilder()
     {
-        return new DefaultResponseTransformationPromise<Object>(toResponsePromise(forListenableFuture(responseSettableFuture)));
+        return new DefaultResponseTransformation<Object>(toResponsePromise(forListenableFuture(responseSettableFuture)));
     }
 
-    private ResponseTransformationPromise<Object> rangesBuilder()
+    private ResponseTransformation<Object> rangesBuilder()
     {
         return newBuilder()
                 .successful(successfulFunction)
