@@ -1,6 +1,7 @@
 package com.atlassian.webhooks.plugin;
 
 import com.atlassian.webhooks.spi.provider.EventMatcher;
+import com.atlassian.webhooks.spi.provider.EventSerializer;
 import com.atlassian.webhooks.spi.provider.EventSerializerFactory;
 import com.atlassian.webhooks.spi.provider.WebHook;
 import com.google.common.collect.Iterables;
@@ -46,6 +47,21 @@ public final class AnnotationWebHookRegistryTest
         final Iterable<String> webHookIds = registry.getWebHookIds();
         assertEquals(1, Iterables.size(webHookIds));
         assertTrue(Iterables.contains(webHookIds, WEB_HOOK_ID));
+    }
+
+    @Test
+    public void testWebHookSerializesOnce()
+    {
+        ValidAnnotatedEvent event = new ValidAnnotatedEvent();
+        EventSerializer eventSerializer = mock(EventSerializer.class);
+        when(eventSerializer.getJson()).thenReturn("foo");
+        when(eventSerializerFactory.create(event)).thenReturn(eventSerializer);
+        final Iterable<WebHookEvent> webHooks = registry.getWebHooks(event);
+        assertEquals(1, Iterables.size(webHooks));
+        WebHookEvent webHookEvent = webHooks.iterator().next();
+        webHookEvent.getJson();
+        webHookEvent.getJson();
+        verify(eventSerializer, times(1)).getJson();
     }
 
     @Test

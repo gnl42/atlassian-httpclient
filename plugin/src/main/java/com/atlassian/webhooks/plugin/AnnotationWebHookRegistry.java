@@ -4,6 +4,8 @@ import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.EventSerializer;
 import com.atlassian.webhooks.spi.provider.WebHook;
 import com.google.common.base.Strings;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
@@ -89,14 +91,23 @@ public final class AnnotationWebHookRegistry implements WebHookRegistry
         private final String id;
         private final Object event;
         private final EventMatcher<Object> eventMatcher;
-        private final EventSerializer eventSerializer;
+        private final Supplier<String> jsonSupplier;
 
-        public WebHookEventImpl(Object event, WebHook annotation, ConstructionStrategy constructionStrategy)
+        public WebHookEventImpl(
+                final Object event, final WebHook annotation, final ConstructionStrategy constructionStrategy)
         {
             this.id = checkNotNull(annotation).id();
             this.event = checkNotNull(event);
             this.eventMatcher = checkNotNull(constructionStrategy).get(annotation.matcher());
-            this.eventSerializer = constructionStrategy.get(annotation.serializerFactory()).create(event);
+            this.jsonSupplier = Suppliers.memoize(new Supplier<String>()
+            {
+                @Override
+                public String get()
+                {
+                    EventSerializer eventSerializer = constructionStrategy.get(annotation.serializerFactory()).create(event);
+                    return eventSerializer.getJson();
+                }
+            });
         }
 
         @Override
@@ -120,8 +131,7 @@ public final class AnnotationWebHookRegistry implements WebHookRegistry
         @Override
         public String getJson()
         {
-
-            return eventSerializer.getJson();
+            return jsonSupplier.get();
         }
     }
 }

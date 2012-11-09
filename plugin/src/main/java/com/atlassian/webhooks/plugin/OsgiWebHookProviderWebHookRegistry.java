@@ -6,6 +6,8 @@ import com.atlassian.webhooks.plugin.impl.WebHookRegistrarImpl;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.WebHookProvider;
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
@@ -45,9 +47,17 @@ public final class OsgiWebHookProviderWebHookRegistry implements WebHookRegistry
         return transform(registrationsByEvent.get(event.getClass()), new Function<WebHookRegistration, WebHookEvent>()
         {
             @Override
-            public WebHookEvent apply(WebHookRegistration registration)
+            public WebHookEvent apply(final WebHookRegistration registration)
             {
-                return new WebHookEventImpl(registration.getId(), event, registration.getEventMatcher(), registration.getEventSerializer(event).getJson());
+                return new WebHookEventImpl(registration.getId(), event, registration.getEventMatcher(),
+                        Suppliers.memoize(new Supplier<String>()
+                        {
+                            @Override
+                            public String get()
+                            {
+                                return registration.getEventSerializer(event).getJson();
+                            }
+                        }));
             }
         });
     }
@@ -57,9 +67,10 @@ public final class OsgiWebHookProviderWebHookRegistry implements WebHookRegistry
         private final String id;
         private final Object event;
         private final EventMatcher eventMatcher;
-        private final String body;
+        private final Supplier<String> body;
 
-        public WebHookEventImpl(String id, Object event, EventMatcher eventMatcher, String body)
+        public WebHookEventImpl(String id, Object event, EventMatcher eventMatcher, Supplier
+                <String> body)
         {
             this.id = id;
             this.eventMatcher = eventMatcher;
@@ -88,7 +99,7 @@ public final class OsgiWebHookProviderWebHookRegistry implements WebHookRegistry
         @Override
         public String getJson()
         {
-            return body;
+            return body.get();
         }
     }
 
