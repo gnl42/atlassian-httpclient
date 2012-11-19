@@ -27,5 +27,4 @@
 
     <component-import key="jiraAuthenticationContext" interface="com.atlassian.jira.security.JiraAuthenticationContext" application="jira" />
     <component-import key="jiraVelocityRequestContextFactory" interface="com.atlassian.jira.util.velocity.VelocityRequestContextFactory" application="jira" />
-    <component-import key="jiraTenantReference" interface="com.atlassian.multitenant.TenantReference" application="jira" />
 </atlassian-plugin>

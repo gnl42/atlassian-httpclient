@@ -5,20 +5,18 @@ import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.util.velocity.VelocityRequestContext;
 import com.atlassian.jira.util.velocity.VelocityRequestContextFactory;
-import com.atlassian.multitenant.Tenant;
-import com.atlassian.multitenant.TenantReference;
+
+import static com.google.common.base.Preconditions.*;
 
 public final class JiraThreadLocalContextManager implements ThreadLocalContextManager<JiraThreadLocalContextManager.JiraThreadLocalContext>
 {
     private final JiraAuthenticationContext authenticationContext;
-    private final TenantReference tenantReference;
     private final VelocityRequestContextFactory velocityRequestContextFactory;
 
-    public JiraThreadLocalContextManager(JiraAuthenticationContext authenticationContext, TenantReference tenantReference, final VelocityRequestContextFactory velocityRequestContextFactory)
+    public JiraThreadLocalContextManager(JiraAuthenticationContext authenticationContext, final VelocityRequestContextFactory velocityRequestContextFactory)
     {
-        this.authenticationContext = authenticationContext;
-        this.tenantReference = tenantReference;
-        this.velocityRequestContextFactory = velocityRequestContextFactory;
+        this.authenticationContext = checkNotNull(authenticationContext);
+        this.velocityRequestContextFactory = checkNotNull(velocityRequestContextFactory);
     }
 
     /**
@@ -28,7 +26,7 @@ public final class JiraThreadLocalContextManager implements ThreadLocalContextMa
      */
     public JiraThreadLocalContext getThreadLocalContext()
     {
-        return new JiraThreadLocalContext(authenticationContext.getLoggedInUser(), tenantReference.get(), velocityRequestContextFactory.getJiraVelocityRequestContext());
+        return new JiraThreadLocalContext(authenticationContext.getLoggedInUser(), velocityRequestContextFactory.getJiraVelocityRequestContext());
     }
 
     /**
@@ -38,7 +36,6 @@ public final class JiraThreadLocalContextManager implements ThreadLocalContextMa
      */
     public void setThreadLocalContext(JiraThreadLocalContext context)
     {
-        tenantReference.set(context.getTenant(), false);
         authenticationContext.setLoggedInUser(context.getUser());
         velocityRequestContextFactory.setVelocityRequestContext(context.getVelocityRequestContext());
     }
@@ -50,30 +47,22 @@ public final class JiraThreadLocalContextManager implements ThreadLocalContextMa
     {
         velocityRequestContextFactory.clearVelocityRequestContext();
         authenticationContext.setLoggedInUser(null);
-        tenantReference.remove();
     }
 
     public static class JiraThreadLocalContext
     {
         private final User user;
-        private final Tenant tenant;
         private final VelocityRequestContext velocityRequestContext;
 
-        private JiraThreadLocalContext(User user, Tenant tenant, VelocityRequestContext velocityRequestContext)
+        private JiraThreadLocalContext(User user, VelocityRequestContext velocityRequestContext)
         {
             this.user = user;
-            this.tenant = tenant;
             this.velocityRequestContext = velocityRequestContext;
         }
 
         public User getUser()
         {
             return user;
-        }
-
-        public Tenant getTenant()
-        {
-            return tenant;
         }
 
         public VelocityRequestContext getVelocityRequestContext()
