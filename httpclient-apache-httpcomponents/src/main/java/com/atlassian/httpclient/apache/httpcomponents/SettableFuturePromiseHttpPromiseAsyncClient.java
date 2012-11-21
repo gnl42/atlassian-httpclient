@@ -3,6 +3,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.util.concurrent.Promise;
 import com.atlassian.util.concurrent.Promises;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.SettableFuture;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -77,22 +78,23 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
         return Promises.forListenableFuture(future);
     }
 
-    private static <C> void runInContext(ThreadLocalContextManager<C> threadLocalContextManager, C threadLocalContext,
-                                     ClassLoader contextClassLoader, Runnable runnable)
-            {
-                ClassLoader oldCcl = Thread.currentThread().getContextClassLoader();
-                try
-                {
-                    Thread.currentThread().setContextClassLoader(contextClassLoader);
-                    threadLocalContextManager.setThreadLocalContext(threadLocalContext);
-                    runnable.run();
-                }
-                finally
-                {
-                    threadLocalContextManager.resetThreadLocalContext();
-                    Thread.currentThread().setContextClassLoader(oldCcl);
-                }
-            }
+    @VisibleForTesting
+    static <C> void runInContext(ThreadLocalContextManager<C> threadLocalContextManager, C threadLocalContext, ClassLoader contextClassLoader, Runnable runnable)
+    {
+        final C oldThreadLocalContext = threadLocalContextManager.getThreadLocalContext();
+        final ClassLoader oldCcl = Thread.currentThread().getContextClassLoader();
+        try
+        {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
+            threadLocalContextManager.setThreadLocalContext(threadLocalContext);
+            runnable.run();
+        }
+        finally
+        {
+            threadLocalContextManager.setThreadLocalContext(oldThreadLocalContext);
+            Thread.currentThread().setContextClassLoader(oldCcl);
+        }
+    }
 
     private static abstract class ThreadLocalContextAwareFutureCallback<C, HttpResponse> implements FutureCallback<HttpResponse>
     {
