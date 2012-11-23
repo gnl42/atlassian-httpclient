@@ -9,15 +9,19 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>atlassian-webhooks-spi</artifactId>
+    <artifactId>atlassian-webhooks-provider-spi</artifactId>
 
-    <name>Atlassian WebHooks Plugin's SPI</name>
+    <name>Atlassian WebHooks Plugin's Provider SPI</name>
+    <description>This the library that should be used for those plugins/products that need to register webhooks.</description>
 
     <dependencies>
         <dependency>
-            <groupId>com.atlassian.httpclient</groupId>
-            <artifactId>atlassian-httpclient-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.json</groupId>
+            <artifactId>org.json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 </project>

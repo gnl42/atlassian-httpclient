@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class EventSerializers
 {

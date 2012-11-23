@@ -17,12 +17,18 @@
 
     <properties>
         <atlassian-plugins.version>2.14.0-m5</atlassian-plugins.version>
+        <spi.version>0.10</spi.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.atlassian.webhooks</groupId>
             <artifactId>atlassian-webhooks-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.webhooks</groupId>
+            <artifactId>atlassian-webhooks-provider-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -173,6 +179,7 @@
                             com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",
                             com.atlassian.plugin.schema.spi;version="${atlassian-plugins.version}",
                             com.atlassian.util.concurrent*;version="${atlassian-util-concurrent.version}",
+                            com.atlassian.webhooks.spi.provider;version="${spi.version}",
                             com.google.common*;version="${guava.version}",
                             javax.net.ssl,
                             javax.xml*,
@@ -186,7 +193,8 @@
                         <Export-Package>
                             com.atlassian.httpclient.api*;version="${project.version}",
                             com.atlassian.httpclient.spi*;version="${project.version}",
-                            com.atlassian.webhooks.spi*;version="${project.version}",
+                            com.atlassian.webhooks.spi.plugin;version="${spi.version}",
+                            com.atlassian.webhooks.spi.provider;version="${spi.version}",
                             com.atlassian.plugin.schema.descriptor;version="${atlassian-plugins.version}",
                             com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",
                             com.atlassian.plugin.schema.spi;version="${atlassian-plugins.version}",

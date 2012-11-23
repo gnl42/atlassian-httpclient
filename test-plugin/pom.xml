@@ -64,6 +64,18 @@
                 <artifactId>maven-amps-plugin</artifactId>
                 <configuration>
                     <extractDependencies>true</extractDependencies>
+                    <libArtifacts>
+                        <libArtifact>
+                            <groupId>com.atlassian.webhooks</groupId>
+                            <artifactId>atlassian-webhooks-provider-spi</artifactId>
+                            <version>${project.version}</version>
+                        </libArtifact>
+                        <libArtifact>
+                            <groupId>org.json</groupId>
+                            <artifactId>org.json</artifactId>
+                            <version>${org.json.version}</version>
+                        </libArtifact>
+                    </libArtifacts>
                     <pluginArtifacts>
                         <pluginArtifact>
                             <groupId>com.atlassian.functest</groupId>

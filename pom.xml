@@ -42,6 +42,7 @@
     </licenses>
 
     <modules>
+        <module>provider-spi</module>
         <module>spi</module>
         <module>plugin</module>
         <module>test-plugin</module>
@@ -62,6 +63,7 @@
         <confluence.version>4.2.13</confluence.version>
         <sdk.version>4.0</sdk.version>
         <analytics.version>2.12</analytics.version>
+        <org.json.version>chargebee-1.0</org.json.version>
     </properties>
 
     <dependencyManagement>
@@ -110,7 +112,7 @@
             <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>org.json</artifactId>
-                <version>chargebee-1.0</version>
+                <version>${org.json.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
