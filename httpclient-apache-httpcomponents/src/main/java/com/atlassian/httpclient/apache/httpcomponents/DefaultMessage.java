@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.google.common.collect.Maps.*;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * An abstract base class for HTTP messages (i.e. Request and Response) with support for
@@ -268,7 +268,7 @@ abstract class DefaultMessage implements Message
 
     private void checkValidSize() throws IllegalArgumentException
     {
-        Integer contentLength = null;
+        Integer contentLength;
         String lengthHeader = getHeader("Content-Length");
         if (lengthHeader != null)
         {
@@ -301,10 +301,14 @@ abstract class DefaultMessage implements Message
             }
             if (parts.length >= 2)
             {
-                String charset = parts[1].trim();
-                if (parts[1].startsWith("charset="))
+                String subtype = parts[1].trim();
+                if (subtype.startsWith("charset="))
                 {
-                    setContentCharset(charset.substring(8));
+                    setContentCharset(subtype.substring(8));
+                }
+                else if (subtype.startsWith("boundary="))
+                {
+                    contentType = contentType.concat(';'+subtype);
                 }
             }
         }
