@@ -87,6 +87,11 @@
                             <artifactId>atlassian-webhooks-plugin</artifactId>
                             <version>${project.version}</version>
                         </pluginArtifact>
+                        <pluginArtifact>
+                            <groupId>com.atlassian.util.concurrent</groupId>
+                            <artifactId>atlassian-util-concurrent</artifactId>
+                            <version>${atlassian-util-concurrent.version}</version>
+                        </pluginArtifact>
                     </pluginArtifacts>
                     <products>
                         <product>
