@@ -1,5 +1,6 @@
 package com.atlassian.webhooks.plugin;
 
+import com.atlassian.webhooks.spi.provider.ConsumerKey;
 import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookConsumerRegistry;
@@ -19,15 +20,15 @@ public final class ModuleDescriptorWebHookRegistryImpl implements ModuleDescript
     private final Multimap<String, WebHookConsumer> consumers = newMultimap();
 
     @Override
-    public void register(String pluginKey, String webHookId, String consumerKey, URI uri)
+    public void register(String webHookId, ConsumerKey consumerKey, URI uri)
     {
-        consumers.put(webHookId, new WebHookConsumerImpl(pluginKey, consumerKey, uri));
+        consumers.put(webHookId, new WebHookConsumerImpl(consumerKey, uri));
     }
 
     @Override
-    public void unregister(String pluginKey, String webHookId, String consumerKey, URI uri)
+    public void unregister(String webHookId, ConsumerKey consumerKey, URI uri)
     {
-        consumers.get(webHookId).remove(new WebHookConsumerImpl(pluginKey, consumerKey, uri));
+        consumers.get(webHookId).remove(new WebHookConsumerImpl(consumerKey, uri));
     }
 
     @Override
@@ -51,25 +52,18 @@ public final class ModuleDescriptorWebHookRegistryImpl implements ModuleDescript
 
     private static final class WebHookConsumerImpl implements WebHookConsumer
     {
-        private final String pluginKey;
-        private final String consumerKey;
-        private final URI uri;
 
-        public WebHookConsumerImpl(String pluginKey, String consumerKey, URI uri)
+        private final URI uri;
+        private final ConsumerKey consumerKey;
+
+        public WebHookConsumerImpl(ConsumerKey consumerKey, URI uri)
         {
-            this.pluginKey = pluginKey;
             this.consumerKey = consumerKey;
             this.uri = uri;
         }
 
         @Override
-        public String getPluginKey()
-        {
-            return pluginKey;
-        }
-
-        @Override
-        public String getConsumerKey()
+        public ConsumerKey getConsumerKey()
         {
             return consumerKey;
         }
@@ -83,7 +77,7 @@ public final class ModuleDescriptorWebHookRegistryImpl implements ModuleDescript
         @Override
         public int hashCode()
         {
-            return Objects.hashCode(pluginKey, uri);
+            return Objects.hashCode(consumerKey, uri);
         }
 
         @Override
@@ -99,7 +93,7 @@ public final class ModuleDescriptorWebHookRegistryImpl implements ModuleDescript
             }
             final WebHookConsumerImpl other = (WebHookConsumerImpl) obj;
 
-            return Objects.equal(this.pluginKey, other.pluginKey)
+            return Objects.equal(this.consumerKey, other.consumerKey)
                     && Objects.equal(this.uri, other.uri);
         }
     }

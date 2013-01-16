@@ -16,7 +16,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class WebHookPublisherImpl implements WebHookPublisher
 {
@@ -56,7 +56,7 @@ public final class WebHookPublisherImpl implements WebHookPublisher
 
     private boolean match(WebHookEvent webHookEvent, WebHookConsumer consumer)
     {
-        return webHookEvent.getEventMatcher().matches(webHookEvent.getEvent(), consumer);
+        return webHookEvent.getEventMatcher().matches(webHookEvent.getEvent(), consumer.getConsumerKey());
     }
 
     private void publish(WebHookEvent webHookEvent, WebHookConsumer consumer)
@@ -65,13 +65,13 @@ public final class WebHookPublisherImpl implements WebHookPublisher
         try
         {
             executor.execute(publishTask);
-            eventPublisher.publish(new WebHookPublishedEvent(webHookEvent.getId(), consumer.getPluginKey(), consumer.getPath().toString()));
+            eventPublisher.publish(new WebHookPublishedEvent(webHookEvent.getId(), consumer.getConsumerKey(), consumer.getPath().toString()));
         }
         catch (RejectedExecutionException ex)
         {
             logger.warn("Executor rejected the web hook '{}' saying '{}'", publishTask, ex.getMessage());
             logger.debug("Here is the full exception", ex);
-            eventPublisher.publish(new WebHookPublishRejectedEvent(webHookEvent.getId(), consumer.getPluginKey(), consumer.getPath().toString(), ex.getMessage()));
+            eventPublisher.publish(new WebHookPublishRejectedEvent(webHookEvent.getId(), consumer.getConsumerKey(), consumer.getPath().toString(), ex.getMessage()));
         }
     }
 

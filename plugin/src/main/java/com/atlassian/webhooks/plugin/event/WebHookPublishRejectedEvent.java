@@ -1,6 +1,7 @@
 package com.atlassian.webhooks.plugin.event;
 
 import com.atlassian.analytics.api.annotations.Analytics;
+import com.atlassian.webhooks.spi.provider.ConsumerKey;
 
 /**
  * Fired when the web hook publishing queue is full and the event will be discarded
@@ -10,9 +11,9 @@ public final class WebHookPublishRejectedEvent extends AbstractWebHookEvent
 {
     private final String rejectionMessage;
 
-    public WebHookPublishRejectedEvent(String webHookId, String pluginKey, String uri, String rejectionMessage)
+    public WebHookPublishRejectedEvent(String webHookId, ConsumerKey consumerKey, String uri, String rejectionMessage)
     {
-        super(webHookId, pluginKey, uri);
+        super(webHookId, consumerKey, uri);
         this.rejectionMessage = rejectionMessage;
     }
 

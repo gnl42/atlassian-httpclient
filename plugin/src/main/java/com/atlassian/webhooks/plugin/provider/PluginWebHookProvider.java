@@ -2,11 +2,11 @@ package com.atlassian.webhooks.plugin.provider;
 
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.webhooks.spi.provider.ConsumerKey;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.EventSerializer;
 import com.atlassian.webhooks.spi.provider.EventSerializerFactory;
 import com.atlassian.webhooks.spi.provider.EventSerializers;
-import com.atlassian.webhooks.spi.provider.IdentifiableWebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookProvider;
 import com.atlassian.webhooks.spi.provider.WebHookRegistrar;
 import com.google.common.base.Strings;
@@ -31,7 +31,7 @@ public final class PluginWebHookProvider implements WebHookProvider
                 .matchedBy(new EventMatcher()
                 {
                     @Override
-                    public boolean matches(Object event, IdentifiableWebHookConsumer webHookConsumer)
+                    public boolean matches(Object event, ConsumerKey webHookConsumer)
                     {
                         return event instanceof PluginEnabledEvent
                                 && (((PluginEnabledEvent) event).getPlugin().getKey()).equals(webHookConsumer.getPluginKey());

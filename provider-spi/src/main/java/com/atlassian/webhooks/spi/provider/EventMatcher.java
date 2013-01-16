@@ -19,12 +19,12 @@ public interface EventMatcher<T>
      * @param webHookConsumer the plugin key and consumer key of the consumer which listens to the web hook.
      * @return {@code true} if this event matches the web hook registration, {@code false} otherwise.
      */
-    boolean matches(T event, IdentifiableWebHookConsumer webHookConsumer);
+    boolean matches(T event, ConsumerKey webHookConsumer);
 
     static final class AlwaysTrueEventMatcher implements EventMatcher<Object>
     {
         @Override
-        public boolean matches(final Object event, final IdentifiableWebHookConsumer webHookConsumer)
+        public boolean matches(final Object event, final ConsumerKey webHookConsumer)
         {
             return true;
         }
@@ -33,7 +33,7 @@ public interface EventMatcher<T>
     static final class AlwaysFalseEventMatcher implements EventMatcher<Object>
     {
         @Override
-        public boolean matches(final Object event, final IdentifiableWebHookConsumer webHookConsumer)
+        public boolean matches(final Object event, final ConsumerKey webHookConsumer)
         {
             return false;
         }

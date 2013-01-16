@@ -4,6 +4,7 @@ import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.descriptors.AbstractModuleDescriptor;
 import com.atlassian.util.concurrent.NotNull;
+import com.atlassian.webhooks.spi.provider.ConsumerKey;
 import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry;
 import org.dom4j.Element;
 
@@ -43,13 +44,13 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
     public void enabled()
     {
         super.enabled();
-        webHookConsumerRegistry.register(getPluginKey(), eventIdentifier, moduleKey, url);
+        webHookConsumerRegistry.register(eventIdentifier, new ConsumerKey(getPluginKey(), moduleKey), url);
     }
 
     @Override
     public void disabled()
     {
-        webHookConsumerRegistry.unregister(getPluginKey(), eventIdentifier, moduleKey, url);
+        webHookConsumerRegistry.unregister(eventIdentifier, new ConsumerKey(getPluginKey(), moduleKey), url);
         super.disabled();
     }
 

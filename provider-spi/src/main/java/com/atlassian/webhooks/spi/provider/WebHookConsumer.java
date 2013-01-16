@@ -2,7 +2,9 @@ package com.atlassian.webhooks.spi.provider;
 
 import java.net.URI;
 
-public interface WebHookConsumer extends IdentifiableWebHookConsumer
+public interface WebHookConsumer
 {
+    ConsumerKey getConsumerKey();
+
     URI getPath();
 }
