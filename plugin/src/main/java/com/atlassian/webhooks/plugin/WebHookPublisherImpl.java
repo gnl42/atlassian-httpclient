@@ -3,6 +3,10 @@ package com.atlassian.webhooks.plugin;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedEvent;
 import com.atlassian.webhooks.plugin.event.WebHookPublishedEvent;
+import com.atlassian.webhooks.spi.provider.WebHookConsumer;
+import com.atlassian.webhooks.spi.provider.WebHookConsumerRegistry;
+import com.atlassian.webhooks.spi.provider.WebHookEvent;
+import com.atlassian.webhooks.spi.provider.WebHookPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +56,7 @@ public final class WebHookPublisherImpl implements WebHookPublisher
 
     private boolean match(WebHookEvent webHookEvent, WebHookConsumer consumer)
     {
-        return webHookEvent.getEventMatcher().matches(webHookEvent.getEvent(), consumer.getPluginKey());
+        return webHookEvent.getEventMatcher().matches(webHookEvent.getEvent(), consumer);
     }
 
     private void publish(WebHookEvent webHookEvent, WebHookConsumer consumer)

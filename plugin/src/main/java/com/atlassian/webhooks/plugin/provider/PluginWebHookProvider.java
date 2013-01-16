@@ -6,6 +6,7 @@ import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.EventSerializer;
 import com.atlassian.webhooks.spi.provider.EventSerializerFactory;
 import com.atlassian.webhooks.spi.provider.EventSerializers;
+import com.atlassian.webhooks.spi.provider.IdentifiableWebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookProvider;
 import com.atlassian.webhooks.spi.provider.WebHookRegistrar;
 import com.google.common.base.Strings;
@@ -30,10 +31,10 @@ public final class PluginWebHookProvider implements WebHookProvider
                 .matchedBy(new EventMatcher()
                 {
                     @Override
-                    public boolean matches(Object event, String pluginKey)
+                    public boolean matches(Object event, IdentifiableWebHookConsumer webHookConsumer)
                     {
                         return event instanceof PluginEnabledEvent
-                                && (((PluginEnabledEvent) event).getPlugin().getKey()).equals(pluginKey);
+                                && (((PluginEnabledEvent) event).getPlugin().getKey()).equals(webHookConsumer.getPluginKey());
                     }
                 })
                 .serializedWith(new EventSerializerFactory()

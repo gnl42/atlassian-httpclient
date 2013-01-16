@@ -3,14 +3,13 @@ package com.atlassian.webhooks.plugin.module;
 import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.descriptors.AbstractModuleDescriptor;
-import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.util.concurrent.NotNull;
-import com.atlassian.webhooks.plugin.ModuleDescriptorWebHookConsumerRegistry;
+import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry;
 import org.dom4j.Element;
 
 import java.net.URI;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void>
 {
@@ -18,6 +17,7 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
 
     private String eventIdentifier;
     private URI url;
+    private String moduleKey;
 
     public WebHookModuleDescriptor(ModuleDescriptorWebHookConsumerRegistry webHookConsumerRegistry)
     {
@@ -36,19 +36,20 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
         super.init(plugin, element);
         eventIdentifier = getOptionalAttribute(element, "event", getKey());
         url = getRequiredUriAttribute(element, "url");
+        moduleKey = getRequiredAttribute(element, "key");
     }
 
     @Override
     public void enabled()
     {
         super.enabled();
-        webHookConsumerRegistry.register(getPluginKey(), eventIdentifier, url);
+        webHookConsumerRegistry.register(getPluginKey(), eventIdentifier, moduleKey, url);
     }
 
     @Override
     public void disabled()
     {
-        webHookConsumerRegistry.unregister(getPluginKey(), eventIdentifier, url);
+        webHookConsumerRegistry.unregister(getPluginKey(), eventIdentifier, moduleKey, url);
         super.disabled();
     }
 

@@ -12,6 +12,11 @@
         <description>Registration for a web hook callback from an internal event</description>
     </described-module-type>
 
+    <component key="moduleDescriptorWebHookRegistry"
+               class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookRegistryImpl"
+               interface="com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry"
+               public="true" />
+
     <!-- Refapp -->
     <component key="refappThreadLocalContextManager" class="com.atlassian.webhooks.plugin.refapp.RefappThreadLocalContextManager"
                interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="refapp"/>

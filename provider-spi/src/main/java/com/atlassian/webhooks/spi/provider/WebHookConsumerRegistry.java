@@ -1,4 +1,4 @@
-package com.atlassian.webhooks.plugin;
+package com.atlassian.webhooks.spi.provider;
 
 public interface WebHookConsumerRegistry
 {

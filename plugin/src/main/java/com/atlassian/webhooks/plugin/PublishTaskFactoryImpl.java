@@ -7,6 +7,8 @@ import com.atlassian.uri.Uri;
 import com.atlassian.uri.UriBuilder;
 import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
 import com.atlassian.webhooks.spi.plugin.RequestSigner;
+import com.atlassian.webhooks.spi.provider.WebHookConsumer;
+import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;

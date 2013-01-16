@@ -1,5 +1,7 @@
 package com.atlassian.webhooks.plugin;
 
+import com.atlassian.webhooks.spi.provider.WebHookEvent;
+import com.atlassian.webhooks.spi.provider.WebHookRegistry;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.junit.Before;

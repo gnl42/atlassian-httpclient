@@ -1,5 +1,9 @@
 package com.atlassian.webhooks.plugin;
 
+import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry;
+import com.atlassian.webhooks.spi.provider.WebHookConsumer;
+import com.atlassian.webhooks.spi.provider.WebHookConsumerRegistry;
+import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
@@ -15,15 +19,15 @@ public final class ModuleDescriptorWebHookRegistryImpl implements ModuleDescript
     private final Multimap<String, WebHookConsumer> consumers = newMultimap();
 
     @Override
-    public void register(String pluginKey, String webHookId, URI uri)
+    public void register(String pluginKey, String webHookId, String consumerKey, URI uri)
     {
-        consumers.put(webHookId, new WebHookConsumerImpl(pluginKey, uri));
+        consumers.put(webHookId, new WebHookConsumerImpl(pluginKey, consumerKey, uri));
     }
 
     @Override
-    public void unregister(String pluginKey, String webHookId, URI uri)
+    public void unregister(String pluginKey, String webHookId, String consumerKey, URI uri)
     {
-        consumers.get(webHookId).remove(new WebHookConsumerImpl(pluginKey, uri));
+        consumers.get(webHookId).remove(new WebHookConsumerImpl(pluginKey, consumerKey, uri));
     }
 
     @Override
@@ -48,11 +52,13 @@ public final class ModuleDescriptorWebHookRegistryImpl implements ModuleDescript
     private static final class WebHookConsumerImpl implements WebHookConsumer
     {
         private final String pluginKey;
+        private final String consumerKey;
         private final URI uri;
 
-        public WebHookConsumerImpl(String pluginKey, URI uri)
+        public WebHookConsumerImpl(String pluginKey, String consumerKey, URI uri)
         {
             this.pluginKey = pluginKey;
+            this.consumerKey = consumerKey;
             this.uri = uri;
         }
 
@@ -60,6 +66,12 @@ public final class ModuleDescriptorWebHookRegistryImpl implements ModuleDescript
         public String getPluginKey()
         {
             return pluginKey;
+        }
+
+        @Override
+        public String getConsumerKey()
+        {
+            return consumerKey;
         }
 
         @Override

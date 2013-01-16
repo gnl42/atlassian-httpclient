@@ -2,6 +2,9 @@ package com.atlassian.webhooks.plugin;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.event.PluginEventManager;
+import com.atlassian.webhooks.spi.provider.WebHookEvent;
+import com.atlassian.webhooks.spi.provider.WebHookPublisher;
+import com.atlassian.webhooks.spi.provider.WebHookRegistry;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;

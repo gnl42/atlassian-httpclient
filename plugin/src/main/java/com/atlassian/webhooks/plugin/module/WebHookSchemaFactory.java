@@ -1,7 +1,7 @@
 package com.atlassian.webhooks.plugin.module;
 
 import com.atlassian.plugin.schema.spi.SchemaTransformer;
-import com.atlassian.webhooks.plugin.WebHookRegistry;
+import com.atlassian.webhooks.spi.provider.WebHookRegistry;
 import org.dom4j.Document;
 import org.dom4j.Element;
 

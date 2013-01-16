@@ -1,6 +1,4 @@
-package com.atlassian.webhooks.plugin;
-
-import com.atlassian.webhooks.spi.provider.EventMatcher;
+package com.atlassian.webhooks.spi.provider;
 
 public interface WebHookEvent
 {
