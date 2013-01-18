@@ -338,7 +338,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
     {
         callbackExecutor.shutdown();
         requestKiller.stop();
-        httpClient.getConnectionManager().shutdown();
+        httpClient.shutdown();
     }
 
     @Override
