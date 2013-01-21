@@ -183,7 +183,7 @@
                             com.atlassian.plugin.schema.descriptor;version="${atlassian-plugins.version}",
                             com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",
                             com.atlassian.plugin.schema.spi;version="${atlassian-plugins.version}",
-                            com.atlassian.util.concurrent*;version="${atlassian-util-concurrent.version}",
+                            com.atlassian.util.concurrent*;version="${atlassian-util-concurrent-api.version}",
                             com.atlassian.webhooks.spi.provider;version="${spi.version}",
                             com.google.common*;version="${guava.version}",
                             javax.net.ssl,
