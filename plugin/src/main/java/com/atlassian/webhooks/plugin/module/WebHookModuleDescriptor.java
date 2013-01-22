@@ -3,6 +3,7 @@ package com.atlassian.webhooks.plugin.module;
 import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.descriptors.AbstractModuleDescriptor;
+import com.atlassian.plugin.module.ModuleFactory;
 import com.atlassian.util.concurrent.NotNull;
 import com.atlassian.webhooks.spi.provider.ConsumerKey;
 import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry;
@@ -20,8 +21,9 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
     private URI url;
     private String moduleKey;
 
-    public WebHookModuleDescriptor(ModuleDescriptorWebHookConsumerRegistry webHookConsumerRegistry)
+    public WebHookModuleDescriptor(ModuleFactory moduleFactory, ModuleDescriptorWebHookConsumerRegistry webHookConsumerRegistry)
     {
+        super(moduleFactory);
         this.webHookConsumerRegistry = checkNotNull(webHookConsumerRegistry);
     }
 
