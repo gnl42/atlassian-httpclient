@@ -16,7 +16,7 @@
 
     <properties>
         <atlassian-plugins.version>2.14.0-m5</atlassian-plugins.version>
-        <functest-plugin.version>0.3</functest-plugin.version>
+        <functest-plugin.version>0.6</functest-plugin.version>
     </properties>
 
     <dependencies>
