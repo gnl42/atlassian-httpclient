@@ -15,7 +15,6 @@
     <description>Test Plugin for WebHooks.</description>
 
     <properties>
-        <atlassian-plugins.version>2.14.0-m5</atlassian-plugins.version>
         <functest-plugin.version>0.6</functest-plugin.version>
     </properties>
 
@@ -75,6 +74,13 @@
                             <artifactId>org.json</artifactId>
                             <version>${org.json.version}</version>
                         </libArtifact>
+                        <!-- for described module descriptor support,
+                             remove when product have fully moved to Atlassian Plugins 3 -->
+                        <libArtifact>
+                            <groupId>com.atlassian.plugins</groupId>
+                            <artifactId>atlassian-plugins-schema</artifactId>
+                            <version>${atlassian-plugins-schema.version}</version>
+                        </libArtifact>
                     </libArtifacts>
                     <pluginArtifacts>
                         <pluginArtifact>
@@ -91,6 +97,13 @@
                             <groupId>com.atlassian.util.concurrent</groupId>
                             <artifactId>atlassian-util-concurrent</artifactId>
                             <version>${atlassian-util-concurrent.version}</version>
+                        </pluginArtifact>
+                        <!-- for described module descriptor support,
+                             remove when product have fully moved to Atlassian Plugins 3 -->
+                        <pluginArtifact>
+                            <groupId>com.atlassian.plugins</groupId>
+                            <artifactId>atlassian-plugins-schema-plugin</artifactId>
+                            <version>${atlassian-plugins-schema.version}</version>
                         </pluginArtifact>
                     </pluginArtifacts>
                     <products>

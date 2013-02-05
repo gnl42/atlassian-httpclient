@@ -16,7 +16,6 @@
     <description>Send events over HTTP to registered listeners.</description>
 
     <properties>
-        <atlassian-plugins.version>2.14.0-m5</atlassian-plugins.version>
         <spi.version>0.13</spi.version>
     </properties>
 
@@ -118,6 +117,7 @@
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-schema</artifactId>
             <version>${atlassian-plugins.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
@@ -180,9 +180,7 @@
                         <Import-Package>
                             com.atlassian.plugin.*;version="2.8",
                             com.atlassian.sal.api*;version="${sal.version}",
-                            com.atlassian.plugin.schema.descriptor;version="${atlassian-plugins.version}",
-                            com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",
-                            com.atlassian.plugin.schema.spi;version="${atlassian-plugins.version}",
+                            com.atlassian.plugin.schema.spi,
                             com.atlassian.util.concurrent*;version="${atlassian-util-concurrent-api.version}",
                             com.atlassian.webhooks.spi.provider;version="${spi.version}",
                             com.google.common*;version="${guava.version}",
@@ -199,10 +197,7 @@
                             com.atlassian.httpclient.api*;version="${project.version}",
                             com.atlassian.httpclient.spi*;version="${project.version}",
                             com.atlassian.webhooks.spi.plugin;version="${spi.version}",
-                            com.atlassian.webhooks.spi.provider;version="${spi.version}",
-                            com.atlassian.plugin.schema.descriptor;version="${atlassian-plugins.version}",
-                            com.atlassian.plugin.schema.impl;version="${atlassian-plugins.version}",
-                            com.atlassian.plugin.schema.spi;version="${atlassian-plugins.version}",
+                            com.atlassian.webhooks.spi.provider;version="${spi.version}"
                         </Export-Package>
                         <Spring-Context>*;timeout:=60</Spring-Context>
                     </instructions>
