@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:osgi="http://www.springframework.org/schema/osgi"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                                 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd"
+             default-autowire="autodetect" osgi:default-timeout="30000">
+    <osgi:service id="moduleType-described-module-type_osgiService" auto-export="interfaces">
+        <beans:bean id="moduleType-described-module-type"
+                    class="com.atlassian.webhooks.plugin.plugin.WebHookDescribedModuleDescriptorFactory">
+            <beans:constructor-arg index="0" ref="pluginAccessor" />
+            <beans:constructor-arg index="1" ref="moduleFactory" />
+            <beans:constructor-arg index="2" ref="bundleContext"/>
+        </beans:bean>
+    </osgi:service>
+</beans:beans>

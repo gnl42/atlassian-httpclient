@@ -74,13 +74,6 @@
                             <artifactId>org.json</artifactId>
                             <version>${org.json.version}</version>
                         </libArtifact>
-                        <!-- for described module descriptor support,
-                             remove when product have fully moved to Atlassian Plugins 3 -->
-                        <libArtifact>
-                            <groupId>com.atlassian.plugins</groupId>
-                            <artifactId>atlassian-plugins-schema</artifactId>
-                            <version>${atlassian-plugins-schema.version}</version>
-                        </libArtifact>
                     </libArtifacts>
                     <pluginArtifacts>
                         <pluginArtifact>
@@ -98,19 +91,61 @@
                             <artifactId>atlassian-util-concurrent</artifactId>
                             <version>${atlassian-util-concurrent.version}</version>
                         </pluginArtifact>
-                        <!-- for described module descriptor support,
-                             remove when product have fully moved to Atlassian Plugins 3 -->
-                        <pluginArtifact>
-                            <groupId>com.atlassian.plugins</groupId>
-                            <artifactId>atlassian-plugins-schema-plugin</artifactId>
-                            <version>${atlassian-plugins-schema.version}</version>
-                        </pluginArtifact>
                     </pluginArtifacts>
                     <products>
                         <product>
                             <id>refapp</id>
                             <version>${refapp.version}</version>
                             <log4jProperties>src/test/aps/log4j-refapp.properties</log4jProperties>
+                        </product>
+                        <product>
+                            <id>refapp</id>
+                            <instanceId>refapp_schema</instanceId>
+                            <version>${refapp.version}</version>
+                            <log4jProperties>src/test/aps/log4j-refapp.properties</log4jProperties>
+                            <libArtifacts>
+                                <libArtifact>
+                                    <groupId>com.atlassian.webhooks</groupId>
+                                    <artifactId>atlassian-webhooks-provider-spi</artifactId>
+                                    <version>${project.version}</version>
+                                </libArtifact>
+                                <libArtifact>
+                                    <groupId>org.json</groupId>
+                                    <artifactId>org.json</artifactId>
+                                    <version>${org.json.version}</version>
+                                </libArtifact>
+                                <!-- for described module descriptor support,
+                                     remove when product have fully moved to Atlassian Plugins 3 -->
+                                <libArtifact>
+                                    <groupId>com.atlassian.plugins</groupId>
+                                    <artifactId>atlassian-plugins-schema</artifactId>
+                                    <version>${atlassian-plugins-schema.version}</version>
+                                </libArtifact>
+                            </libArtifacts>
+                            <pluginArtifacts>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.functest</groupId>
+                                    <artifactId>functest-plugin</artifactId>
+                                    <version>${functest-plugin.version}</version>
+                                </pluginArtifact>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.webhooks</groupId>
+                                    <artifactId>atlassian-webhooks-plugin</artifactId>
+                                    <version>${project.version}</version>
+                                </pluginArtifact>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.util.concurrent</groupId>
+                                    <artifactId>atlassian-util-concurrent</artifactId>
+                                    <version>${atlassian-util-concurrent.version}</version>
+                                </pluginArtifact>
+                                <!-- for described module descriptor support,
+                                     remove when product have fully moved to Atlassian Plugins 3 -->
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.plugins</groupId>
+                                    <artifactId>atlassian-plugins-schema-plugin</artifactId>
+                                    <version>${atlassian-plugins-schema.version}</version>
+                                </pluginArtifact>
+                            </pluginArtifacts>
                         </product>
                         <product>
                             <id>jira</id>
@@ -128,6 +163,15 @@
                             <id>refapp</id>
                             <productIds>
                                 <productId>refapp</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/**</include>
+                            </includes>
+                        </testGroup>
+                        <testGroup>
+                            <id>refapp_schema</id>
+                            <productIds>
+                                <productId>refapp_schema</productId>
                             </productIds>
                             <includes>
                                 <include>it/**</include>
