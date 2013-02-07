@@ -195,9 +195,11 @@
                     <extractDependencies>true</extractDependencies>
                     <instructions>
                         <Import-Package>
-                            com.atlassian.plugin.schema.descriptor;resolution:=optional,
-                            com.atlassian.plugin.schema.spi;resolution:=optional,
+                            com.atlassian.plugin.schema.descriptor;version="2.10";resolution:=optional,
+                            com.atlassian.plugin.schema.spi;version="2.10";resolution:=optional,
                             com.atlassian.plugin.osgi.bridge.external;version="2.8",
+                            com.atlassian.plugin.osgi.external;version="2.8",
+                            com.atlassian.plugin;version="2.8",
                             com.atlassian.plugin*;version="2.8",
                             com.atlassian.sal.api*;version="${sal.version}",
                             com.atlassian.util.concurrent*;version="${atlassian-util-concurrent-api.version}",
@@ -217,10 +219,9 @@
                             com.atlassian.httpclient.spi*;version="${project.version}",
                             com.atlassian.webhooks.spi.plugin;version="${spi.version}",
                             com.atlassian.webhooks.spi.provider;version="${spi.version}",
+                            com.atlassian.plugin.schema.descriptor;version="2.10",
+                            com.atlassian.plugin.schema.spi;version="2.10",
                         </Export-Package>
-                        <Private-Package>
-                            com.atlassian.plugin.schema*
-                        </Private-Package>
                         <Spring-Context>*;timeout:=60</Spring-Context>
                     </instructions>
                 </configuration>
