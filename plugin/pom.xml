@@ -19,17 +19,6 @@
         <spi.version>0.13</spi.version>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.atlassian.security</groupId>
-                <artifactId>atlassian-secure-xml</artifactId>
-                <version>3.1.4</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.atlassian.webhooks</groupId>
