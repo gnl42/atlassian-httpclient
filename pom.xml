@@ -11,7 +11,7 @@
 
     <groupId>com.atlassian.webhooks</groupId>
     <artifactId>atlassian-webhooks-plugin-parent</artifactId>
-    <version>0.13.6</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Atlassian WebHooks Plugin Project</name>
@@ -22,7 +22,7 @@
         <connection>scm:git:git@bitbucket.org:atlassian/atlassian-webhooks-plugin.git</connection>
         <developerConnection>scm:git:git@bitbucket.org:atlassian/atlassian-webhooks-plugin.git</developerConnection>
         <url>https://bitbucket.org/atlassian/atlassian-webhooks-plugin</url>
-      <tag>atlassian-webhooks-0.13.6</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <issueManagement>
