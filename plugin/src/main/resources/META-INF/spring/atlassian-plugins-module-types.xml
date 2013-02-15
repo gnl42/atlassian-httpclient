@@ -16,10 +16,9 @@
                 </beans:constructor-arg>
                 <beans:constructor-arg index="1" value="described-module-type"/>
                 <beans:constructor-arg index="2"
-                                       value="com.atlassian.plugin.schema.plugin.DescribedModuleTypeModuleDescriptor"/>
+                                       value="com.atlassian.plugin.schema.impl.DescribedModuleTypeModuleDescriptor"/>
             </beans:bean>
         </beans:constructor-arg>
-        <beans:constructor-arg index="1" ref="pluginAccessor"/>
-        <beans:constructor-arg index="2" ref="bundleContext"/>
+        <beans:constructor-arg index="1" ref="bundleContext"/>
     </beans:bean>
 </beans:beans>

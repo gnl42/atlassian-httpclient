@@ -120,12 +120,6 @@
             <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
-            <groupId>com.atlassian.plugins</groupId>
-            <artifactId>atlassian-plugins-schema-plugin</artifactId>
-            <version>${atlassian-plugins-schema.version}</version>
-            <!--<scope>provided</scope>-->
-        </dependency>
-        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>1.4</version>
