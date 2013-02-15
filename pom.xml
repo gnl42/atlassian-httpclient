@@ -54,7 +54,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <atlassian-plugins.version>2.14.0-m5</atlassian-plugins.version>
-        <atlassian-plugins-schema.version>3.0.0-SNAPSHOT</atlassian-plugins-schema.version>
+        <atlassian-plugins-schema.version>3.0.0-m17</atlassian-plugins-schema.version>
         <atlassian-plugins-schema-api.version>3.0</atlassian-plugins-schema-api.version>
         <sal.version>2.7.0</sal.version>
         <slf4j.version>1.6.4</slf4j.version>
