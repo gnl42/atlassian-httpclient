@@ -204,6 +204,9 @@
                             com.atlassian.webhooks.spi.provider;version="${spi.version}",
                             com.atlassian.plugin.schema.descriptor;version="2.10",
                             com.atlassian.plugin.schema.spi;version="2.10",
+                            <!-- this is to support older version of remotable plugins, which require this package even
+                                 though it isn't used :( Remove once Confluence is on Remotable Plugins 0.6.963 or later -->
+                            com.atlassian.plugin.schema.impl;version="2.10",
                         </Export-Package>
                         <Spring-Context>*;timeout:=60</Spring-Context>
                     </instructions>
