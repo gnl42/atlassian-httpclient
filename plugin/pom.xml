@@ -16,7 +16,7 @@
     <description>Send events over HTTP to registered listeners.</description>
 
     <properties>
-        <spi.version>0.13</spi.version>
+        <spi.version>0.14</spi.version>
     </properties>
 
     <dependencies>
