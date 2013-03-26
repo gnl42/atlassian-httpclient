@@ -6,20 +6,4 @@
              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
                                  http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd"
              default-autowire="autodetect" osgi:default-timeout="30000">
-
-    <beans:bean id="descriptorFactoryRegistration" class="com.atlassian.webhooks.plugin.plugin.WebHookDescriptorFactoryRegistration">
-        <beans:constructor-arg index="0">
-            <beans:bean class="com.atlassian.plugin.osgi.external.SingleModuleDescriptorFactory">
-                <beans:constructor-arg index="0">
-                    <beans:bean id="springHostContainer"
-                                class="com.atlassian.plugin.osgi.bridge.external.SpringHostContainer"/>
-                </beans:constructor-arg>
-                <beans:constructor-arg index="1" value="described-module-type"/>
-                <beans:constructor-arg index="2"
-                                       value="com.atlassian.plugin.schema.plugin.DescribedModuleTypeModuleDescriptor"/>
-            </beans:bean>
-        </beans:constructor-arg>
-        <beans:constructor-arg index="1" ref="pluginAccessor"/>
-        <beans:constructor-arg index="2" ref="bundleContext"/>
-    </beans:bean>
 </beans:beans>
