@@ -1,14 +1,12 @@
 package com.atlassian.httpclient.base;
 
 import org.apache.http.client.methods.AbortableHttpRequest;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.google.common.collect.Sets.*;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * A request killer for ensuring a request doesn't take too long.  While connection and socket
@@ -20,6 +18,7 @@ public final class RequestKiller implements Runnable
 {
     private final Set<RequestEntry> activeRequests = new CopyOnWriteArraySet<RequestEntry>();
     private final Thread killerThread;
+    private final AtomicBoolean destroyed = new AtomicBoolean(false);
 
     public RequestKiller(String namePrefix)
     {
@@ -39,13 +38,14 @@ public final class RequestKiller implements Runnable
 
     public void stop() throws Exception
     {
+        destroyed.set(true);
         killerThread.interrupt();
     }
 
     @Override
     public void run()
     {
-        while (true)
+        while (!destroyed.get())
         {
             Set<RequestEntry> entriesToRemove = newHashSet();
             long now = System.currentTimeMillis();
@@ -64,8 +64,11 @@ public final class RequestKiller implements Runnable
             }
             catch (InterruptedException e)
             {
-                break;
-                // it's cool, in shutdown
+                // we were interrupted but there is no way to know for sure if we were interrupted by
+                // RequestKiller.destroy() or something else. so we simply restore the
+                // current thread's interrupted status. the outer while loop will deal with
+                // stopping the thread if need be.
+                Thread.currentThread().interrupt();
             }
         }
     }
