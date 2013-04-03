@@ -7,7 +7,6 @@ import com.atlassian.uri.Uri;
 import com.atlassian.uri.UriBuilder;
 import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
 import com.atlassian.webhooks.spi.plugin.RequestSigner;
-import com.atlassian.webhooks.spi.provider.ConsumerKey;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.google.common.base.Objects;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class PublishTaskFactoryImpl implements PublishTaskFactory
 {
@@ -40,7 +39,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         return new PublishTaskImpl(
                 httpClient,
                 requestSigner,
-                consumer.getConsumerKey(),
+                consumer,
                 getConsumerUri(consumer),
                 getUserName(),
                 webHookEvent.getJson()
@@ -49,7 +48,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
 
     private URI getConsumerUri(WebHookConsumer consumer)
     {
-        return pluginUriResolver.getUri(consumer.getConsumerKey().getPluginKey(), consumer.getPath());
+        return pluginUriResolver.getUri(consumer.getPluginKey(), consumer.getPath());
     }
 
     private String getUserName()
@@ -63,14 +62,14 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
 
         private final HttpClient httpClient;
         private final RequestSigner requestSigner;
-        private final ConsumerKey consumerKey;
+        private final WebHookConsumer consumer;
         private final URI uri;
         private final String userName;
         private final String body;
 
         PublishTaskImpl(HttpClient httpClient,
                         RequestSigner requestSigner,
-                        ConsumerKey consumerKey,
+                        WebHookConsumer consumer,
                         URI uri,
                         String userName,
                         String body)
@@ -78,7 +77,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
 
             this.httpClient = checkNotNull(httpClient);
             this.requestSigner = checkNotNull(requestSigner);
-            this.consumerKey = checkNotNull(consumerKey);
+            this.consumer = checkNotNull(consumer);
             this.uri = checkNotNull(uri);
             this.userName = checkNotNull(userName);
             this.body = checkNotNull(body);
@@ -97,9 +96,9 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
             final Request request = httpClient.newRequest(uri, "application/json", body)
                     // attributes capture optional properties sent to analytics
                     .setAttribute("purpose", "web-hook-notification")
-                    .setAttribute("pluginKey", consumerKey.getPluginKey());
+                    .setAttribute("pluginKey", consumer.getPluginKey());
 
-            requestSigner.sign(consumerKey.getPluginKey(), request);
+            requestSigner.sign(consumer.getPluginKey(), request);
             request.post();
         }
 
@@ -112,7 +111,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         public String toString()
         {
             return Objects.toStringHelper(PublishTask.class)
-                    .add("consumerKey", consumerKey)
+                    .add("consumerKey", consumer)
                     .add("userName", userName)
                     .add("uri", uri)
                     .add("body", body)

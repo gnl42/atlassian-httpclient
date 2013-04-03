@@ -71,8 +71,7 @@ public final class OsgiWebHookProviderWebHookRegistry implements WebHookRegistry
         private final EventMatcher eventMatcher;
         private final Supplier<String> body;
 
-        public WebHookEventImpl(String id, Object event, EventMatcher eventMatcher, Supplier
-                <String> body)
+        public WebHookEventImpl(String id, Object event, EventMatcher eventMatcher, Supplier<String> body)
         {
             this.id = id;
             this.eventMatcher = eventMatcher;

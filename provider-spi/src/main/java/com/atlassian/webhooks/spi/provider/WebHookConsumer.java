@@ -4,7 +4,9 @@ import java.net.URI;
 
 public interface WebHookConsumer
 {
-    ConsumerKey getConsumerKey();
+    String getPluginKey();
 
     URI getPath();
+
+    Object getConsumerParams();
 }

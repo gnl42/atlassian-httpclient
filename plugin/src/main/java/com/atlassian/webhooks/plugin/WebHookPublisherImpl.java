@@ -4,7 +4,6 @@ import com.atlassian.event.api.EventPublisher;
 import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedEvent;
 import com.atlassian.webhooks.plugin.event.WebHookPublishedEvent;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
-import com.atlassian.webhooks.spi.provider.WebHookConsumerRegistry;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.atlassian.webhooks.spi.provider.WebHookPublisher;
 import org.slf4j.Logger;
@@ -24,19 +23,19 @@ public final class WebHookPublisherImpl implements WebHookPublisher
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final WebHookConsumerRegistry consumerRegistry;
+    private final WebHookConsumerProvider consumerProvider;
     private final PublishTaskFactory publishTaskFactory;
     private final EventPublisher eventPublisher;
     private final Executor executor;
 
-    public WebHookPublisherImpl(WebHookConsumerRegistry consumerRegistry, PublishTaskFactory publishTaskFactory, EventPublisher eventPublisher)
+    public WebHookPublisherImpl(WebHookConsumerProvider consumerProvider, PublishTaskFactory publishTaskFactory, EventPublisher eventPublisher)
     {
-        this(consumerRegistry, publishTaskFactory, eventPublisher, newDefaultExecutor());
+        this(consumerProvider, publishTaskFactory, eventPublisher, newDefaultExecutor());
     }
 
-    public WebHookPublisherImpl(WebHookConsumerRegistry consumerRegistry, PublishTaskFactory publishTaskFactory, EventPublisher eventPublisher, Executor executor)
+    public WebHookPublisherImpl(WebHookConsumerProvider consumerProvider, PublishTaskFactory publishTaskFactory, EventPublisher eventPublisher, Executor executor)
     {
-        this.consumerRegistry = checkNotNull(consumerRegistry);
+        this.consumerProvider = checkNotNull(consumerProvider);
         this.publishTaskFactory = checkNotNull(publishTaskFactory);
         this.eventPublisher = checkNotNull(eventPublisher);
         this.executor = checkNotNull(executor);
@@ -45,7 +44,7 @@ public final class WebHookPublisherImpl implements WebHookPublisher
     @Override
     public void publish(WebHookEvent webHookEvent)
     {
-        for (WebHookConsumer consumer : consumerRegistry.getConsumers(webHookEvent))
+        for (WebHookConsumer consumer : consumerProvider.getConsumers(webHookEvent))
         {
             if (match(webHookEvent, consumer))
             {
@@ -56,7 +55,7 @@ public final class WebHookPublisherImpl implements WebHookPublisher
 
     private boolean match(WebHookEvent webHookEvent, WebHookConsumer consumer)
     {
-        return webHookEvent.getEventMatcher().matches(webHookEvent.getEvent(), consumer.getConsumerKey());
+        return webHookEvent.getEventMatcher().matches(webHookEvent.getEvent(), consumer.getConsumerParams());
     }
 
     private void publish(WebHookEvent webHookEvent, WebHookConsumer consumer)
@@ -65,13 +64,13 @@ public final class WebHookPublisherImpl implements WebHookPublisher
         try
         {
             executor.execute(publishTask);
-            eventPublisher.publish(new WebHookPublishedEvent(webHookEvent.getId(), consumer.getConsumerKey(), consumer.getPath().toString()));
+            eventPublisher.publish(new WebHookPublishedEvent(webHookEvent.getId(), consumer.getPluginKey(), consumer.getPath().toString()));
         }
         catch (RejectedExecutionException ex)
         {
             logger.warn("Executor rejected the web hook '{}' saying '{}'", publishTask, ex.getMessage());
             logger.debug("Here is the full exception", ex);
-            eventPublisher.publish(new WebHookPublishRejectedEvent(webHookEvent.getId(), consumer.getConsumerKey(), consumer.getPath().toString(), ex.getMessage()));
+            eventPublisher.publish(new WebHookPublishRejectedEvent(webHookEvent.getId(), consumer.getPluginKey(), consumer.getPath().toString(), ex.getMessage()));
         }
     }
 
