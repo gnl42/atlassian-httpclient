@@ -5,6 +5,7 @@ import com.atlassian.httpclient.api.Request;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.uri.Uri;
 import com.atlassian.uri.UriBuilder;
+import com.atlassian.webhooks.spi.plugin.PluginUriCustomizer;
 import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
 import com.atlassian.webhooks.spi.plugin.RequestSigner;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
@@ -24,13 +25,15 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
     private final RequestSigner requestSigner;
     private final PluginUriResolver pluginUriResolver;
     private final UserManager userManager;
+    private final PluginUriCustomizer pluginUriCustomizer;
 
-    public PublishTaskFactoryImpl(HttpClient httpClient, RequestSigner requestSigner, PluginUriResolver pluginUriResolver, UserManager userManager)
+    public PublishTaskFactoryImpl(HttpClient httpClient, RequestSigner requestSigner, PluginUriResolver pluginUriResolver, UserManager userManager, PluginUriCustomizer pluginUriCustomizer)
     {
         this.httpClient = httpClient;
         this.requestSigner = requestSigner;
         this.pluginUriResolver = pluginUriResolver;
         this.userManager = userManager;
+        this.pluginUriCustomizer = pluginUriCustomizer;
     }
 
     @Override
@@ -40,15 +43,15 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
                 httpClient,
                 requestSigner,
                 consumer,
-                getConsumerUri(consumer),
+                getConsumerUri(webHookEvent, consumer),
                 getUserName(),
-                webHookEvent.getJson()
+                consumer.getConsumableBodyJson(webHookEvent.getJson())
         );
     }
 
-    private URI getConsumerUri(WebHookConsumer consumer)
+    private URI getConsumerUri(WebHookEvent webHookEvent, WebHookConsumer consumer)
     {
-        return pluginUriResolver.getUri(consumer.getPluginKey(), consumer.getPath());
+        return pluginUriCustomizer.customizeURI(consumer.getPluginKey(), pluginUriResolver.getUri(consumer.getPluginKey(), consumer.getPath()), webHookEvent);
     }
 
     private String getUserName()

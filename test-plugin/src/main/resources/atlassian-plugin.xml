@@ -16,7 +16,7 @@
     <webhook key="annotatedWebhook" event="annotated_event" url="/plugins/servlet/webhook/annotated_event" />
     <webhook key="pluginEnabledWebhook" event="plugin_enabled" url="/plugins/servlet/webhook/plugin_enabled" />
     <webhook key="parameterizedWebHook" event="parameterized_event" url="/plugins/servlet/webhook/event_with_params">
-        <param key="webhookParam" value="true" />
+        <param key="webhookParam">true</param>
     </webhook>
 
     <component key="serviceAccessor" class="com.atlassian.webhooks.plugin.test.ServiceAccessor"/>

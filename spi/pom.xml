@@ -19,5 +19,10 @@
             <artifactId>atlassian-httpclient-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.webhooks</groupId>
+            <artifactId>atlassian-webhooks-provider-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

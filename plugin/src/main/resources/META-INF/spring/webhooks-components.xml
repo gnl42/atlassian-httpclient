@@ -45,6 +45,7 @@
                 <beans:constructor-arg index="1" ref="requestSigner"/>
                 <beans:constructor-arg index="2" ref="pluginUriResolver"/>
                 <beans:constructor-arg index="3" ref="userManager"/>
+                <beans:constructor-arg index="4" ref="pluginUriCustomizer" />
             </beans:bean>
         </beans:constructor-arg>
         <beans:constructor-arg index="2" ref="eventPublisher"/>
@@ -57,6 +58,10 @@
     <beans:bean id="pluginUriResolver" class="com.atlassian.webhooks.plugin.impl.PluginUriResolverImpl">
         <beans:constructor-arg index="0" ref="applicationProperties"/>
         <beans:constructor-arg index="1" ref="bundleContext"/>
+    </beans:bean>
+
+    <beans:bean id="pluginUriCustomizer" class="com.atlassian.webhooks.plugin.impl.PluginUriCustomizerImpl">
+        <beans:constructor-arg index="0" ref="bundleContext"/>
     </beans:bean>
 
     <beans:bean id="waitableServiceTrackerFactory" class="com.atlassian.osgi.tracker.WaitableServiceTrackerFactory">

@@ -4,17 +4,21 @@ import com.google.common.base.Optional;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class PluginModuleConsumerParams
 {
     private final String pluginKey;
     private final Optional<String> moduleKey;
     private final Map<String, Object> params;
+    private final String eventIdentifier;
 
-    public PluginModuleConsumerParams(String pluginKey, Optional<String> moduleKey, Map<String, Object> params)
+    public PluginModuleConsumerParams(String pluginKey, Optional<String> moduleKey, Map<String, Object> params, final String eventIdentifier)
     {
-        this.pluginKey = pluginKey;
-        this.moduleKey = moduleKey;
-        this.params = params;
+        this.pluginKey = checkNotNull(pluginKey);
+        this.moduleKey = checkNotNull(moduleKey);
+        this.params = checkNotNull(params);
+        this.eventIdentifier = checkNotNull(eventIdentifier);
     }
 
     public String getPluginKey()
@@ -30,5 +34,10 @@ public final class PluginModuleConsumerParams
     public Map<String, Object> getParams()
     {
         return params;
+    }
+
+    public String getEventIdentifier()
+    {
+        return eventIdentifier;
     }
 }

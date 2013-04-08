@@ -6,18 +6,13 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="WebHookParamType">
-        <xs:attribute name="key" type="xs:string" />
-        <xs:attribute name="value" type="xs:string" />
-    </xs:simpleType>
-
     <xs:complexType name="WebhookType">
         <xs:complexContent>
             <xs:extension base="AbstractPluginModuleType">
                 <xs:attribute name="event" type="WebhookEventType" use="required" />
                 <xs:attribute name="url" type="RelativeUrlType" use="required" />
                 <xs:sequence>
-                    <xs:element name="param" type="WebHookParamType" minOccurs="0" maxOccurs="unbounded" />
+                    <xs:element name="param" type="ParamType" minOccurs="0" maxOccurs="unbounded" />
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>

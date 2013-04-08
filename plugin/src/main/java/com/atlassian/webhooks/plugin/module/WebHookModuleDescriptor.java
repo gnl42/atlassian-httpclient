@@ -52,7 +52,7 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
         {
             for (Element param : elements)
             {
-                params.put(getRequiredAttribute(param, "key"), getRequiredAttribute(param, "value"));
+                params.put(getRequiredAttribute(param, "key"), param.getText());
             }
         }
         moduleParams = params.build();
@@ -62,13 +62,13 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
     public void enabled()
     {
         super.enabled();
-        webHookConsumerRegistry.register(eventIdentifier, getPluginKey(), url, new PluginModuleConsumerParams(getPluginKey(), Optional.of(moduleKey), moduleParams));
+        webHookConsumerRegistry.register(eventIdentifier, getPluginKey(), url, new PluginModuleConsumerParams(getPluginKey(), Optional.of(moduleKey), moduleParams, eventIdentifier));
     }
 
     @Override
     public void disabled()
     {
-        webHookConsumerRegistry.unregister(eventIdentifier, getPluginKey(), url, new PluginModuleConsumerParams(getPluginKey(), Optional.of(moduleKey), moduleParams));
+        webHookConsumerRegistry.unregister(eventIdentifier, getPluginKey(), url, new PluginModuleConsumerParams(getPluginKey(), Optional.of(moduleKey), moduleParams, eventIdentifier));
         super.disabled();
     }
 

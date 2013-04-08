@@ -84,6 +84,12 @@ public final class ModuleDescriptorWebHookRegistryImpl implements ModuleDescript
         }
 
         @Override
+        public String getConsumableBodyJson(final String json)
+        {
+            return json;
+        }
+
+        @Override
         public int hashCode()
         {
             return Objects.hashCode(pluginKey, uri);
