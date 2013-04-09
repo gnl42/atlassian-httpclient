@@ -5,11 +5,15 @@ import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.descriptors.AbstractModuleDescriptor;
 import com.atlassian.plugin.module.ModuleFactory;
 import com.atlassian.util.concurrent.NotNull;
-import com.atlassian.webhooks.spi.provider.ConsumerKey;
 import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry;
+import com.atlassian.webhooks.spi.provider.PluginModuleConsumerParams;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import org.dom4j.Element;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -20,6 +24,7 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
     private String eventIdentifier;
     private URI url;
     private String moduleKey;
+    private Map<String, Object> moduleParams;
 
     public WebHookModuleDescriptor(ModuleFactory moduleFactory, ModuleDescriptorWebHookConsumerRegistry webHookConsumerRegistry)
     {
@@ -40,19 +45,30 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
         eventIdentifier = getOptionalAttribute(element, "event", getKey());
         url = getRequiredUriAttribute(element, "url");
         moduleKey = getRequiredAttribute(element, "key");
+        final ImmutableMap.Builder<String, Object> params = new ImmutableMap.Builder<String, Object>();
+
+        List<Element> elements = element.elements("param");
+        if (elements != null)
+        {
+            for (Element param : elements)
+            {
+                params.put(getRequiredAttribute(param, "key"), param.getText());
+            }
+        }
+        moduleParams = params.build();
     }
 
     @Override
     public void enabled()
     {
         super.enabled();
-        webHookConsumerRegistry.register(eventIdentifier, new ConsumerKey(getPluginKey(), moduleKey), url);
+        webHookConsumerRegistry.register(eventIdentifier, getPluginKey(), url, new PluginModuleConsumerParams(getPluginKey(), Optional.of(moduleKey), moduleParams, eventIdentifier));
     }
 
     @Override
     public void disabled()
     {
-        webHookConsumerRegistry.unregister(eventIdentifier, new ConsumerKey(getPluginKey(), moduleKey), url);
+        webHookConsumerRegistry.unregister(eventIdentifier, getPluginKey(), url, new PluginModuleConsumerParams(getPluginKey(), Optional.of(moduleKey), moduleParams, eventIdentifier));
         super.disabled();
     }
 

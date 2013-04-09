@@ -1,6 +1,7 @@
 package com.atlassian.webhooks.plugin.junit;
 
 import com.atlassian.webhooks.plugin.AnnotatedEvent;
+import com.atlassian.webhooks.plugin.test.ParameterizedEvent;
 import com.atlassian.webhooks.plugin.test.ServiceAccessor;
 import com.atlassian.webhooks.plugin.test.TestEvent;
 import com.atlassian.webhooks.plugin.test.WebHookServlet;
@@ -45,5 +46,19 @@ public final class TestWebHookOnEvents
         assertNotNull(hook);
         assertTrue(hook.body.contains(eventValue));
         assertFalse(WebHookServlet.hasHooks());
+    }
+
+    @Test
+    public void testWebHookWithParams() throws Exception
+    {
+        assertFalse(WebHookServlet.hasHooks());
+        ServiceAccessor.eventPublisher.publish(new ParameterizedEvent("true"));
+        final WebHookServlet.Hook hook = WebHookServlet.waitAndPop();
+        assertNotNull(hook);
+        assertTrue(hook.body.contains("true"));
+        assertFalse(WebHookServlet.hasHooks());
+
+        ServiceAccessor.eventPublisher.publish(new ParameterizedEvent("false"));
+        assertNull(WebHookServlet.waitAndPop());
     }
 }

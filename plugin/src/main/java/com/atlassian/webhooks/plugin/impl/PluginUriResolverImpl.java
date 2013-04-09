@@ -3,6 +3,7 @@ package com.atlassian.webhooks.plugin.impl;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +29,18 @@ public final class PluginUriResolverImpl implements PluginUriResolver
     @Override
     public URI getUri(String pluginKey, URI path)
     {
-        final URI newUri = getFromOsgiService(pluginKey, path);
-        if (newUri != null)
+        try
         {
-            logger.debug("Found new URI from OSGi service, '{}'", newUri);
-            return newUri;
+            final URI newUri = getFromOsgiService(pluginKey, path);
+            if (newUri != null)
+            {
+                logger.debug("Found new URI from OSGi service, '{}'", newUri);
+                return newUri;
+            }
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error(e.getLocalizedMessage());
         }
 
         final URI defaultNewUri = getUriDefault(path);
@@ -40,19 +48,26 @@ public final class PluginUriResolverImpl implements PluginUriResolver
         return defaultNewUri;
     }
 
-    private URI getFromOsgiService(String pluginKey, URI path)
+    private URI getFromOsgiService(String pluginKey, URI path) throws InvalidSyntaxException
     {
-        final ServiceReference newPluginUriResolverReference = bundleContext.getServiceReference(PluginUriResolver.class.getName());
-        if (newPluginUriResolverReference != null)
+        final ServiceReference[] serviceReferences = bundleContext.getAllServiceReferences(PluginUriResolver.class.getName(), null);
+        if (serviceReferences != null)
         {
-            try
+            for (ServiceReference serviceReference : serviceReferences)
             {
-                final PluginUriResolver newUriResolver = (PluginUriResolver) bundleContext.getService(newPluginUriResolverReference);
-                return newUriResolver.getUri(pluginKey, path);
-            }
-            finally
-            {
-                bundleContext.ungetService(newPluginUriResolverReference);
+                try
+                {
+                    final PluginUriResolver newUriResolver = (PluginUriResolver) bundleContext.getService(serviceReference);
+                    URI uri = newUriResolver.getUri(pluginKey, path);
+                    if (uri != null)
+                    {
+                        return uri;
+                    }
+                }
+                finally
+                {
+                    bundleContext.ungetService(serviceReference);
+                }
             }
         }
         return null;

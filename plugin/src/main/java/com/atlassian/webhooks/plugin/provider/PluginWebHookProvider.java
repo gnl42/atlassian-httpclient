@@ -2,11 +2,11 @@ package com.atlassian.webhooks.plugin.provider;
 
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.sal.api.ApplicationProperties;
-import com.atlassian.webhooks.spi.provider.ConsumerKey;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.EventSerializer;
 import com.atlassian.webhooks.spi.provider.EventSerializerFactory;
 import com.atlassian.webhooks.spi.provider.EventSerializers;
+import com.atlassian.webhooks.spi.provider.PluginModuleConsumerParams;
 import com.atlassian.webhooks.spi.provider.WebHookProvider;
 import com.atlassian.webhooks.spi.provider.WebHookRegistrar;
 import com.google.common.base.Strings;
@@ -28,13 +28,13 @@ public final class PluginWebHookProvider implements WebHookProvider
     {
         publish.webhook("plugin_enabled")
                 .whenFired(PluginEnabledEvent.class)
-                .matchedBy(new EventMatcher()
+                .matchedBy(new EventMatcher<PluginEnabledEvent>()
                 {
                     @Override
-                    public boolean matches(Object event, ConsumerKey webHookConsumer)
+                    public boolean matches(final PluginEnabledEvent event, final Object consumerParams)
                     {
-                        return event instanceof PluginEnabledEvent
-                                && (((PluginEnabledEvent) event).getPlugin().getKey()).equals(webHookConsumer.getPluginKey());
+                        return consumerParams instanceof PluginModuleConsumerParams
+                                && (event.getPlugin().getKey()).equals(((PluginModuleConsumerParams) consumerParams).getPluginKey());
                     }
                 })
                 .serializedWith(new EventSerializerFactory()

@@ -1,17 +1,15 @@
 package com.atlassian.webhooks.plugin.event;
 
-import com.atlassian.webhooks.spi.provider.ConsumerKey;
-
 abstract class AbstractWebHookEvent
 {
     private final String webHookId;
-    private final ConsumerKey consumerKey;
+    private final String pluginKey;
     private final String uri;
 
-    protected AbstractWebHookEvent(String webHookId, ConsumerKey consumerKey, String uri)
+    protected AbstractWebHookEvent(String webHookId, String pluginKey, String uri)
     {
         this.webHookId = webHookId;
-        this.consumerKey = consumerKey;
+        this.pluginKey = pluginKey;
         this.uri = uri;
     }
 
@@ -20,9 +18,9 @@ abstract class AbstractWebHookEvent
         return webHookId;
     }
 
-    public ConsumerKey getConsumerKey()
+    public String getPluginKey()
     {
-        return consumerKey;
+        return pluginKey;
     }
 
     public final String getUri()

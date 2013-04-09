@@ -5,7 +5,6 @@ import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedEvent;
 import com.atlassian.webhooks.plugin.event.WebHookPublishedEvent;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
-import com.atlassian.webhooks.spi.provider.WebHookConsumerRegistry;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.atlassian.webhooks.spi.provider.WebHookPublisher;
 import com.google.common.collect.ImmutableList;
@@ -21,7 +20,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class WebHookPublisherImplTest
@@ -29,7 +32,7 @@ public final class WebHookPublisherImplTest
     private WebHookPublisher publisher;
 
     @Mock
-    private WebHookConsumerRegistry consumerRegistry;
+    private WebHookConsumerProvider consumerProvider;
 
     @Mock
     private PublishTaskFactory publishTaskFactory;
@@ -43,13 +46,13 @@ public final class WebHookPublisherImplTest
     @Before
     public void setUp()
     {
-        publisher = new WebHookPublisherImpl(consumerRegistry, publishTaskFactory, eventPublisher, executor);
+        publisher = new WebHookPublisherImpl(consumerProvider, publishTaskFactory, eventPublisher, executor);
     }
 
     @Test
     public void testPublishWithNoConsumers() throws Exception
     {
-        when(consumerRegistry.getConsumers(Matchers.<WebHookEvent>any())).thenReturn(ImmutableList.<WebHookConsumer>of());
+        when(consumerProvider.getConsumers(Matchers.<WebHookEvent>any())).thenReturn(ImmutableList.<WebHookConsumer>of());
 
         publisher.publish(mock(WebHookEvent.class));
 
@@ -64,7 +67,7 @@ public final class WebHookPublisherImplTest
         when(consumer.getPath()).thenReturn(new URI("/"));
         final PublishTask publishTask = mock(PublishTask.class);
 
-        when(consumerRegistry.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
+        when(consumerProvider.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
         when(publishTaskFactory.getPublishTask(event, consumer)).thenReturn(publishTask);
         when(event.getEventMatcher()).thenReturn(EventMatcher.ALWAYS_TRUE);
 
@@ -84,7 +87,7 @@ public final class WebHookPublisherImplTest
         when(consumer.getPath()).thenReturn(new URI("/"));
         final PublishTask publishTask = mock(PublishTask.class);
 
-        when(consumerRegistry.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
+        when(consumerProvider.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
         when(publishTaskFactory.getPublishTask(event, consumer)).thenReturn(publishTask);
         doThrow(RejectedExecutionException.class).when(executor).execute(publishTask);
         when(event.getEventMatcher()).thenReturn(EventMatcher.ALWAYS_TRUE);
@@ -103,7 +106,7 @@ public final class WebHookPublisherImplTest
         when(event.getId()).thenReturn("webhook_id");
         final WebHookConsumer consumer = mock(WebHookConsumer.class);
 
-        when(consumerRegistry.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
+        when(consumerProvider.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
         when(event.getEventMatcher()).thenReturn(EventMatcher.ALWAYS_FALSE);
 
         publisher.publish(event);

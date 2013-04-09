@@ -24,22 +24,32 @@
         </beans:constructor-arg>
     </beans:bean>
 
+    <beans:bean id="webHookConsumerProvider" class="com.atlassian.webhooks.plugin.DelegatingWebHookConsumerProvider">
+        <beans:constructor-arg>
+            <beans:list>
+                <beans:bean class="com.atlassian.webhooks.plugin.OsgiWebHookConsumerProvider">
+                    <beans:constructor-arg ref="waitableServiceTrackerFactory"/>
+                </beans:bean>
+                <beans:ref bean="moduleDescriptorWebHookRegistry" />
+            </beans:list>
+        </beans:constructor-arg>
+    </beans:bean>
+
+    <beans:bean id="moduleDescriptorWebHookRegistry" class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookRegistryImpl" />
 
     <beans:bean id="webHookPublisher" class="com.atlassian.webhooks.plugin.WebHookPublisherImpl">
-        <beans:constructor-arg index="0" ref="moduleDescriptorWebHookRegistry"/>
+        <beans:constructor-arg index="0" ref="webHookConsumerProvider"/>
         <beans:constructor-arg index="1">
             <beans:bean class="com.atlassian.webhooks.plugin.PublishTaskFactoryImpl">
                 <beans:constructor-arg index="0" ref="httpClient"/>
                 <beans:constructor-arg index="1" ref="requestSigner"/>
                 <beans:constructor-arg index="2" ref="pluginUriResolver"/>
                 <beans:constructor-arg index="3" ref="userManager"/>
+                <beans:constructor-arg index="4" ref="pluginUriCustomizer" />
             </beans:bean>
         </beans:constructor-arg>
         <beans:constructor-arg index="2" ref="eventPublisher"/>
     </beans:bean>
-
-    <beans:bean id="moduleDescriptorWebHookRegistry"
-                class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookRegistryImpl"/>
 
     <beans:bean id="requestSigner" class="com.atlassian.webhooks.plugin.impl.RequestSignerImpl">
         <beans:constructor-arg ref="bundleContext"/>
@@ -48,6 +58,10 @@
     <beans:bean id="pluginUriResolver" class="com.atlassian.webhooks.plugin.impl.PluginUriResolverImpl">
         <beans:constructor-arg index="0" ref="applicationProperties"/>
         <beans:constructor-arg index="1" ref="bundleContext"/>
+    </beans:bean>
+
+    <beans:bean id="pluginUriCustomizer" class="com.atlassian.webhooks.plugin.impl.PluginUriCustomizerImpl">
+        <beans:constructor-arg index="0" ref="bundleContext"/>
     </beans:bean>
 
     <beans:bean id="waitableServiceTrackerFactory" class="com.atlassian.osgi.tracker.WaitableServiceTrackerFactory">
