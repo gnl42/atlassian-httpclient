@@ -50,7 +50,7 @@ public final class PluginUriResolverImpl implements PluginUriResolver
 
     private URI getFromOsgiService(String pluginKey, URI path) throws InvalidSyntaxException
     {
-        final ServiceReference[] serviceReferences = bundleContext.getAllServiceReferences(PluginUriResolver.class.getName(), "");
+        final ServiceReference[] serviceReferences = bundleContext.getAllServiceReferences(PluginUriResolver.class.getName(), null);
         if (serviceReferences != null)
         {
             for (ServiceReference serviceReference : serviceReferences)
