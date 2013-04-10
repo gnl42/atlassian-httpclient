@@ -46,6 +46,7 @@
         <module>provider-spi</module>
         <module>spi</module>
         <module>plugin</module>
+        <module>plugin2-compatibility-plugin</module>
         <module>test-plugin</module>
         <module>httpclient-api</module>
         <module>httpclient-spi</module>

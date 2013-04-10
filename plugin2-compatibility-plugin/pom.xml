@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>atlassian-webhooks-plugin-parent</artifactId>
+        <groupId>com.atlassian.webhooks</groupId>
+        <version>0.15.0-m1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>atlassian-webhooks-plugin2-compatibility-plugin</artifactId>
+    <name>Atlassian WebHooks Plugin2 Compatibility Plugin</name>
+    <description>Provides compatibility for products with 2nd version of plugin system.</description>
+
+    <packaging>atlassian-plugin</packaging>
+
+    <properties>
+        <atlassian.plugins.version>2.14.0-m9</atlassian.plugins.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-core</artifactId>
+            <version>${atlassian.plugins.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-schema</artifactId>
+            <version>${atlassian.plugins.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.atlassian.plugins</groupId>
+                    <artifactId>atlassian-plugins-osgi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-osgi</artifactId>
+            <version>${atlassian.plugins.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.osgi</groupId>
+            <artifactId>spring-osgi-core</artifactId>
+            <version>1.2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-amps-plugin</artifactId>
+                <configuration>
+                    <extractDependencies>true</extractDependencies>
+                    <instructions>
+                        <Import-Package>
+                            com.atlassian.plugin.schema*;version="2.10",
+                            org.osgi*,
+                            org.springframework*,
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Export-Package>
+                            com.atlassian.plugin.schema*;version="2.10"
+                        </Export-Package>
+                        <Spring-Context>*;timeout:=60</Spring-Context>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
