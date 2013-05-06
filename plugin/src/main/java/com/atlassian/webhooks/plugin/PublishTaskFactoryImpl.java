@@ -11,6 +11,7 @@ import com.atlassian.webhooks.spi.plugin.RequestSigner;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class PublishTaskFactoryImpl implements PublishTaskFactory
 {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final HttpClient httpClient;
     private final RequestSigner requestSigner;
     private final PluginUriResolver pluginUriResolver;
@@ -51,7 +54,16 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
 
     private URI getConsumerUri(WebHookEvent webHookEvent, WebHookConsumer consumer)
     {
-        return pluginUriCustomizer.customizeURI(consumer.getPluginKey(), pluginUriResolver.getUri(consumer.getPluginKey(), consumer.getPath()), webHookEvent);
+        Optional<URI> uri = pluginUriResolver.getUri(consumer.getPluginKey(), consumer.getPath());
+        if (uri.isPresent())
+        {
+            return pluginUriCustomizer.customizeURI(consumer.getPluginKey(), uri.get(), webHookEvent);
+        }
+        else
+        {
+            logger.error("Could not resolve uri for event '{}' and consumer '{}'", webHookEvent, consumer);
+            throw new RuntimeException("Could not resolve uri for event " + webHookEvent + " and consumer " + consumer);
+        }
     }
 
     private String getUserName()

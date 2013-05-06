@@ -1,5 +1,7 @@
 package com.atlassian.webhooks.spi.plugin;
 
+import com.google.common.base.Optional;
+
 import java.net.URI;
 
 public interface PluginUriResolver
@@ -11,5 +13,5 @@ public interface PluginUriResolver
      * @param path the relative path
      * @return an absolute URI to the plugin path.
      */
-    URI getUri(String pluginKey, URI path);
+    Optional<URI> getUri(String pluginKey, URI path);
 }
