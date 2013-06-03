@@ -1,7 +1,10 @@
 package com.atlassian.webhooks.plugin;
 
+import com.atlassian.fugue.retry.RetryFunction;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.Request;
+import com.atlassian.httpclient.api.Response;
+import com.atlassian.httpclient.api.ResponsePromise;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.uri.Uri;
 import com.atlassian.uri.UriBuilder;
@@ -17,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -71,7 +76,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         return Strings.nullToEmpty(userManager.getRemoteUsername());
     }
 
-    private static final class PublishTaskImpl implements PublishTask
+    static final class PublishTaskImpl implements PublishTask
     {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -114,10 +119,14 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
                     .setAttribute("pluginKey", consumer.getPluginKey());
 
             requestSigner.sign(consumer.getPluginKey(), request);
-            request.post();
+            ResponsePromise post = request.post();
+// TODO: error logging for 400/500 errors
+// TODO: functional re-tries
+//            post.transform().error(new RetryFunction<Response, Object>())
+
         }
 
-        private URI getUri()
+        URI getUri()
         {
             return new UriBuilder(Uri.fromJavaUri(uri)).addQueryParameter("user_id", userName).toUri().toJavaUri();
         }
