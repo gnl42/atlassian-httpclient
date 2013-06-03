@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.atlassian.uri</groupId>
             <artifactId>atlassian-uri</artifactId>
-            <version>0.1</version>
+            <version>0.2</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.osgi</groupId>

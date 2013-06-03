@@ -119,16 +119,20 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
                     .setAttribute("pluginKey", consumer.getPluginKey());
 
             requestSigner.sign(consumer.getPluginKey(), request);
-            ResponsePromise post = request.post();
-// TODO: error logging for 400/500 errors
-// TODO: functional re-tries
-//            post.transform().error(new RetryFunction<Response, Object>())
-
+            request.post();
         }
 
         URI getUri()
         {
-            return new UriBuilder(Uri.fromJavaUri(uri)).addQueryParameter("user_id", userName).toUri().toJavaUri();
+            Uri parsedUri = Uri.fromJavaUri(uri);
+            return new UriBuilder().
+                    setScheme(parsedUri.getScheme()).
+                    setAuthority(uri.getAuthority()).
+                    setPath(uri.getPath()).
+                    setQuery(parsedUri.getQuery()).
+                    addQueryParameter("user_id", userName).
+                    toUri().
+                    toJavaUri();
         }
 
         @Override
