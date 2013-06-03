@@ -67,6 +67,7 @@
         <sdk.version>4.0</sdk.version>
         <analytics.version>2.12</analytics.version>
         <org.json.version>chargebee-1.0</org.json.version>
+        <httpasyncclient.version>4.0-beta3-atlassian2</httpasyncclient.version>
     </properties>
 
     <dependencyManagement>
