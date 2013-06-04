@@ -2,6 +2,7 @@ package com.atlassian.webhooks.plugin.impl;
 
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
+import com.google.common.base.Optional;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -27,12 +28,12 @@ public final class PluginUriResolverImpl implements PluginUriResolver
     }
 
     @Override
-    public URI getUri(String pluginKey, URI path)
+    public Optional<URI> getUri(String pluginKey, URI path)
     {
         try
         {
-            final URI newUri = getFromOsgiService(pluginKey, path);
-            if (newUri != null)
+            final Optional<URI> newUri = getFromOsgiService(pluginKey, path);
+            if (newUri.isPresent())
             {
                 logger.debug("Found new URI from OSGi service, '{}'", newUri);
                 return newUri;
@@ -45,10 +46,10 @@ public final class PluginUriResolverImpl implements PluginUriResolver
 
         final URI defaultNewUri = getUriDefault(path);
         logger.debug("Found new URI from default Application properties, '{}'", defaultNewUri);
-        return defaultNewUri;
+        return Optional.of(defaultNewUri);
     }
 
-    private URI getFromOsgiService(String pluginKey, URI path) throws InvalidSyntaxException
+    private Optional<URI> getFromOsgiService(String pluginKey, URI path) throws InvalidSyntaxException
     {
         final ServiceReference[] serviceReferences = bundleContext.getAllServiceReferences(PluginUriResolver.class.getName(), null);
         if (serviceReferences != null)
@@ -58,8 +59,8 @@ public final class PluginUriResolverImpl implements PluginUriResolver
                 try
                 {
                     final PluginUriResolver newUriResolver = (PluginUriResolver) bundleContext.getService(serviceReference);
-                    URI uri = newUriResolver.getUri(pluginKey, path);
-                    if (uri != null)
+                    Optional<URI> uri = newUriResolver.getUri(pluginKey, path);
+                    if (uri.isPresent())
                     {
                         return uri;
                     }
@@ -70,7 +71,7 @@ public final class PluginUriResolverImpl implements PluginUriResolver
                 }
             }
         }
-        return null;
+        return Optional.absent();
     }
 
     private URI getUriDefault(URI path)

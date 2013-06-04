@@ -2,6 +2,7 @@ package com.atlassian.webhooks.plugin;
 
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.Request;
+import com.atlassian.httpclient.api.Response;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.uri.Uri;
 import com.atlassian.uri.UriBuilder;
@@ -10,7 +11,9 @@ import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
 import com.atlassian.webhooks.spi.plugin.RequestSigner;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class PublishTaskFactoryImpl implements PublishTaskFactory
 {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final HttpClient httpClient;
     private final RequestSigner requestSigner;
     private final PluginUriResolver pluginUriResolver;
@@ -51,7 +56,16 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
 
     private URI getConsumerUri(WebHookEvent webHookEvent, WebHookConsumer consumer)
     {
-        return pluginUriCustomizer.customizeURI(consumer.getPluginKey(), pluginUriResolver.getUri(consumer.getPluginKey(), consumer.getPath()), webHookEvent);
+        Optional<URI> uri = pluginUriResolver.getUri(consumer.getPluginKey(), consumer.getPath());
+        if (uri.isPresent())
+        {
+            return pluginUriCustomizer.customizeURI(consumer.getPluginKey(), uri.get(), webHookEvent);
+        }
+        else
+        {
+            logger.error("Could not resolve uri for event '{}' and consumer '{}'", webHookEvent, consumer);
+            throw new RuntimeException("Could not resolve uri for event " + webHookEvent + " and consumer " + consumer);
+        }
     }
 
     private String getUserName()
@@ -59,7 +73,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         return Strings.nullToEmpty(userManager.getRemoteUsername());
     }
 
-    private static final class PublishTaskImpl implements PublishTask
+    static final class PublishTaskImpl implements PublishTask
     {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -102,12 +116,32 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
                     .setAttribute("pluginKey", consumer.getPluginKey());
 
             requestSigner.sign(consumer.getPluginKey(), request);
-            request.post();
+            request.post().transform().clientError(new Function<Response, Object>() {
+                @Override
+                public Object apply(Response response) {
+                    logger.error("Client error - {} when posting to web hook at '{}', body is:\n{}", new Object[] {response.getStatusCode(), uri, body});
+                    return null;
+                }
+            }).serverError(new Function<Response, Object>() {
+                @Override
+                public Object apply(Response response) {
+                    logger.error("Server error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                    return null;
+                }
+            }).toPromise();
         }
 
-        private URI getUri()
+        URI getUri()
         {
-            return new UriBuilder(Uri.fromJavaUri(uri)).addQueryParameter("user_id", userName).toUri().toJavaUri();
+            Uri parsedUri = Uri.fromJavaUri(uri);
+            return new UriBuilder().
+                    setScheme(parsedUri.getScheme()).
+                    setAuthority(uri.getAuthority()).
+                    setPath(uri.getPath()).
+                    setQuery(parsedUri.getQuery()).
+                    addQueryParameter("user_id", userName).
+                    toUri().
+                    toJavaUri();
         }
 
         @Override

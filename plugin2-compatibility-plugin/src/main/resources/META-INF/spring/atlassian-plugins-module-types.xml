@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans" xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd" default-autowire="autodetect" osgi:default-timeout="30000">
+    <beans:bean id="springHostContainer" class="com.atlassian.plugin.osgi.bridge.external.SpringHostContainer"/>
+
+    <beans:bean id="moduleType-described-module-type" class="com.atlassian.plugin.osgi.external.SingleModuleDescriptorFactory">
+        <beans:constructor-arg index="0" ref="springHostContainer"/>
+        <beans:constructor-arg index="1">
+            <beans:value>described-module-type</beans:value>
+        </beans:constructor-arg>
+        <beans:constructor-arg index="2">
+            <beans:value>com.atlassian.plugin.schema.impl.DescribedModuleTypeModuleDescriptor</beans:value>
+        </beans:constructor-arg>
+    </beans:bean>
+    <osgi:service id="moduleType-described-module-type_osgiService" ref="moduleType-described-module-type" auto-export="interfaces"/>
+</beans:beans>

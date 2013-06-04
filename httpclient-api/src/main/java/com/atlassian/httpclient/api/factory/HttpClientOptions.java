@@ -31,11 +31,14 @@ public final class HttpClientOptions
 
     private long maxEntitySize = 1024 * 1024 * 100;
 
+    private long leaseTimeout = 600000;
+
     private Effect<Request> requestPreparer = Effects.noop();
 
     private String userAgent = "Default";
 
     private ExecutorService callbackExecutor;
+
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
@@ -249,6 +252,20 @@ public final class HttpClientOptions
     public long getMaxEntitySize()
     {
         return maxEntitySize;
+    }
+
+    /**
+     * @return The maximum time request to be kept in queue before execution, after timeout - request will be removed
+     */
+    public long getLeaseTimeout() {
+        return leaseTimeout;
+    }
+
+    /**
+     * @param leaseTimeout The maximum time request to be kept in queue before execution, after timeout - request will be removed
+     */
+    public void setLeaseTimeout(long leaseTimeout) {
+        this.leaseTimeout = leaseTimeout;
     }
 
     /**

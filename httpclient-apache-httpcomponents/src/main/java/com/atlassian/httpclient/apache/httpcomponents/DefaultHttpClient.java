@@ -9,7 +9,6 @@ import com.atlassian.httpclient.api.ResponsePromise;
 import com.atlassian.httpclient.api.ResponsePromises;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.base.AbstractHttpClient;
-import com.atlassian.httpclient.base.RequestKiller;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
 import com.atlassian.httpclient.spi.ThreadLocalContextManager;
@@ -76,7 +75,6 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
     private final ExecutorService callbackExecutor;
     private final HttpClientOptions httpClientOptions;
 
-    private final RequestKiller requestKiller;
     private final HttpAsyncClient httpClient;
     private final HttpAsyncClient nonCachingHttpClient;
     private final FlushableHttpCacheStorage httpCacheStorage;
@@ -92,7 +90,6 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
         this.applicationProperties = checkNotNull(applicationProperties);
         this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
         this.httpClientOptions = checkNotNull(options);
-        this.requestKiller = new RequestKiller(options.getThreadPrefix());
 
         final DefaultHttpAsyncClient client;
         try
@@ -121,7 +118,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
                 }
             });
             final PoolingClientAsyncConnectionManager connmgr = new PoolingClientAsyncConnectionManager(reactor,
-                    AsyncSchemeRegistryFactory.createDefault(), options.getConnectionPoolTimeToLive(), TimeUnit.MILLISECONDS)
+                    AsyncSchemeRegistryFactory.createDefault(), options.getConnectionPoolTimeToLive(), options.getLeaseTimeout(), TimeUnit.MILLISECONDS)
             {
                 @Override
                 protected void finalize() throws Throwable
@@ -227,7 +224,6 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
 
         callbackExecutor = httpClientOptions.getCallbackExecutor();
         httpClient.start();
-        requestKiller.start();
     }
 
     private String getUserAgent(HttpClientOptions options)
@@ -310,14 +306,12 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
             op.setHeader(entry.getKey(), entry.getValue());
         }
 
-        requestKiller.registerRequest(op, httpClientOptions.getRequestTimeout());
         return ResponsePromises.toResponsePromise(getPromiseHttpAsyncClient(request).execute(op, new BasicHttpContext()).fold(
                 new Function<Throwable, Response>()
                 {
                     @Override
                     public Response apply(Throwable ex)
                     {
-                        requestKiller.completedRequest(op);
                         final long requestDuration = System.currentTimeMillis() - start;
                         publishEvent(request, requestDuration, ex);
                         throw Throwables.propagate(ex);
@@ -328,7 +322,6 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
                     @Override
                     public Response apply(HttpResponse httpResponse)
                     {
-                        requestKiller.completedRequest(op);
                         final long requestDuration = System.currentTimeMillis() - start;
                         publishEvent(request, requestDuration, httpResponse.getStatusLine().getStatusCode());
                         try
@@ -404,7 +397,6 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
     public void destroy() throws Exception
     {
         callbackExecutor.shutdown();
-        requestKiller.stop();
         httpClient.shutdown();
     }
 
