@@ -1,10 +1,8 @@
 package com.atlassian.webhooks.plugin;
 
-import com.atlassian.fugue.retry.RetryFunction;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.Response;
-import com.atlassian.httpclient.api.ResponsePromise;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.uri.Uri;
 import com.atlassian.uri.UriBuilder;
@@ -13,6 +11,7 @@ import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
 import com.atlassian.webhooks.spi.plugin.RequestSigner;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -20,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -119,7 +116,19 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
                     .setAttribute("pluginKey", consumer.getPluginKey());
 
             requestSigner.sign(consumer.getPluginKey(), request);
-            request.post();
+            request.post().transform().clientError(new Function<Response, Object>() {
+                @Override
+                public Object apply(Response response) {
+                    logger.error("Client error - {} when posting to web hook at '{}', body is:\n{}", new Object[] {response.getStatusCode(), uri, body});
+                    return null;
+                }
+            }).serverError(new Function<Response, Object>() {
+                @Override
+                public Object apply(Response response) {
+                    logger.error("Server error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                    return null;
+                }
+            }).toPromise();
         }
 
         URI getUri()
