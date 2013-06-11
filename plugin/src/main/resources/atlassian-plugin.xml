@@ -15,6 +15,11 @@
                interface="com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry"
                public="true" />
 
+    <component key="pluginLauncher" class="com.atlassian.webhooks.plugin.PluginLauncher" public="true">
+        <interface>org.springframework.beans.factory.InitializingBean</interface>
+        <interface>org.springframework.beans.factory.DisposableBean</interface>
+    </component>
+
     <!-- Refapp -->
     <component key="refappThreadLocalContextManager" class="com.atlassian.webhooks.plugin.refapp.RefappThreadLocalContextManager"
                interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="refapp"/>
@@ -30,4 +35,14 @@
 
     <component-import key="jiraAuthenticationContext" interface="com.atlassian.jira.security.JiraAuthenticationContext" application="jira" />
     <component-import key="jiraVelocityRequestContextFactory" interface="com.atlassian.jira.util.velocity.VelocityRequestContextFactory" application="jira" />
+
+    <component-import key="pluginEventManager" interface="com.atlassian.plugin.event.PluginEventManager" />
+
+    <rest key="webhooksRest" path="/webhooks" version="1.0" description="Provides webhook registration services." />
+
+    <ao key="webhooks-ao-module" name="Active Objects Module">
+        <description>Datastore for persistent webhooks.</description>
+        <entity>com.atlassian.webhooks.plugin.ao.WebHookAO</entity>
+    </ao>
+
 </atlassian-plugin>

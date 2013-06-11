@@ -1,12 +1,12 @@
 package com.atlassian.webhooks.plugin.event;
 
-abstract class AbstractWebHookEvent
+abstract class AbstractWebHookAnalyticsEvent
 {
     private final String webHookId;
     private final String pluginKey;
     private final String uri;
 
-    protected AbstractWebHookEvent(String webHookId, String pluginKey, String uri)
+    protected AbstractWebHookAnalyticsEvent(String webHookId, String pluginKey, String uri)
     {
         this.webHookId = webHookId;
         this.pluginKey = pluginKey;

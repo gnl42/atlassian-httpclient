@@ -31,11 +31,37 @@
                     <beans:constructor-arg ref="waitableServiceTrackerFactory"/>
                 </beans:bean>
                 <beans:ref bean="moduleDescriptorWebHookRegistry" />
+                <beans:bean class="com.atlassian.webhooks.plugin.PersistentWebHookConsumerProvider">
+                    <beans:constructor-arg index="0" ref="webHookConsumerService" />
+                    <beans:constructor-arg index="1" ref="osgiWebHookModelTransformer" />
+                </beans:bean>
             </beans:list>
         </beans:constructor-arg>
     </beans:bean>
 
+    <beans:bean id="webHookConsumerActionValidator" class="com.atlassian.webhooks.plugin.rest.WebHookConsumerActionValidatorImpl">
+        <beans:constructor-arg index="0" ref="bundleContext" />
+    </beans:bean>
+
+    <beans:bean id="osgiWebHookModelTransformer" class="com.atlassian.webhooks.plugin.OsgiWebHookConsumerTransformer">
+        <beans:constructor-arg index="0" ref="waitableServiceTrackerFactory" />
+    </beans:bean>
+
     <beans:bean id="moduleDescriptorWebHookRegistry" class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookRegistryImpl" />
+
+    <beans:bean id="webHookConsumerManager" class="com.atlassian.webhooks.plugin.manager.WebHookConsumerManagerImpl">
+        <beans:constructor-arg index="0" ref="ao" />
+        <beans:constructor-arg index="1" ref="userManager" />
+        <beans:constructor-arg index="2" ref="i18nResolver" />
+    </beans:bean>
+
+    <beans:bean id="webHookConsumerCache" class="com.atlassian.webhooks.plugin.service.WebHookConsumerCacheImpl" />
+
+    <beans:bean id="webHookConsumerService" class="com.atlassian.webhooks.plugin.service.WebHookConsumerConsumerServiceImpl">
+        <beans:constructor-arg index="0" ref="webHookConsumerCache" />
+        <beans:constructor-arg index="1" ref="webHookConsumerManager" />
+        <beans:constructor-arg index="2" ref="webHookEventDispatcher" />
+    </beans:bean>
 
     <beans:bean id="webHookPublisher" class="com.atlassian.webhooks.plugin.WebHookPublisherImpl">
         <beans:constructor-arg index="0" ref="webHookConsumerProvider"/>
@@ -49,6 +75,10 @@
             </beans:bean>
         </beans:constructor-arg>
         <beans:constructor-arg index="2" ref="eventPublisher"/>
+    </beans:bean>
+
+    <beans:bean id="webHookEventDispatcher" class="com.atlassian.webhooks.plugin.event.WebHookEventDispatcher">
+        <beans:constructor-arg index="0" ref="eventPublisher" />
     </beans:bean>
 
     <beans:bean id="requestSigner" class="com.atlassian.webhooks.plugin.impl.RequestSignerImpl">
