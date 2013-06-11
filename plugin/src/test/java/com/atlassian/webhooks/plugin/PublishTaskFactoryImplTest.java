@@ -38,7 +38,7 @@ public class PublishTaskFactoryImplTest {
         URI uriObj = URI.create(uri);
         return new PublishTaskFactoryImpl.PublishTaskImpl(Mockito.mock(HttpClient.class),
             Mockito.mock(RequestSigner.class),
-            Mockito.mock(WebHookConsumer.class),
+                Mockito.mock(TokenBucket.class), Mockito.mock(WebHookConsumer.class),
             uriObj,
             userName,
             body);
