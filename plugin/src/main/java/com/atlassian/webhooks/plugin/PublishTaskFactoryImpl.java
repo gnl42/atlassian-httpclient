@@ -31,6 +31,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
     private final PluginUriResolver pluginUriResolver;
     private final UserManager userManager;
     private final PluginUriCustomizer pluginUriCustomizer;
+    private final TokenBucket logMessageRateLimiter;
 
     public PublishTaskFactoryImpl(HttpClient httpClient, RequestSigner requestSigner, PluginUriResolver pluginUriResolver, UserManager userManager, PluginUriCustomizer pluginUriCustomizer)
     {
@@ -39,6 +40,9 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         this.pluginUriResolver = pluginUriResolver;
         this.userManager = userManager;
         this.pluginUriCustomizer = pluginUriCustomizer;
+        // The token bucket has a max size of 5 and gains one token per minute. So you can log once per minute on average.
+        // Or up to 5 times in one minute if you haven't logged in a few minutes.
+        this.logMessageRateLimiter = new TokenBucket(1, 60, 5);
     }
 
     @Override
@@ -47,6 +51,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         return new PublishTaskImpl(
                 httpClient,
                 requestSigner,
+                logMessageRateLimiter,
                 consumer,
                 getConsumerUri(webHookEvent, consumer),
                 getUserName(),
@@ -80,12 +85,14 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         private final HttpClient httpClient;
         private final RequestSigner requestSigner;
         private final WebHookConsumer consumer;
+        private final TokenBucket logMessageRateLimiter;
         private final URI uri;
         private final String userName;
         private final String body;
 
         PublishTaskImpl(HttpClient httpClient,
                         RequestSigner requestSigner,
+                        TokenBucket logMessageRateLimiter,
                         WebHookConsumer consumer,
                         URI uri,
                         String userName,
@@ -94,6 +101,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
 
             this.httpClient = checkNotNull(httpClient);
             this.requestSigner = checkNotNull(requestSigner);
+            this.logMessageRateLimiter = checkNotNull(logMessageRateLimiter);
             this.consumer = checkNotNull(consumer);
             this.uri = checkNotNull(uri);
             this.userName = checkNotNull(userName);
@@ -119,13 +127,17 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
             request.post().transform().clientError(new Function<Response, Object>() {
                 @Override
                 public Object apply(Response response) {
-                    logger.error("Client error - {} when posting to web hook at '{}', body is:\n{}", new Object[] {response.getStatusCode(), uri, body});
+                    if (logMessageRateLimiter.getToken()) {
+                        logger.error("Client error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                    }
                     return null;
                 }
             }).serverError(new Function<Response, Object>() {
                 @Override
                 public Object apply(Response response) {
-                    logger.error("Server error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                    if (logMessageRateLimiter.getToken()) {
+                        logger.error("Server error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                    }
                     return null;
                 }
             }).toPromise();
