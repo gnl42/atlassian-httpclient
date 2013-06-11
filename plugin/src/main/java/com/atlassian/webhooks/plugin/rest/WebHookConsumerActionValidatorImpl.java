@@ -1,12 +1,16 @@
 package com.atlassian.webhooks.plugin.rest;
 
 
+import com.atlassian.jira.i18n.DefaultMessage;
+import com.atlassian.sal.api.message.Message;
+import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.spi.provider.WebHookConsumerActionValidator;
 import com.atlassian.webhooks.spi.provider.WebHookRegistrationParameters;
 import com.google.common.collect.Lists;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -88,8 +92,25 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
 
     private class DefaultMessageCollection implements MessageCollection
     {
-        private List<String> messages = Lists.newArrayList();
+        private List<Message> messages = Lists.newArrayList();
 
+        @Override
+        public void addMessage(String key, Serializable... arguments)
+        {
+            addMessage(new DefaultMessage(key, arguments));
+        }
+
+        @Override
+        public void addMessage(Message message)
+        {
+            messages.add(message);
+        }
+
+        @Override
+        public void addAll(List<Message> messages)
+        {
+            messages.addAll(messages);
+        }
 
         @Override
         public boolean isEmpty()
@@ -98,7 +119,7 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
         }
 
         @Override
-        public List<String> getMessages()
+        public List<Message> getMessages()
         {
             return messages;
         }

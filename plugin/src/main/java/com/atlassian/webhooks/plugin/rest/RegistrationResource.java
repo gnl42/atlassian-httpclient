@@ -1,6 +1,7 @@
 package com.atlassian.webhooks.plugin.rest;
 
 import com.atlassian.plugins.rest.common.security.jersey.AdminOnlyResourceFilter;
+import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.webhooks.plugin.ao.DelegatingWebHookRegistrationParameters;
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
@@ -41,7 +42,7 @@ public class RegistrationResource
     @Consumes(MediaType.APPLICATION_JSON)
     public Response register(final Registration registration, @Context final UriInfo uriInfo, @DefaultValue("false") @QueryParam("ui") boolean registeredViaUI)
     {
-        final WebHookConsumerActionValidator.MessageCollection messageCollection = webHookConsumerActionValidator.validateWebHookAddition(registration);
+        final MessageCollection messageCollection = webHookConsumerActionValidator.validateWebHookAddition(registration);
         if (!messageCollection.isEmpty())
         {
             return status(Response.Status.BAD_REQUEST).entity(new SerializableErrorCollection(messageCollection)).build();
@@ -85,7 +86,7 @@ public class RegistrationResource
         {
             return status(Response.Status.NOT_FOUND).build();
         }
-        final WebHookConsumerActionValidator.MessageCollection messageCollection =
+        final MessageCollection messageCollection =
                 webHookConsumerActionValidator.validateWebHookDeletion(new DelegatingWebHookRegistrationParameters(webHook.get()));
 
         try
@@ -111,7 +112,7 @@ public class RegistrationResource
     @Consumes(MediaType.APPLICATION_JSON)
     public Response update(@PathParam ("id") final int id, final Registration registration, @Context final UriInfo uriInfo)
     {
-        final WebHookConsumerActionValidator.MessageCollection messageCollection = webHookConsumerActionValidator.validateWebHookUpdate(registration);
+        final MessageCollection messageCollection = webHookConsumerActionValidator.validateWebHookUpdate(registration);
 
         if (!messageCollection.isEmpty())
         {
