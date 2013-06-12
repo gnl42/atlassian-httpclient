@@ -31,7 +31,7 @@ public final class HttpClientOptions
 
     private long maxEntitySize = 1024 * 1024 * 100;
 
-    private long leaseTimeout = 600000;
+    private long leaseTimeout = 10 * 60 * 1000; // 10 mins
 
     private Effect<Request> requestPreparer = Effects.noop();
 
