@@ -1,6 +1,7 @@
 package it.com.atlassian.webhooks.plugin;
 
 import com.google.common.io.CharStreams;
+import org.apache.axis.encoding.Base64;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -10,7 +11,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.xml.security.utils.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;

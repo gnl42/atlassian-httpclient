@@ -3,8 +3,6 @@ package com.atlassian.webhooks.plugin.management;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookModelTransformer;
 import com.atlassian.webhooks.spi.provider.WebHookRegistrationParameters;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 
 import java.net.URI;
 
@@ -32,7 +30,15 @@ public class WebHookModelTransformerImpl implements WebHookModelTransformer
             @Override
             public Object getConsumerParams()
             {
-                return new RefAppListenerParameters(Splitter.on(":").split(webHookConsumerModel.getParameters()));
+                final String parameters = webHookConsumerModel.getParameters();
+                if (parameters.contains(":"))
+                {
+                    return new RefAppListenerParameters(parameters.substring(0, parameters.indexOf(':')), parameters.substring(parameters.indexOf(':') + 1));
+                }
+                else
+                {
+                    return parameters;
+                }
             }
 
             @Override
@@ -49,10 +55,10 @@ public class WebHookModelTransformerImpl implements WebHookModelTransformer
         private final String qualificator;
         private final String secondaryKey;
 
-        public RefAppListenerParameters(Iterable<String> parameters)
+        public RefAppListenerParameters(String qualificator, String secondaryKey)
         {
-            this.qualificator = Iterables.get(parameters, 0);
-            this.secondaryKey = Iterables.get(parameters, 1);
+            this.qualificator = qualificator;
+            this.secondaryKey = secondaryKey;
         }
 
         public String getQualificator()

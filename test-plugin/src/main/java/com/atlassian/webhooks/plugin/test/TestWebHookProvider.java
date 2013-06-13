@@ -53,7 +53,7 @@ public final class TestWebHookProvider implements WebHookProvider
                     @Override
                     public EventSerializer create(final EventWithPersistentListener event)
                     {
-                        return EventSerializers.forMap(event, ImmutableMap.<String, Object>of("value", event.getQualificator()));
+                        return EventSerializers.forMap(event, ImmutableMap.<String, Object>of("value", event.getQualificator() + event.getSecondaryKey()));
                     }
                 });
     }

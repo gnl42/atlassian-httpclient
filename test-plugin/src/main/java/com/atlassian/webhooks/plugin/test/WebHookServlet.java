@@ -15,7 +15,7 @@ public final class WebHookServlet extends HttpServlet
 {
     static volatile BlockingDeque<Hook> pluginEnabledHook = new LinkedBlockingDeque<Hook>();
     static volatile BlockingDeque<Hook> hooks = new LinkedBlockingDeque<Hook>();
-    static volatile BlockingDeque<Hook> persistentEventsHook;
+    static volatile BlockingDeque<Hook> persistentEventsHook = new LinkedBlockingDeque<Hook>();
 
     @Override
     protected void doPost(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException

@@ -29,9 +29,9 @@ public class OsgiWebHookConsumerTransformer implements WebHookModelTransformer
         @Override
         public WebHookModelTransformer adding(WebHookModelTransformer webHookModelTransformer)
         {
-            if (OsgiWebHookConsumerTransformer.this.webHookModelTransformer != null)
+            if (OsgiWebHookConsumerTransformer.this.webHookModelTransformer != null && !webHookModelTransformer.getClass().equals(OsgiWebHookConsumerTransformer.class))
             {
-                throw new RuntimeException("There can be only one implementation of WebHookModelTransformer in the system. Found [ " + webHookModelTransformer.getClass() + ", " + OsgiWebHookConsumerTransformer.this.webHookModelTransformer.getClass() + "]");
+                throw new IllegalStateException("There can be only one implementation of WebHookModelTransformer in the system. Found [ " + webHookModelTransformer.getClass() + ", " + OsgiWebHookConsumerTransformer.this.webHookModelTransformer.getClass() + "]");
             }
             // ensure we don't create a reference to self.
             if (!webHookModelTransformer.getClass().equals(OsgiWebHookConsumerTransformer.class))

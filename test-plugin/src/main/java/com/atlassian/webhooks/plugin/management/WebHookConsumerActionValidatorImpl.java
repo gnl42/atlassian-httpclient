@@ -11,7 +11,6 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
     @Override
     public MessageCollection validateWebHookAddition(final WebHookRegistrationParameters registrationParameters)
     {
-        System.out.println("Validating webhook addition");
         if (registrationParameters.getName().equals("Filip's webhook"))
         {
             return new DefaultMessageCollection(new DefaultMessage("We're not adding WebHook from Filip", null));
