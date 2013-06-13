@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.ws.rs.core.Response.*;
 
 @Path("webhook")
@@ -33,9 +34,9 @@ public class RegistrationResource
 
     public RegistrationResource(UserManager userManager, WebHookConsumerService webHookConsumerService, WebHookConsumerActionValidator webHookConsumerActionValidator)
     {
-        this.userManager = userManager;
-        this.webHookConsumerService = webHookConsumerService;
-        this.webHookConsumerActionValidator = webHookConsumerActionValidator;
+        this.userManager = checkNotNull(userManager);
+        this.webHookConsumerService = checkNotNull(webHookConsumerService);
+        this.webHookConsumerActionValidator = checkNotNull(webHookConsumerActionValidator);
     }
 
     @POST

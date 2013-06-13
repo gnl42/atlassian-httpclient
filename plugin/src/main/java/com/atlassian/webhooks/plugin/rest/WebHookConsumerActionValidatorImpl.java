@@ -89,39 +89,4 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
             return new DefaultMessageCollection();
         }
     }
-
-    private class DefaultMessageCollection implements MessageCollection
-    {
-        private List<Message> messages = Lists.newArrayList();
-
-        @Override
-        public void addMessage(String key, Serializable... arguments)
-        {
-            addMessage(new DefaultMessage(key, arguments));
-        }
-
-        @Override
-        public void addMessage(Message message)
-        {
-            messages.add(message);
-        }
-
-        @Override
-        public void addAll(List<Message> messages)
-        {
-            messages.addAll(messages);
-        }
-
-        @Override
-        public boolean isEmpty()
-        {
-            return messages.isEmpty();
-        }
-
-        @Override
-        public List<Message> getMessages()
-        {
-            return messages;
-        }
-    }
 }

@@ -33,7 +33,11 @@ public class OsgiWebHookConsumerTransformer implements WebHookModelTransformer
             {
                 throw new RuntimeException("There can be only one implementation of WebHookModelTransformer in the system. Found [ " + webHookModelTransformer.getClass() + ", " + OsgiWebHookConsumerTransformer.this.webHookModelTransformer.getClass() + "]");
             }
-            OsgiWebHookConsumerTransformer.this.webHookModelTransformer = webHookModelTransformer;
+            // ensure we don't create a reference to self.
+            if (!webHookModelTransformer.getClass().equals(OsgiWebHookConsumerTransformer.class))
+            {
+                OsgiWebHookConsumerTransformer.this.webHookModelTransformer = webHookModelTransformer;
+            }
             return webHookModelTransformer;
         }
 

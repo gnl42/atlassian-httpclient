@@ -40,4 +40,7 @@
     <component key="checkThreadContextJIRA" class="com.atlassian.webhooks.plugin.test.jira.CheckThreadContextJira"
                interface="com.atlassian.webhooks.plugin.test.CheckThreadContext" application="jira"/>
     <component-import key="jiraAuthenticationContext" interface="com.atlassian.jira.security.JiraAuthenticationContext" application="jira" />
+
+    <component key="webhookActionValidator" public="true" class="com.atlassian.webhooks.plugin.management.WebHookConsumerActionValidatorImpl"
+               interface="com.atlassian.webhooks.spi.provider.WebHookConsumerActionValidator" />
 </atlassian-plugin>

@@ -26,6 +26,7 @@ public class Registration implements WebHookRegistrationParameters
     public Registration() {
 	}
 
+    @Override
     public String getName()
     {
         return name;

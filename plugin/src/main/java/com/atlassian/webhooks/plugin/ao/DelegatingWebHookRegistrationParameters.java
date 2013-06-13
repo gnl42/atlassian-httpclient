@@ -14,6 +14,12 @@ public class DelegatingWebHookRegistrationParameters implements WebHookRegistrat
     }
 
     @Override
+    public String getName()
+    {
+        return webHookAO.getName();
+    }
+
+    @Override
     public String getEvents()
     {
         return webHookAO.getEvents();
