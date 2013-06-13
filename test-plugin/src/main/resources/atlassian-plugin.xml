@@ -43,4 +43,7 @@
 
     <component key="webhookActionValidator" public="true" class="com.atlassian.webhooks.plugin.management.WebHookConsumerActionValidatorImpl"
                interface="com.atlassian.webhooks.spi.provider.WebHookConsumerActionValidator" />
+
+    <component key="webHookModelTransformer" public="true" class="com.atlassian.webhooks.plugin.management.WebHookModelTransformerImpl"
+               interface="com.atlassian.webhooks.spi.provider.WebHookModelTransformer" />
 </atlassian-plugin>

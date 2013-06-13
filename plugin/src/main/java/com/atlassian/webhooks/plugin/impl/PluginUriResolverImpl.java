@@ -59,6 +59,7 @@ public final class PluginUriResolverImpl implements PluginUriResolver
                 try
                 {
                     final PluginUriResolver newUriResolver = (PluginUriResolver) bundleContext.getService(serviceReference);
+                    System.out.println("\n\n\n new uri resolver class is " + newUriResolver + " \n\n\n");
                     Optional<URI> uri = newUriResolver.getUri(pluginKey, path);
                     if (uri.isPresent())
                     {

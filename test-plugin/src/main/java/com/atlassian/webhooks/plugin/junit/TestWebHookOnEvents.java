@@ -1,11 +1,18 @@
 package com.atlassian.webhooks.plugin.junit;
 
+import com.atlassian.httpclient.api.Request;
+import com.atlassian.httpclient.api.Response;
 import com.atlassian.webhooks.plugin.AnnotatedEvent;
-import com.atlassian.webhooks.plugin.test.ParameterizedEvent;
-import com.atlassian.webhooks.plugin.test.ServiceAccessor;
-import com.atlassian.webhooks.plugin.test.TestEvent;
-import com.atlassian.webhooks.plugin.test.WebHookServlet;
+import com.atlassian.webhooks.plugin.test.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.xml.security.utils.Base64;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import static org.junit.Assert.*;
 
@@ -60,5 +67,27 @@ public final class TestWebHookOnEvents
 
         ServiceAccessor.eventPublisher.publish(new ParameterizedEvent("false"));
         assertNull(WebHookServlet.waitAndPop());
+    }
+
+    @Test
+    public void testPersistentWebHook() throws InterruptedException, IOException
+    {
+        assertFalse(WebHookServlet.hasHooks());
+        registerWebHook("http://localhost:5990/refapp/plugins/servlet/webhook/persistent_event", "persitent_webhook_listener", "true:some_event_value");
+
+        ServiceAccessor.eventPublisher.publish(new EventWithPersistentListener("true", "some_event_value"));
+        final WebHookServlet.Hook hook = WebHookServlet.waitAndPopPersistentEventWebHooks();
+        assertNotNull(hook);
+        assertTrue(hook.body.contains("some_event_value"));
+    }
+
+    private void registerWebHook(String url, String name, String parameters) throws IOException
+    {
+        HttpPost request = new HttpPost();
+        request.setEntity(new StringEntity("{ \"name\": \"" + name + "\", \"url\": \"" + url + "\", \"events\": \"jira:issue_updated\", \"parameters\": \"" + parameters + "\"}"));
+        request.setHeader("Content-type", "application/json");
+        request.setHeader("Authorization", "Basic " + Base64.encode("admin:admin".getBytes()));
+        HttpResponse response = new DefaultHttpClient().execute(request);
+        assertEquals(201, response.getStatusLine().getStatusCode());
     }
 }

@@ -2,11 +2,9 @@ package com.atlassian.webhooks.plugin.test;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.httpclient.api.HttpClient;
-import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.sal.api.ApplicationProperties;
-import com.google.common.base.Preconditions;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ServiceAccessor
 {

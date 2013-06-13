@@ -15,6 +15,7 @@ public final class WebHookServlet extends HttpServlet
 {
     static volatile BlockingDeque<Hook> pluginEnabledHook = new LinkedBlockingDeque<Hook>();
     static volatile BlockingDeque<Hook> hooks = new LinkedBlockingDeque<Hook>();
+    static volatile BlockingDeque<Hook> persistentEventsHook;
 
     @Override
     protected void doPost(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -23,6 +24,10 @@ public final class WebHookServlet extends HttpServlet
         if (req.getPathInfo().endsWith("plugin_enabled"))
         {
             pluginEnabledHook.push(hook);
+        }
+        else if (req.getPathInfo().endsWith("persistent_event"))
+        {
+            persistentEventsHook.push(hook);
         }
         else
         {
@@ -43,6 +48,11 @@ public final class WebHookServlet extends HttpServlet
     public static Hook waitAndPopPluginEnabled() throws InterruptedException
     {
         return pluginEnabledHook.poll(5, TimeUnit.SECONDS);
+    }
+
+    public static Hook waitAndPopPersistentEventWebHooks() throws InterruptedException
+    {
+        return persistentEventsHook.poll(5, TimeUnit.SECONDS);
     }
 
     public static boolean hasHooks()
