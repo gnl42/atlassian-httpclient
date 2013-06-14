@@ -15,7 +15,7 @@ public interface WebHookConsumerService
 
     Optional<WebHookAO> getWebHook(int id);
 
-    Optional<WebHookAO> find(int id, String url, String events, String parameters);
+    Optional<WebHookAO> find(Integer id, String url, String events, String parameters);
 
     Optional<WebHookAO> enableWebHook(int id, boolean flag);
 

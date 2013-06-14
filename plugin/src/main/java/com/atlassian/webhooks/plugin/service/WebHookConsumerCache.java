@@ -9,7 +9,7 @@ public interface WebHookConsumerCache
 
     void put(WebHookAO webHookConsumer);
 
-    WebHookAO remove(Integer webHookConsumerId);
+    Optional<WebHookAO> remove(Integer webHookConsumerId);
 
     void putAll(Iterable<WebHookAO> webHookConsumers);
 

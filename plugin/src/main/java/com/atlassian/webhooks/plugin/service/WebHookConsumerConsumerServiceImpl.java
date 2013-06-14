@@ -59,8 +59,8 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
     @Override
     public void removeWebHook(int id) throws IllegalArgumentException
     {
-        WebHookAO removedWebHook = webHookConsumerCache.remove(id);
-        webHookEventDispatcher.webHookDeleted(removedWebHook);
+        Optional<WebHookAO> removedWebHook = webHookConsumerCache.remove(id);
+        webHookEventDispatcher.webHookDeleted(removedWebHook.get());
         webHookConsumerManager.removeWebHook(id);
     }
 
@@ -71,7 +71,7 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
     }
 
     @Override
-    public Optional<WebHookAO> find(final int id, final String url, final String events, final String parameters)
+    public Optional<WebHookAO> find(final Integer id, final String url, final String events, final String parameters)
     {
         // TODO make events matching better
         final WebHookAO webhookDao = Iterables.find(webHookRetrievalStrategy.getAll(), new Predicate<WebHookAO>()
@@ -80,7 +80,7 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
             public boolean apply(final WebHookAO webHookAO)
             {
                 // You can't be a duplicate of yourself.
-                if (id != webHookAO.getID())
+                if (id != null && id != webHookAO.getID())
                 {
                     return false;
                 }

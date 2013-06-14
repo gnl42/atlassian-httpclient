@@ -55,7 +55,9 @@
         <beans:constructor-arg index="2" ref="i18nResolver" />
     </beans:bean>
 
-    <beans:bean id="webHookConsumerCache" class="com.atlassian.webhooks.plugin.service.WebHookConsumerCacheImpl" />
+    <beans:bean id="webHookConsumerCache" class="com.atlassian.webhooks.plugin.service.WebHookConsumerCacheImpl">
+        <beans:constructor-arg index="0" ref="webHookConsumerManager" />
+    </beans:bean>
 
     <beans:bean id="webHookConsumerService" class="com.atlassian.webhooks.plugin.service.WebHookConsumerConsumerServiceImpl">
         <beans:constructor-arg index="0" ref="webHookConsumerCache" />
