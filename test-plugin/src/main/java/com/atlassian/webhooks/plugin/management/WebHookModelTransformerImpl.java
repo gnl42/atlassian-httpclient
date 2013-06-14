@@ -2,7 +2,7 @@ package com.atlassian.webhooks.plugin.management;
 
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookModelTransformer;
-import com.atlassian.webhooks.spi.provider.WebHookRegistrationParameters;
+import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 
 import java.net.URI;
 
@@ -11,7 +11,7 @@ import java.net.URI;
 public class WebHookModelTransformerImpl implements WebHookModelTransformer
 {
     @Override
-    public WebHookConsumer transform(final WebHookRegistrationParameters webHookConsumerModel)
+    public WebHookConsumer transform(final WebHookListenerRegistrationParameters webHookConsumerModel)
     {
         return new WebHookConsumer()
         {

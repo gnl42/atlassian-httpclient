@@ -13,6 +13,7 @@ import com.atlassian.webhooks.plugin.manager.WebHookConsumerManagerImpl;
 import com.atlassian.webhooks.plugin.service.WebHookConsumerCacheImpl;
 import com.atlassian.webhooks.plugin.service.WebHookConsumerConsumerServiceImpl;
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import net.java.ao.EntityManager;
 import net.java.ao.test.junit.ActiveObjectsJUnitRunner;
 import org.junit.Before;
@@ -31,7 +32,7 @@ public class WebHookListenerServiceTest
     private static final String LAST_UPDATED_USER = "Bobba Fett";
     private static final String WEBHOOK_NAME = "We listen for news about capturing of Han Solo";
     private static final String TARGET_URL = "http://www.superstar-destroyer.com.empire";
-    private static final String EVENTS = "rebel_captured_event";
+    private static final Iterable<String> EVENTS = Lists.newArrayList("rebel_captured_event");
     private static final String PARAMETERS = "rebel = 'Han Solo'";
 
     @SuppressWarnings ("UnusedDeclaration")
@@ -76,7 +77,7 @@ public class WebHookListenerServiceTest
         final Optional<WebHookAO> exists = webHookConsumerConsumerService.find(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS);
         assertSame(webHookAO.getID(), exists.get().getID());
 
-        webHookConsumerConsumerService.updateWebHook(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, "rebel_lost_event", PARAMETERS, true);
+        webHookConsumerConsumerService.updateWebHook(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, Lists.newArrayList("rebel_lost_event"), PARAMETERS, true);
         assertFalse("We are not listening on rebel_lost_event. We want the rebel captured.", webHookConsumerConsumerService.find(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS).isPresent());
     }
 

@@ -1,11 +1,6 @@
 package com.atlassian.webhooks.plugin;
 
-import com.atlassian.webhooks.spi.provider.EventMatcher;
-import com.atlassian.webhooks.spi.provider.EventSerializer;
-import com.atlassian.webhooks.spi.provider.EventSerializerFactory;
-import com.atlassian.webhooks.spi.provider.WebHook;
-import com.atlassian.webhooks.spi.provider.WebHookEvent;
-import com.atlassian.webhooks.spi.provider.WebHookRegistry;
+import com.atlassian.webhooks.spi.provider.*;
 import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;

@@ -4,7 +4,7 @@ import com.atlassian.osgi.tracker.WaitableServiceTrackerCustomizer;
 import com.atlassian.osgi.tracker.WaitableServiceTrackerFactory;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
 import com.atlassian.webhooks.spi.provider.WebHookModelTransformer;
-import com.atlassian.webhooks.spi.provider.WebHookRegistrationParameters;
+import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,7 +18,7 @@ public class OsgiWebHookConsumerTransformer implements WebHookModelTransformer
     }
 
     @Override
-    public WebHookConsumer transform(final WebHookRegistrationParameters webHookConsumerModel)
+    public WebHookConsumer transform(final WebHookListenerRegistrationParameters webHookConsumerModel)
     {
         return webHookModelTransformer.transform(webHookConsumerModel);
     }

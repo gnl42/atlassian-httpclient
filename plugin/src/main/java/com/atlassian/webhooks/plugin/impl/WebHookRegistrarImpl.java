@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
-import static com.google.common.collect.Sets.*;
+import static com.google.common.collect.Sets.newHashSet;
 
 public final class WebHookRegistrarImpl implements WebHookRegistrar
 {

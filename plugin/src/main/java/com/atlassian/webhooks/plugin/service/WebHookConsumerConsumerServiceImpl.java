@@ -31,26 +31,26 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
     }
 
     @Override
-    public WebHookAO addWebHook(String name, String targetUrl, String events, String parameters, WebHookConsumerManager.WebHookRegistrationMethod registrationMethod)
+    public WebHookAO addWebHook(String name, String targetUrl, Iterable<String> events, String parameters, WebHookConsumerManager.WebHookRegistrationMethod registrationMethod)
     {
         checkNotNull(name);
         checkNotNull(targetUrl);
         checkNotNull(events);
 
-        WebHookAO webHookAO = webHookConsumerManager.addWebHook(name, targetUrl, events, parameters, registrationMethod);
+        WebHookAO webHookAO = webHookConsumerManager.addWebHook(name, targetUrl, WebHookListenerEventJoiner.join(events), parameters, registrationMethod);
         webHookConsumerCache.put(webHookAO);
         webHookEventDispatcher.webHookCreated(webHookAO);
         return webHookAO;
     }
 
     @Override
-    public WebHookAO updateWebHook(int id, String name, String targetUrl, String events, String parameters, boolean enabled)
+    public WebHookAO updateWebHook(int id, String name, String targetUrl, Iterable<String> events, String parameters, boolean enabled)
     {
         checkNotNull(name);
         checkNotNull(targetUrl);
         checkNotNull(events);
 
-        WebHookAO webHookAO = webHookConsumerManager.updateWebHook(id, name, targetUrl, events, parameters, enabled);
+        WebHookAO webHookAO = webHookConsumerManager.updateWebHook(id, name, targetUrl, WebHookListenerEventJoiner.join(events), parameters, enabled);
         webHookConsumerCache.put(webHookAO);
         webHookEventDispatcher.webHookEdited(webHookAO);
         return webHookAO;
@@ -71,9 +71,8 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
     }
 
     @Override
-    public Optional<WebHookAO> find(final Integer id, final String url, final String events, final String parameters)
+    public Optional<WebHookAO> find(final Integer id, final String url, final Iterable<String> events, final String parameters)
     {
-        // TODO make events matching better
         final WebHookAO webhookDao = Iterables.find(webHookRetrievalStrategy.getAll(), new Predicate<WebHookAO>()
         {
             @Override
@@ -93,7 +92,7 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
                 {
                     return false;
                 }
-                return StringUtils.equals(events, webHookAO.getEvents());
+                return StringUtils.equals(WebHookListenerEventJoiner.join(events), webHookAO.getEvents());
             }
         }, null);
         return Optional.fromNullable(webhookDao);
@@ -138,7 +137,7 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
 //    @PluginEventListener
 //    @SuppressWarnings("unused")
 //    public final void onClearCacheEvent(final ClearCacheEvent clearCacheEvent)
-//    {
+//    {            // TODO expose cache clearing via SPI
 ////        webHookConsumerCache.clear();
 ////        webHookRetrievalStrategy = ACTIVE_OBJECT_WEB_HOOK_RETRIEVAL_STRATEGY;
 //    }

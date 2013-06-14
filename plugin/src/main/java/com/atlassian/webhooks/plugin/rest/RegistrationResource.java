@@ -3,7 +3,7 @@ package com.atlassian.webhooks.plugin.rest;
 import com.atlassian.plugins.rest.common.security.jersey.AdminOnlyResourceFilter;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.sal.api.user.UserManager;
-import com.atlassian.webhooks.plugin.ao.DelegatingWebHookRegistrationParameters;
+import com.atlassian.webhooks.plugin.ao.DelegatingWebHookListenerRegistrationParameters;
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
 import com.atlassian.webhooks.plugin.manager.WebHookConsumerManager;
 import com.atlassian.webhooks.plugin.service.WebHookConsumerService;
@@ -41,7 +41,7 @@ public class RegistrationResource
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response register(final Registration registration, @Context final UriInfo uriInfo, @DefaultValue("false") @QueryParam("ui") boolean registeredViaUI)
+    public Response register(final WebHookListenerRegistration registration, @Context final UriInfo uriInfo, @DefaultValue("false") @QueryParam("ui") boolean registeredViaUI)
     {
         final MessageCollection messageCollection = webHookConsumerActionValidator.validateWebHookAddition(registration);
         if (!messageCollection.isEmpty())
@@ -59,7 +59,7 @@ public class RegistrationResource
         );
 
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(webHookAO.getID())).build();
-        return created(uri).entity(new RegistrationResponse.Factory(userManager).create(webHookAO, uri)).build();
+        return created(uri).entity(new WebHookListenerRegistrationResponse.Factory(userManager).create(webHookAO, uri)).build();
     }
 
     @GET
@@ -74,7 +74,7 @@ public class RegistrationResource
         else
         {
             final URI self = uriInfo.getAbsolutePath();
-            return ok(new RegistrationResponse.Factory(userManager).create(webhook.get(), self)).build();
+            return ok(new WebHookListenerRegistrationResponse.Factory(userManager).create(webhook.get(), self)).build();
         }
     }
 
@@ -88,7 +88,7 @@ public class RegistrationResource
             return status(Response.Status.NOT_FOUND).build();
         }
         final MessageCollection messageCollection =
-                webHookConsumerActionValidator.validateWebHookDeletion(new DelegatingWebHookRegistrationParameters(webHook.get()));
+                webHookConsumerActionValidator.validateWebHookDeletion(new DelegatingWebHookListenerRegistrationParameters(webHook.get()));
 
         try
         {
@@ -111,7 +111,7 @@ public class RegistrationResource
     @PUT
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam ("id") final int id, final Registration registration, @Context final UriInfo uriInfo)
+    public Response update(@PathParam ("id") final int id, final WebHookListenerRegistration registration, @Context final UriInfo uriInfo)
     {
         final MessageCollection messageCollection = webHookConsumerActionValidator.validateWebHookUpdate(registration);
 
@@ -131,7 +131,7 @@ public class RegistrationResource
                     registration.getParameters(),
                     webHookToUpdate.get().isEnabled());
             final URI self = uriInfo.getAbsolutePath();
-            return ok(new RegistrationResponse.Factory(userManager).create(webhookDao, self)).build();
+            return ok(new WebHookListenerRegistrationResponse.Factory(userManager).create(webhookDao, self)).build();
         }
         catch (IllegalArgumentException e)
         {
@@ -147,10 +147,10 @@ public class RegistrationResource
                 Iterables.transform(webHooks, new Function<WebHookAO, Object>()
                 {
                     @Override
-                    public Registration apply(final WebHookAO webHook)
+                    public WebHookListenerRegistrationResponse apply(final WebHookAO webHook)
                     {
                         final URI self = uriInfo.getAbsolutePathBuilder().path(String.valueOf(webHook.getID())).build();
-                        return new RegistrationResponse.Factory(userManager).create(webHook, self);
+                        return new WebHookListenerRegistrationResponse.Factory(userManager).create(webHook, self);
                     }
                 })
         ).build();

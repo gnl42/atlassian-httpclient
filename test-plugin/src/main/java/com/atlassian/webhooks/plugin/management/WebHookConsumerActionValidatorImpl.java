@@ -2,14 +2,14 @@ package com.atlassian.webhooks.plugin.management;
 
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.spi.provider.WebHookConsumerActionValidator;
-import com.atlassian.webhooks.spi.provider.WebHookRegistrationParameters;
+import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 
 /**
  */
 public class WebHookConsumerActionValidatorImpl implements WebHookConsumerActionValidator
 {
     @Override
-    public MessageCollection validateWebHookAddition(final WebHookRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookAddition(final WebHookListenerRegistrationParameters registrationParameters)
     {
         if (registrationParameters.getName().equals("Filip's webhook"))
         {
@@ -20,7 +20,7 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
 
 
     @Override
-    public MessageCollection validateWebHookUpdate(final WebHookRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookUpdate(final WebHookListenerRegistrationParameters registrationParameters)
     {
         if (registrationParameters.getName().equals("Seb's webhook"))
         {
@@ -30,7 +30,7 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
     }
 
     @Override
-    public MessageCollection validateWebHookDeletion(final WebHookRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookDeletion(final WebHookListenerRegistrationParameters registrationParameters)
     {
         if (registrationParameters.getName().equals("Jonathon's webhook"))
         {

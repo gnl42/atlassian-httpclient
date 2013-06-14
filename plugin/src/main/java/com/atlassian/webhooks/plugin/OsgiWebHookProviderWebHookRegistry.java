@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.google.common.base.Preconditions.*;
-import static com.google.common.collect.Iterables.*;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.transform;
 
 public final class OsgiWebHookProviderWebHookRegistry implements WebHookRegistry
 {

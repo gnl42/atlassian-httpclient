@@ -7,15 +7,15 @@ import com.google.common.base.Optional;
 public interface WebHookConsumerService
 {
 
-    WebHookAO addWebHook(String name, String targetUrl, String events, String parameters, WebHookConsumerManager.WebHookRegistrationMethod registrationMethod);
+    WebHookAO addWebHook(String name, String targetUrl, Iterable<String> events, String parameters, WebHookConsumerManager.WebHookRegistrationMethod registrationMethod);
 
-    WebHookAO updateWebHook(int id, String name, String targetUrl, String events, String parameters, boolean enabled);
+    WebHookAO updateWebHook(int id, String name, String targetUrl, Iterable<String> events, String parameters, boolean enabled);
 
     void removeWebHook(int id) throws IllegalArgumentException;
 
     Optional<WebHookAO> getWebHook(int id);
 
-    Optional<WebHookAO> find(Integer id, String url, String events, String parameters);
+    Optional<WebHookAO> find(Integer id, String url, Iterable<String> events, String parameters);
 
     Optional<WebHookAO> enableWebHook(int id, boolean flag);
 

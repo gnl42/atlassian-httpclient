@@ -1,6 +1,6 @@
 package com.atlassian.webhooks.plugin;
 
-import com.atlassian.webhooks.plugin.ao.DelegatingWebHookRegistrationParameters;
+import com.atlassian.webhooks.plugin.ao.DelegatingWebHookListenerRegistrationParameters;
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
 import com.atlassian.webhooks.plugin.service.WebHookConsumerService;
 import com.atlassian.webhooks.spi.provider.WebHookConsumer;
@@ -36,7 +36,7 @@ public class PersistentWebHookConsumerProvider implements WebHookConsumerProvide
             @Override
             public WebHookConsumer apply(final WebHookAO webHookAO)
             {
-                return webHookModelTransformer.transform(new DelegatingWebHookRegistrationParameters(webHookAO));
+                return webHookModelTransformer.transform(new DelegatingWebHookListenerRegistrationParameters(webHookAO));
             }
         });
     }

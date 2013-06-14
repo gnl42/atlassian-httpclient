@@ -5,7 +5,7 @@ import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.EventSerializerFactory;
 import com.atlassian.webhooks.spi.provider.MapperBuilder;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MapperBuilderImpl<E> implements MapperBuilder<E>
 {

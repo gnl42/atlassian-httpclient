@@ -9,11 +9,11 @@ import java.util.List;
 
 public interface WebHookConsumerActionValidator
 {
-    MessageCollection validateWebHookAddition(WebHookRegistrationParameters registrationParameters);
+    MessageCollection validateWebHookAddition(WebHookListenerRegistrationParameters registrationParameters);
 
-    MessageCollection validateWebHookUpdate(WebHookRegistrationParameters registrationParameters);
+    MessageCollection validateWebHookUpdate(WebHookListenerRegistrationParameters registrationParameters);
 
-    MessageCollection validateWebHookDeletion(WebHookRegistrationParameters registrationParameters);
+    MessageCollection validateWebHookDeletion(WebHookListenerRegistrationParameters registrationParameters);
 
     static final class DefaultMessageCollection implements MessageCollection
     {

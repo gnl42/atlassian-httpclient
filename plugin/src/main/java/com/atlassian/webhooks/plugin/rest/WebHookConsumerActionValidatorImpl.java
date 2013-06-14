@@ -1,17 +1,11 @@
 package com.atlassian.webhooks.plugin.rest;
 
 
-import com.atlassian.jira.i18n.DefaultMessage;
-import com.atlassian.sal.api.message.Message;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.spi.provider.WebHookConsumerActionValidator;
-import com.atlassian.webhooks.spi.provider.WebHookRegistrationParameters;
-import com.google.common.collect.Lists;
+import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
-import java.io.Serializable;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -25,7 +19,7 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
     }
 
     @Override
-    public MessageCollection validateWebHookAddition(WebHookRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookAddition(WebHookListenerRegistrationParameters registrationParameters)
     {
         ServiceReference serviceReference = bundleContext.getServiceReference(WebHookConsumerActionValidator.class.getName());
         if (serviceReference != null)
@@ -47,7 +41,7 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
     }
 
     @Override
-    public MessageCollection validateWebHookDeletion(WebHookRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookDeletion(WebHookListenerRegistrationParameters registrationParameters)
     {
         ServiceReference serviceReference = bundleContext.getServiceReference(WebHookConsumerActionValidator.class.getName());
         if (serviceReference != null)
@@ -69,7 +63,7 @@ public class WebHookConsumerActionValidatorImpl implements WebHookConsumerAction
     }
 
     @Override
-    public MessageCollection validateWebHookUpdate(WebHookRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookUpdate(WebHookListenerRegistrationParameters registrationParameters)
     {
         ServiceReference serviceReference = bundleContext.getServiceReference(WebHookConsumerActionValidator.class.getName());
         if (serviceReference != null)

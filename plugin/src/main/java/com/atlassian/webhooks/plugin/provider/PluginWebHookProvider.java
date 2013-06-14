@@ -2,17 +2,11 @@ package com.atlassian.webhooks.plugin.provider;
 
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.sal.api.ApplicationProperties;
-import com.atlassian.webhooks.spi.provider.EventMatcher;
-import com.atlassian.webhooks.spi.provider.EventSerializer;
-import com.atlassian.webhooks.spi.provider.EventSerializerFactory;
-import com.atlassian.webhooks.spi.provider.EventSerializers;
-import com.atlassian.webhooks.spi.provider.PluginModuleConsumerParams;
-import com.atlassian.webhooks.spi.provider.WebHookProvider;
-import com.atlassian.webhooks.spi.provider.WebHookRegistrar;
+import com.atlassian.webhooks.spi.provider.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class PluginWebHookProvider implements WebHookProvider
 {
