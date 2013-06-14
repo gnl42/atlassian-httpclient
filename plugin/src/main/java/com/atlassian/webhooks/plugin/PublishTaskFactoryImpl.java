@@ -26,6 +26,8 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
 {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static final int ONE_MINUTE = 60 * 1000;
+
     private final HttpClient httpClient;
     private final RequestSigner requestSigner;
     private final PluginUriResolver pluginUriResolver;
@@ -42,7 +44,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         this.pluginUriCustomizer = pluginUriCustomizer;
         // The token bucket has a max size of 5 and gains one token per minute. So you can log once per minute on average.
         // Or up to 5 times in one minute if you haven't logged in a few minutes.
-        this.logMessageRateLimiter = new TokenBucket(1, 60, 5);
+        this.logMessageRateLimiter = new TokenBucket(1, ONE_MINUTE, 5);
     }
 
     @Override
