@@ -76,9 +76,11 @@ class TokenBucket
     /**
      * Returns current milliseconds
      * In separate method for testing purposes only
-     * @return
+     * @return the difference, measured in milliseconds, between
+     *          the current time and midnight, January 1, 1970 UTC.
      */
-    long getCurrentMillis() {
+    long getCurrentMillis()
+    {
         return System.currentTimeMillis();
     }
 }
