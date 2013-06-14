@@ -58,7 +58,7 @@ public class TokenBucketTest
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private class MyTokenBucket extends TokenBucket
+    private static class MyTokenBucket extends TokenBucket
     {
 
         private long currentMillis;
