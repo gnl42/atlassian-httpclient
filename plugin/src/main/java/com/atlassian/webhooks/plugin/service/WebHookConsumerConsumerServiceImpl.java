@@ -1,11 +1,13 @@
 package com.atlassian.webhooks.plugin.service;
 
+import com.atlassian.event.api.EventListener;
 import com.atlassian.plugin.event.PluginEventListener;
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.webhooks.plugin.PluginProperties;
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
 import com.atlassian.webhooks.plugin.event.WebHookEventDispatcher;
 import com.atlassian.webhooks.plugin.manager.WebHookConsumerManager;
+import com.atlassian.webhooks.spi.provider.cache.ClearWebHookListenerCacheEvent;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -134,13 +136,13 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
         }
     }
 
-//    @PluginEventListener
-//    @SuppressWarnings("unused")
-//    public final void onClearCacheEvent(final ClearCacheEvent clearCacheEvent)
-//    {            // TODO expose cache clearing via SPI
-////        webHookConsumerCache.clear();
-////        webHookRetrievalStrategy = ACTIVE_OBJECT_WEB_HOOK_RETRIEVAL_STRATEGY;
-//    }
+    @EventListener
+    @SuppressWarnings("unused")
+    public final void onClearCacheEvent(final ClearWebHookListenerCacheEvent clearCacheEvent)
+    {
+        webHookConsumerCache.clear();
+        webHookRetrievalStrategy = ACTIVE_OBJECT_WEB_HOOK_RETRIEVAL_STRATEGY;
+    }
 
     private interface WebHookRetrievalStrategy
     {
