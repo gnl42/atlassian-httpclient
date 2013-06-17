@@ -23,14 +23,15 @@ class TokenBucket
      */
     private final long maxTokens;
 
-    private volatile long currentNumberOfTokens;
+    private long currentNumberOfTokens;
 
-    private volatile long lastTokenRemovedTime;
+    private long lastTokenRemovedTime;
 
     /**
      * Builds a token bucket
+     *
      * @param fillAmount how many token get regenerated per interval
-     * @param fillInterval timout in seconds
+     * @param fillInterval timout in milliseconds
      * @param maxTokens amount of tokens per interval
      */
     TokenBucket(long fillAmount, long fillInterval, long maxTokens)
@@ -39,7 +40,7 @@ class TokenBucket
         this.fillInterval = fillInterval;
         this.maxTokens = maxTokens;
         this.currentNumberOfTokens = maxTokens;
-        this.lastTokenRemovedTime = System.currentTimeMillis();
+        this.lastTokenRemovedTime = getCurrentMillis();
     }
 
     /**
@@ -53,7 +54,7 @@ class TokenBucket
         if (!isEmpty)
         {
             currentNumberOfTokens--;
-            lastTokenRemovedTime = System.currentTimeMillis();
+            lastTokenRemovedTime = getCurrentMillis();
         }
 
         return !isEmpty;
@@ -61,14 +62,25 @@ class TokenBucket
 
     private void replaceTokens()
     {
-        long currentTime = System.currentTimeMillis();
-        long secondsSinceLastFill = (long) ((currentTime / 1000) - (lastTokenRemovedTime / 1000));
+        long currentTime = getCurrentMillis();
+        long millisecondsSinceLastFill = currentTime - lastTokenRemovedTime;
 
-        if (secondsSinceLastFill >= fillInterval)
+        if (millisecondsSinceLastFill >= fillInterval)
         {
-            long numberOfTokensToAdd = (secondsSinceLastFill / fillInterval) * fillAmount;
-            currentNumberOfTokens = currentNumberOfTokens + numberOfTokensToAdd > maxTokens ? maxTokens : currentNumberOfTokens + numberOfTokensToAdd;
+            long numberOfTokensToAdd = (millisecondsSinceLastFill / fillInterval) * fillAmount;
+            currentNumberOfTokens = Math.min(maxTokens, currentNumberOfTokens + numberOfTokensToAdd);
         }
 
+    }
+
+    /**
+     * Returns current milliseconds
+     * In separate method for testing purposes only
+     * @return the difference, measured in milliseconds, between
+     *          the current time and midnight, January 1, 1970 UTC.
+     */
+    long getCurrentMillis()
+    {
+        return System.currentTimeMillis();
     }
 }
