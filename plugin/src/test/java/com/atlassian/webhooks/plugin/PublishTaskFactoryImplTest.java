@@ -11,6 +11,8 @@ import java.net.URI;
 
 public class PublishTaskFactoryImplTest {
 
+    private static final int TEN_MINUTES = 60 * 10 * 1000;
+
     @Test
     public void testUriParametersParse() {
         PublishTaskFactoryImpl.PublishTaskImpl publishTask = createDefaultPublishTask(
@@ -38,7 +40,7 @@ public class PublishTaskFactoryImplTest {
         URI uriObj = URI.create(uri);
         return new PublishTaskFactoryImpl.PublishTaskImpl(Mockito.mock(HttpClient.class),
             Mockito.mock(RequestSigner.class),
-                Mockito.mock(TokenBucket.class), Mockito.mock(WebHookConsumer.class),
+                new TokenBucket(1, TEN_MINUTES, 5), Mockito.mock(WebHookConsumer.class),
             uriObj,
             userName,
             body);
