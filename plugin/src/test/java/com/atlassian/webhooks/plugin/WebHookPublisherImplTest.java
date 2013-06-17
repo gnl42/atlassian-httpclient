@@ -4,7 +4,7 @@ import com.atlassian.event.api.EventPublisher;
 import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedAnalyticsEvent;
 import com.atlassian.webhooks.plugin.event.WebHookPublishedAnalyticsEvent;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
-import com.atlassian.webhooks.spi.provider.WebHookConsumer;
+import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.atlassian.webhooks.spi.provider.WebHookPublisher;
 import com.google.common.collect.ImmutableList;
@@ -28,7 +28,7 @@ public final class WebHookPublisherImplTest
     private WebHookPublisher publisher;
 
     @Mock
-    private WebHookConsumerProvider consumerProvider;
+    private WebHookListenerProvider listenerProvider;
 
     @Mock
     private PublishTaskFactory publishTaskFactory;
@@ -42,13 +42,13 @@ public final class WebHookPublisherImplTest
     @Before
     public void setUp()
     {
-        publisher = new WebHookPublisherImpl(consumerProvider, publishTaskFactory, eventPublisher, executor);
+        publisher = new WebHookPublisherImpl(listenerProvider, publishTaskFactory, eventPublisher, executor);
     }
 
     @Test
-    public void testPublishWithNoConsumers() throws Exception
+    public void testPublishWithNoListeners() throws Exception
     {
-        when(consumerProvider.getConsumers(Matchers.<WebHookEvent>any())).thenReturn(ImmutableList.<WebHookConsumer>of());
+        when(listenerProvider.getListeners(Matchers.<WebHookEvent>any())).thenReturn(ImmutableList.<WebHookListener>of());
 
         publisher.publish(mock(WebHookEvent.class));
 
@@ -56,20 +56,20 @@ public final class WebHookPublisherImplTest
     }
 
     @Test
-    public void testPublishWithConsumers() throws Exception
+    public void testPublishWithListeners() throws Exception
     {
         final WebHookEvent event = mock(WebHookEvent.class);
-        final WebHookConsumer consumer = mock(WebHookConsumer.class);
-        when(consumer.getPath()).thenReturn(new URI("/"));
+        final WebHookListener listener = mock(WebHookListener.class);
+        when(listener.getPath()).thenReturn(new URI("/"));
         final PublishTask publishTask = mock(PublishTask.class);
 
-        when(consumerProvider.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
-        when(publishTaskFactory.getPublishTask(event, consumer)).thenReturn(publishTask);
+        when(listenerProvider.getListeners(event)).thenReturn(ImmutableList.<WebHookListener>of(listener));
+        when(publishTaskFactory.getPublishTask(event, listener)).thenReturn(publishTask);
         when(event.getEventMatcher()).thenReturn(EventMatcher.ALWAYS_TRUE);
 
         publisher.publish(event);
 
-        verify(publishTaskFactory).getPublishTask(event, consumer);
+        verify(publishTaskFactory).getPublishTask(event, listener);
         verify(executor).execute(publishTask);
         verify(eventPublisher).publish(isA(WebHookPublishedAnalyticsEvent.class));
     }
@@ -79,18 +79,18 @@ public final class WebHookPublisherImplTest
     {
         final WebHookEvent event = mock(WebHookEvent.class);
         when(event.getId()).thenReturn("webhook_id");
-        final WebHookConsumer consumer = mock(WebHookConsumer.class);
-        when(consumer.getPath()).thenReturn(new URI("/"));
+        final WebHookListener listener = mock(WebHookListener.class);
+        when(listener.getPath()).thenReturn(new URI("/"));
         final PublishTask publishTask = mock(PublishTask.class);
 
-        when(consumerProvider.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
-        when(publishTaskFactory.getPublishTask(event, consumer)).thenReturn(publishTask);
+        when(listenerProvider.getListeners(event)).thenReturn(ImmutableList.<WebHookListener>of(listener));
+        when(publishTaskFactory.getPublishTask(event, listener)).thenReturn(publishTask);
         doThrow(RejectedExecutionException.class).when(executor).execute(publishTask);
         when(event.getEventMatcher()).thenReturn(EventMatcher.ALWAYS_TRUE);
 
         publisher.publish(event);
 
-        verify(publishTaskFactory).getPublishTask(event, consumer);
+        verify(publishTaskFactory).getPublishTask(event, listener);
         verify(executor).execute(publishTask);
         verify(eventPublisher).publish(isA(WebHookPublishRejectedAnalyticsEvent.class));
     }
@@ -100,9 +100,9 @@ public final class WebHookPublisherImplTest
     {
         final WebHookEvent event = mock(WebHookEvent.class);
         when(event.getId()).thenReturn("webhook_id");
-        final WebHookConsumer consumer = mock(WebHookConsumer.class);
+        final WebHookListener listener = mock(WebHookListener.class);
 
-        when(consumerProvider.getConsumers(event)).thenReturn(ImmutableList.<WebHookConsumer>of(consumer));
+        when(listenerProvider.getListeners(event)).thenReturn(ImmutableList.<WebHookListener>of(listener));
         when(event.getEventMatcher()).thenReturn(EventMatcher.ALWAYS_FALSE);
 
         publisher.publish(event);

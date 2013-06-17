@@ -2,7 +2,7 @@ package com.atlassian.webhooks.plugin;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.event.PluginEventManager;
-import com.atlassian.webhooks.plugin.service.WebHookConsumerService;
+import com.atlassian.webhooks.plugin.service.WebHookListenerService;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -12,27 +12,27 @@ import org.springframework.beans.factory.InitializingBean;
 public class PluginLauncher implements InitializingBean, DisposableBean
 {
     private final PluginEventManager pluginEventManager;
-    private final WebHookConsumerService webHookConsumerService;
+    private final WebHookListenerService webHookListenerService;
     private final EventPublisher eventPublisher;
 
-    public PluginLauncher(PluginEventManager pluginEventManager, WebHookConsumerService webHookConsumerService, EventPublisher eventPublisher)
+    public PluginLauncher(PluginEventManager pluginEventManager, WebHookListenerService webHookListenerService, EventPublisher eventPublisher)
     {
         this.pluginEventManager = pluginEventManager;
-        this.webHookConsumerService = webHookConsumerService;
+        this.webHookListenerService = webHookListenerService;
         this.eventPublisher = eventPublisher;
     }
 
     @Override
     public void destroy() throws Exception
     {
-        pluginEventManager.unregister(webHookConsumerService);
-        eventPublisher.unregister(webHookConsumerService);
+        pluginEventManager.unregister(webHookListenerService);
+        eventPublisher.unregister(webHookListenerService);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
-        pluginEventManager.register(webHookConsumerService);
-        eventPublisher.register(webHookConsumerService);
+        pluginEventManager.register(webHookListenerService);
+        eventPublisher.register(webHookListenerService);
     }
 }

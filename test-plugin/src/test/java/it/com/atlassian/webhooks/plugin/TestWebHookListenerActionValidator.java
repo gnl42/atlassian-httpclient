@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class TestWebHookConsumerValidator
+public class TestWebHookListenerActionValidator
 {
     private static final String WEBHOOK_REST_URI = "http://localhost:5990/refapp/rest/webhooks/1.0/webhook/";
     private final HttpClient client = new DefaultHttpClient();

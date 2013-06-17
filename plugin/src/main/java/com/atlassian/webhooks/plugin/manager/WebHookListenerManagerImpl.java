@@ -13,13 +13,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-public class WebHookConsumerManagerImpl implements WebHookConsumerManager
+public class WebHookListenerManagerImpl implements WebHookListenerManager
 {
     private final ActiveObjects ao;
     private final UserManager userManager;
     private final I18nResolver i18n;
 
-    public WebHookConsumerManagerImpl(ActiveObjects ao, UserManager userManager, I18nResolver i18n)
+    public WebHookListenerManagerImpl(ActiveObjects ao, UserManager userManager, I18nResolver i18n)
     {
         this.ao = ao;
         this.userManager = userManager;
@@ -27,7 +27,7 @@ public class WebHookConsumerManagerImpl implements WebHookConsumerManager
     }
 
     @Override
-    public WebHookAO addWebHook(@NotNull final String name, @NotNull final String targetUrl, @NotNull final String events, final String params, final WebHookRegistrationMethod registrationMethod)
+    public WebHookAO addWebHook(@NotNull final String name, @NotNull final String targetUrl, @NotNull final String events, final String params, final WebHookListenerRegistrationMethod registrationMethod)
     {
         return ao.executeInTransaction(new TransactionCallback<WebHookAO>()
         {

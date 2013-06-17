@@ -2,7 +2,7 @@ package com.atlassian.webhooks.plugin;
 
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.webhooks.spi.plugin.RequestSigner;
-import com.atlassian.webhooks.spi.provider.WebHookConsumer;
+import com.atlassian.webhooks.spi.provider.WebHookListener;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -38,7 +38,7 @@ public class PublishTaskFactoryImplTest {
         URI uriObj = URI.create(uri);
         return new PublishTaskFactoryImpl.PublishTaskImpl(Mockito.mock(HttpClient.class),
             Mockito.mock(RequestSigner.class),
-                Mockito.mock(TokenBucket.class), Mockito.mock(WebHookConsumer.class),
+                Mockito.mock(TokenBucket.class), Mockito.mock(WebHookListener.class),
             uriObj,
             userName,
             body);

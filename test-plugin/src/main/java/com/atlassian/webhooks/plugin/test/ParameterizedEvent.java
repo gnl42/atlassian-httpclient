@@ -31,10 +31,10 @@ public final class ParameterizedEvent
     {
 
         @Override
-        public boolean matches(final ParameterizedEvent event, final Object consumerParams)
+        public boolean matches(final ParameterizedEvent event, final Object listenerParameters)
         {
-            return consumerParams instanceof PluginModuleConsumerParams
-                    && ((PluginModuleConsumerParams) consumerParams).getParams().get("webhookParam").equals(event.value);
+            return listenerParameters instanceof PluginModuleListenerParameters
+                    && ((PluginModuleListenerParameters) listenerParameters).getParams().get("webhookParam").equals(event.value);
         }
     }
 }

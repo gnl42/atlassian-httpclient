@@ -17,16 +17,16 @@ public interface EventMatcher<T>
      * Tells whether the fired event matches the web hook registration.
      *
      * @param event the event being fired, associated to the web hook.
-     * @param consumerParams the params of the consumer listening to the web hook.
+     * @param listenerParameters the params of the consumer listening to the web hook.
      * @return {@code true} if this event matches the web hook registration, {@code false} otherwise.
      */
-    boolean matches(T event, Object consumerParams);
+    boolean matches(T event, Object listenerParameters);
 
 
     static final class AlwaysTrueEventMatcher implements EventMatcher<Object>
     {
         @Override
-        public boolean matches(final Object event, final Object consumerParams)
+        public boolean matches(final Object event, final Object listenerParameters)
         {
             return true;
         }
@@ -35,7 +35,7 @@ public interface EventMatcher<T>
     static final class AlwaysFalseEventMatcher implements EventMatcher<Object>
     {
         @Override
-        public boolean matches(final Object event, final Object consumerParams)
+        public boolean matches(final Object event, final Object listenerParameters)
         {
             return false;
         }

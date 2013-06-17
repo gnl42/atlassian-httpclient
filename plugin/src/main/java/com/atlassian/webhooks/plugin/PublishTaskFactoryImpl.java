@@ -9,7 +9,7 @@ import com.atlassian.uri.UriBuilder;
 import com.atlassian.webhooks.spi.plugin.PluginUriCustomizer;
 import com.atlassian.webhooks.spi.plugin.PluginUriResolver;
 import com.atlassian.webhooks.spi.plugin.RequestSigner;
-import com.atlassian.webhooks.spi.provider.WebHookConsumer;
+import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -46,30 +46,30 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
     }
 
     @Override
-    public PublishTask getPublishTask(WebHookEvent webHookEvent, WebHookConsumer consumer)
+    public PublishTask getPublishTask(WebHookEvent webHookEvent, WebHookListener listener)
     {
         return new PublishTaskImpl(
                 httpClient,
                 requestSigner,
                 logMessageRateLimiter,
-                consumer,
-                getConsumerUri(webHookEvent, consumer),
+                listener,
+                getListenerUri(webHookEvent, listener),
                 getUserName(),
-                consumer.getConsumableBodyJson(webHookEvent.getJson())
+                listener.getConsumableBodyJson(webHookEvent.getJson())
         );
     }
 
-    private URI getConsumerUri(WebHookEvent webHookEvent, WebHookConsumer consumer)
+    private URI getListenerUri(WebHookEvent webHookEvent, WebHookListener listener)
     {
-        Optional<URI> uri = pluginUriResolver.getUri(consumer.getPluginKey(), consumer.getPath());
+        Optional<URI> uri = pluginUriResolver.getUri(listener.getPluginKey(), listener.getPath());
         if (uri.isPresent())
         {
-            return pluginUriCustomizer.customizeURI(consumer.getPluginKey(), uri.get(), webHookEvent);
+            return pluginUriCustomizer.customizeURI(listener.getPluginKey(), uri.get(), webHookEvent);
         }
         else
         {
-            logger.error("Could not resolve uri for event '{}' and consumer '{}'", webHookEvent, consumer);
-            throw new RuntimeException("Could not resolve uri for event " + webHookEvent + " and consumer " + consumer);
+            logger.error("Could not resolve uri for event '{}' and listener '{}'", webHookEvent, listener);
+            throw new RuntimeException("Could not resolve uri for event " + webHookEvent + " and listener " + listener);
         }
     }
 
@@ -84,7 +84,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
 
         private final HttpClient httpClient;
         private final RequestSigner requestSigner;
-        private final WebHookConsumer consumer;
+        private final WebHookListener listener;
         private final TokenBucket logMessageRateLimiter;
         private final URI uri;
         private final String userName;
@@ -93,7 +93,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         PublishTaskImpl(HttpClient httpClient,
                         RequestSigner requestSigner,
                         TokenBucket logMessageRateLimiter,
-                        WebHookConsumer consumer,
+                        WebHookListener listener,
                         URI uri,
                         String userName,
                         String body)
@@ -102,7 +102,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
             this.httpClient = checkNotNull(httpClient);
             this.requestSigner = checkNotNull(requestSigner);
             this.logMessageRateLimiter = checkNotNull(logMessageRateLimiter);
-            this.consumer = checkNotNull(consumer);
+            this.listener = checkNotNull(listener);
             this.uri = checkNotNull(uri);
             this.userName = checkNotNull(userName);
             this.body = checkNotNull(body);
@@ -121,9 +121,9 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
             final Request request = httpClient.newRequest(uri, "application/json", body)
                     // attributes capture optional properties sent to analytics
                     .setAttribute("purpose", "web-hook-notification")
-                    .setAttribute("pluginKey", consumer.getPluginKey());
+                    .setAttribute("pluginKey", listener.getPluginKey());
 
-            requestSigner.sign(consumer.getPluginKey(), request);
+            requestSigner.sign(listener.getPluginKey(), request);
             request.post().transform().clientError(new Function<Response, Object>() {
                 @Override
                 public Object apply(Response response) {
@@ -160,7 +160,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
         public String toString()
         {
             return Objects.toStringHelper(PublishTask.class)
-                    .add("consumerKey", consumer)
+                    .add("listenerKey", listener)
                     .add("userName", userName)
                     .add("uri", uri)
                     .add("body", body)

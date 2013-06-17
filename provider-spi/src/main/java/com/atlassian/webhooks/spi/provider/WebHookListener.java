@@ -2,13 +2,13 @@ package com.atlassian.webhooks.spi.provider;
 
 import java.net.URI;
 
-public interface WebHookConsumer
+public interface WebHookListener
 {
     String getPluginKey();
 
     URI getPath();
 
-    Object getConsumerParams();
+    Object getListenerParameters();
 
     /**
      * This method gives consumers opportunity to modify the serialized json according to consumer custom parameters.

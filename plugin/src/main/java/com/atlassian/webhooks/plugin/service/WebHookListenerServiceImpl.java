@@ -6,7 +6,7 @@ import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.webhooks.plugin.PluginProperties;
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
 import com.atlassian.webhooks.plugin.event.WebHookEventDispatcher;
-import com.atlassian.webhooks.plugin.manager.WebHookConsumerManager;
+import com.atlassian.webhooks.plugin.manager.WebHookListenerManager;
 import com.atlassian.webhooks.spi.provider.cache.ClearWebHookListenerCacheEvent;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -17,30 +17,30 @@ import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerService
+public class WebHookListenerServiceImpl implements WebHookListenerService
 {
-    private final WebHookConsumerCache webHookConsumerCache;
-    private final WebHookConsumerManager webHookConsumerManager;
+    private final WebHookListenerCache webHookListenerCache;
+    private final WebHookListenerManager webHookListenerManager;
     private final WebHookEventDispatcher webHookEventDispatcher;
     private WebHookRetrievalStrategy webHookRetrievalStrategy;
 
-    public WebHookConsumerConsumerServiceImpl(WebHookConsumerCache webHookConsumerCache, WebHookConsumerManager webHookConsumerManager, WebHookEventDispatcher webHookEventDispatcher)
+    public WebHookListenerServiceImpl(WebHookListenerCache webHookListenerCache, WebHookListenerManager webHookListenerManager, WebHookEventDispatcher webHookEventDispatcher)
     {
-        this.webHookConsumerCache = webHookConsumerCache;
-        this.webHookConsumerManager = webHookConsumerManager;
+        this.webHookListenerCache = webHookListenerCache;
+        this.webHookListenerManager = webHookListenerManager;
         this.webHookEventDispatcher = webHookEventDispatcher;
         this.webHookRetrievalStrategy = NO_OP_WEB_HOOK_RETRIEVAL_STRATEGY;
     }
 
     @Override
-    public WebHookAO addWebHook(String name, String targetUrl, Iterable<String> events, String parameters, WebHookConsumerManager.WebHookRegistrationMethod registrationMethod)
+    public WebHookAO addWebHook(String name, String targetUrl, Iterable<String> events, String parameters, WebHookListenerManager.WebHookListenerRegistrationMethod registrationMethod)
     {
         checkNotNull(name);
         checkNotNull(targetUrl);
         checkNotNull(events);
 
-        WebHookAO webHookAO = webHookConsumerManager.addWebHook(name, targetUrl, WebHookListenerEventJoiner.join(events), parameters, registrationMethod);
-        webHookConsumerCache.put(webHookAO);
+        WebHookAO webHookAO = webHookListenerManager.addWebHook(name, targetUrl, WebHookListenerEventJoiner.join(events), parameters, registrationMethod);
+        webHookListenerCache.put(webHookAO);
         webHookEventDispatcher.webHookCreated(webHookAO);
         return webHookAO;
     }
@@ -52,8 +52,8 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
         checkNotNull(targetUrl);
         checkNotNull(events);
 
-        WebHookAO webHookAO = webHookConsumerManager.updateWebHook(id, name, targetUrl, WebHookListenerEventJoiner.join(events), parameters, enabled);
-        webHookConsumerCache.put(webHookAO);
+        WebHookAO webHookAO = webHookListenerManager.updateWebHook(id, name, targetUrl, WebHookListenerEventJoiner.join(events), parameters, enabled);
+        webHookListenerCache.put(webHookAO);
         webHookEventDispatcher.webHookEdited(webHookAO);
         return webHookAO;
     }
@@ -61,9 +61,9 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
     @Override
     public void removeWebHook(int id) throws IllegalArgumentException
     {
-        Optional<WebHookAO> removedWebHook = webHookConsumerCache.remove(id);
+        Optional<WebHookAO> removedWebHook = webHookListenerCache.remove(id);
         webHookEventDispatcher.webHookDeleted(removedWebHook.get());
-        webHookConsumerManager.removeWebHook(id);
+        webHookListenerManager.removeWebHook(id);
     }
 
     @Override
@@ -103,10 +103,10 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
     @Override
     public Optional<WebHookAO> enableWebHook(int id, boolean flag)
     {
-        Optional<WebHookAO> webHook = webHookConsumerManager.enableWebHook(id, flag);
+        Optional<WebHookAO> webHook = webHookListenerManager.enableWebHook(id, flag);
         if (webHook.isPresent())
         {
-            webHookConsumerCache.put(webHook.get());
+            webHookListenerCache.put(webHook.get());
 
             if (flag)
             {
@@ -140,7 +140,7 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
     @SuppressWarnings("unused")
     public final void onClearCacheEvent(final ClearWebHookListenerCacheEvent clearCacheEvent)
     {
-        webHookConsumerCache.clear();
+        webHookListenerCache.clear();
         webHookRetrievalStrategy = ACTIVE_OBJECT_WEB_HOOK_RETRIEVAL_STRATEGY;
     }
 
@@ -175,9 +175,9 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
 
         private void fillCache()
         {
-            Iterable<WebHookAO> allWebhooks = webHookConsumerManager.getAllWebHooks();
-            webHookConsumerCache.clear();
-            webHookConsumerCache.putAll(allWebhooks);
+            Iterable<WebHookAO> allWebhooks = webHookListenerManager.getAllWebHooks();
+            webHookListenerCache.clear();
+            webHookListenerCache.putAll(allWebhooks);
             webHookRetrievalStrategy = CACHE_WEB_HOOK_RETRIEVAL_STRATEGY;
         }
     };
@@ -190,13 +190,13 @@ public class WebHookConsumerConsumerServiceImpl implements WebHookConsumerServic
         @Override
         public Iterable<WebHookAO> getAll()
         {
-            return webHookConsumerCache.getAll();
+            return webHookListenerCache.getAll();
         }
 
         @Override
         public Optional<WebHookAO> get(final Integer id)
         {
-            return webHookConsumerCache.get(id);
+            return webHookListenerCache.get(id);
         }
     };
 

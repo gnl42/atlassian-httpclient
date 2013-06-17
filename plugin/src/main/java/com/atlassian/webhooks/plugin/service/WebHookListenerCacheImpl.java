@@ -1,7 +1,7 @@
 package com.atlassian.webhooks.plugin.service;
 
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
-import com.atlassian.webhooks.plugin.manager.WebHookConsumerManager;
+import com.atlassian.webhooks.plugin.manager.WebHookListenerManager;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
@@ -13,15 +13,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 
-public class WebHookConsumerCacheImpl implements WebHookConsumerCache
+public class WebHookListenerCacheImpl implements WebHookListenerCache
 {
     private final Map<Integer, SoftReference<WebHookAO>> cache = new ConcurrentHashMap<Integer, SoftReference<WebHookAO>>();
 
-    private final WebHookConsumerManager webHookConsumerManager;
+    private final WebHookListenerManager webHookListenerManager;
 
-    public WebHookConsumerCacheImpl(WebHookConsumerManager webHookConsumerManager)
+    public WebHookListenerCacheImpl(WebHookListenerManager webHookListenerManager)
     {
-        this.webHookConsumerManager = webHookConsumerManager;
+        this.webHookListenerManager = webHookListenerManager;
     }
 
     @Override
@@ -31,23 +31,23 @@ public class WebHookConsumerCacheImpl implements WebHookConsumerCache
     }
 
     @Override
-    public void put(final WebHookAO webHookConsumer)
+    public void put(final WebHookAO webHookListener)
     {
-        cache.put(webHookConsumer.getID(), new SoftReference<WebHookAO>(webHookConsumer));
+        cache.put(webHookListener.getID(), new SoftReference<WebHookAO>(webHookListener));
     }
 
     @Override
-    public Optional<WebHookAO> remove(final Integer webHookConsumerId)
+    public Optional<WebHookAO> remove(final Integer webHookListenerId)
     {
-        Optional<WebHookAO> webHookAOOptional = get(webHookConsumerId);
-        cache.remove(webHookConsumerId);
+        Optional<WebHookAO> webHookAOOptional = get(webHookListenerId);
+        cache.remove(webHookListenerId);
         return webHookAOOptional;
     }
 
     @Override
-    public void putAll(final Iterable<WebHookAO> webHookConsumers)
+    public void putAll(final Iterable<WebHookAO> webHookListeners)
     {
-        for (WebHookAO webhookDao : webHookConsumers)
+        for (WebHookAO webhookDao : webHookListeners)
         {
             put(webhookDao);
         }
@@ -76,7 +76,7 @@ public class WebHookConsumerCacheImpl implements WebHookConsumerCache
         }
         else
         {
-            Optional<WebHookAO> webHook = webHookConsumerManager.getWebHook(id);
+            Optional<WebHookAO> webHook = webHookListenerManager.getWebHook(id);
             if (webHook.get() != null)
             {
                 cache.put(id, new SoftReference<WebHookAO>(webHook.get()));

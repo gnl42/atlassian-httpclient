@@ -11,14 +11,14 @@ public class EventMatchers
         return new EventMatcher<T>()
         {
             @Override
-            public boolean matches(final T event, final Object consumerParams)
+            public boolean matches(final T event, final Object listenerParameters)
             {
                 return Iterables.all(matchers, new Predicate<EventMatcher<T>>()
                 {
                     @Override
                     public boolean apply(final EventMatcher<T> matcher)
                     {
-                        return matcher.matches(event, consumerParams);
+                        return matcher.matches(event, listenerParameters);
                     }
                 });
             }
@@ -30,14 +30,14 @@ public class EventMatchers
         return new EventMatcher<Object>()
         {
             @Override
-            public boolean matches(final Object event, final Object consumerParams)
+            public boolean matches(final Object event, final Object listenerParameters)
             {
                 return Iterables.any(matchers, new Predicate<EventMatcher<Object>>()
                 {
                     @Override
                     public boolean apply(final EventMatcher<Object> matcher)
                     {
-                        return matcher.matches(event, consumerParams);
+                        return matcher.matches(event, listenerParameters);
                     }
                 });
             }

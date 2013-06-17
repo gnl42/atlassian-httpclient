@@ -6,16 +6,16 @@ import com.google.common.base.Optional;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
-public interface WebHookConsumerManager
+public interface WebHookListenerManager
 {
 
-    public enum WebHookRegistrationMethod
+    public enum WebHookListenerRegistrationMethod
     {
         REST,
         UI,
     }
 
-    WebHookAO addWebHook(@NotNull String name, @NotNull String targetUrl, @NotNull String events, String params, WebHookRegistrationMethod registrationMethod);
+    WebHookAO addWebHook(@NotNull String name, @NotNull String targetUrl, @NotNull String events, String params, WebHookListenerRegistrationMethod registrationMethod);
 
     /**
      * Updates existing webhook, returning the new object.

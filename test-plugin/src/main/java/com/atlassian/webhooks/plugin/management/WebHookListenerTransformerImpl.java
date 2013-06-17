@@ -1,19 +1,19 @@
 package com.atlassian.webhooks.plugin.management;
 
-import com.atlassian.webhooks.spi.provider.WebHookConsumer;
-import com.atlassian.webhooks.spi.provider.WebHookModelTransformer;
+import com.atlassian.webhooks.spi.provider.WebHookListener;
+import com.atlassian.webhooks.spi.provider.WebHookListenerTransformer;
 import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 
 import java.net.URI;
 
 /**
  */
-public class WebHookModelTransformerImpl implements WebHookModelTransformer
+public class WebHookListenerTransformerImpl implements WebHookListenerTransformer
 {
     @Override
-    public WebHookConsumer transform(final WebHookListenerRegistrationParameters webHookConsumerModel)
+    public WebHookListener transform(final WebHookListenerRegistrationParameters webHookConsumerModel)
     {
-        return new WebHookConsumer()
+        return new WebHookListener()
         {
             @Override
             public String getPluginKey()
@@ -28,7 +28,7 @@ public class WebHookModelTransformerImpl implements WebHookModelTransformer
             }
 
             @Override
-            public Object getConsumerParams()
+            public Object getListenerParameters()
             {
                 final String parameters = webHookConsumerModel.getParameters();
                 if (parameters.contains(":"))

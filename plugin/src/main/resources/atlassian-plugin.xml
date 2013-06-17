@@ -11,8 +11,8 @@
     </described-module-type>
 
     <component key="moduleDescriptorWebHookRegistry"
-               class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookRegistryImpl"
-               interface="com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry"
+               class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookListenerRegistryImpl"
+               interface="com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookListenerRegistry"
                public="true" />
 
     <component key="pluginLauncher" class="com.atlassian.webhooks.plugin.PluginLauncher" public="true">

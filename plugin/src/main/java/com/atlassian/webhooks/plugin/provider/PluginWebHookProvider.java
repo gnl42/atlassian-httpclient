@@ -25,10 +25,10 @@ public final class PluginWebHookProvider implements WebHookProvider
                 .matchedBy(new EventMatcher<PluginEnabledEvent>()
                 {
                     @Override
-                    public boolean matches(final PluginEnabledEvent event, final Object consumerParams)
+                    public boolean matches(final PluginEnabledEvent event, final Object listenerParameters)
                     {
-                        return consumerParams instanceof PluginModuleConsumerParams
-                                && (event.getPlugin().getKey()).equals(((PluginModuleConsumerParams) consumerParams).getPluginKey());
+                        return listenerParameters instanceof PluginModuleListenerParameters
+                                && (event.getPlugin().getKey()).equals(((PluginModuleListenerParameters) listenerParameters).getPluginKey());
                     }
                 })
                 .serializedWith(new EventSerializerFactory()

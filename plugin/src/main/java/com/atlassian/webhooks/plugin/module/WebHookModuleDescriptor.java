@@ -5,8 +5,8 @@ import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.descriptors.AbstractModuleDescriptor;
 import com.atlassian.plugin.module.ModuleFactory;
 import com.atlassian.util.concurrent.NotNull;
-import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookConsumerRegistry;
-import com.atlassian.webhooks.spi.provider.PluginModuleConsumerParams;
+import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookListenerRegistry;
+import com.atlassian.webhooks.spi.provider.PluginModuleListenerParameters;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.dom4j.Element;
@@ -19,17 +19,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void>
 {
-    private final ModuleDescriptorWebHookConsumerRegistry webHookConsumerRegistry;
+    private final ModuleDescriptorWebHookListenerRegistry webHookListenerRegistry;
 
     private String eventIdentifier;
     private URI url;
     private String moduleKey;
     private Map<String, Object> moduleParams;
 
-    public WebHookModuleDescriptor(ModuleFactory moduleFactory, ModuleDescriptorWebHookConsumerRegistry webHookConsumerRegistry)
+    public WebHookModuleDescriptor(ModuleFactory moduleFactory, ModuleDescriptorWebHookListenerRegistry webHookListenerRegistry)
     {
         super(moduleFactory);
-        this.webHookConsumerRegistry = checkNotNull(webHookConsumerRegistry);
+        this.webHookListenerRegistry = checkNotNull(webHookListenerRegistry);
     }
 
     @Override
@@ -62,13 +62,13 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
     public void enabled()
     {
         super.enabled();
-        webHookConsumerRegistry.register(eventIdentifier, getPluginKey(), url, new PluginModuleConsumerParams(getPluginKey(), Optional.of(moduleKey), moduleParams, eventIdentifier));
+        webHookListenerRegistry.register(eventIdentifier, getPluginKey(), url, new PluginModuleListenerParameters(getPluginKey(), Optional.of(moduleKey), moduleParams, eventIdentifier));
     }
 
     @Override
     public void disabled()
     {
-        webHookConsumerRegistry.unregister(eventIdentifier, getPluginKey(), url, new PluginModuleConsumerParams(getPluginKey(), Optional.of(moduleKey), moduleParams, eventIdentifier));
+        webHookListenerRegistry.unregister(eventIdentifier, getPluginKey(), url, new PluginModuleListenerParameters(getPluginKey(), Optional.of(moduleKey), moduleParams, eventIdentifier));
         super.disabled();
     }
 

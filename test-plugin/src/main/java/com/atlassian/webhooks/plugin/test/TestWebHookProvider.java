@@ -1,6 +1,6 @@
 package com.atlassian.webhooks.plugin.test;
 
-import com.atlassian.webhooks.plugin.management.WebHookModelTransformerImpl;
+import com.atlassian.webhooks.plugin.management.WebHookListenerTransformerImpl;
 import com.atlassian.webhooks.spi.provider.*;
 import com.google.common.collect.ImmutableMap;
 
@@ -39,11 +39,11 @@ public final class TestWebHookProvider implements WebHookProvider
                 {
 
                     @Override
-                    public boolean matches(EventWithPersistentListener event, Object consumerParams)
+                    public boolean matches(EventWithPersistentListener event, Object listenerParameters)
                     {
-                        return consumerParams instanceof WebHookModelTransformerImpl.RefAppListenerParameters &&
-                                ((WebHookModelTransformerImpl.RefAppListenerParameters) consumerParams).getQualificator().equals(event.getQualificator()) &&
-                                ((WebHookModelTransformerImpl.RefAppListenerParameters) consumerParams).getSecondaryKey().equals(event.getSecondaryKey());
+                        return listenerParameters instanceof WebHookListenerTransformerImpl.RefAppListenerParameters &&
+                                ((WebHookListenerTransformerImpl.RefAppListenerParameters) listenerParameters).getQualificator().equals(event.getQualificator()) &&
+                                ((WebHookListenerTransformerImpl.RefAppListenerParameters) listenerParameters).getSecondaryKey().equals(event.getSecondaryKey());
 
 
                     }

@@ -1,12 +1,12 @@
 package com.atlassian.webhooks.plugin.management;
 
 import com.atlassian.sal.api.message.MessageCollection;
-import com.atlassian.webhooks.spi.provider.WebHookConsumerActionValidator;
+import com.atlassian.webhooks.spi.provider.WebHookListenerActionValidator;
 import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 
 /**
  */
-public class WebHookConsumerActionValidatorImpl implements WebHookConsumerActionValidator
+public class WebHookListenerActionValidatorImpl implements WebHookListenerActionValidator
 {
     @Override
     public MessageCollection validateWebHookAddition(final WebHookListenerRegistrationParameters registrationParameters)

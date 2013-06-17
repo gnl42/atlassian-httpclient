@@ -3,7 +3,7 @@ package com.atlassian.webhooks.plugin;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedAnalyticsEvent;
 import com.atlassian.webhooks.plugin.event.WebHookPublishedAnalyticsEvent;
-import com.atlassian.webhooks.spi.provider.WebHookConsumer;
+import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.atlassian.webhooks.spi.provider.WebHookPublisher;
 import org.slf4j.Logger;
@@ -23,19 +23,19 @@ public final class WebHookPublisherImpl implements WebHookPublisher
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final WebHookConsumerProvider consumerProvider;
+    private final WebHookListenerProvider listenerProvider;
     private final PublishTaskFactory publishTaskFactory;
     private final EventPublisher eventPublisher;
     private final Executor executor;
 
-    public WebHookPublisherImpl(WebHookConsumerProvider consumerProvider, PublishTaskFactory publishTaskFactory, EventPublisher eventPublisher)
+    public WebHookPublisherImpl(WebHookListenerProvider listenerProvider, PublishTaskFactory publishTaskFactory, EventPublisher eventPublisher)
     {
-        this(consumerProvider, publishTaskFactory, eventPublisher, newDefaultExecutor());
+        this(listenerProvider, publishTaskFactory, eventPublisher, newDefaultExecutor());
     }
 
-    public WebHookPublisherImpl(WebHookConsumerProvider consumerProvider, PublishTaskFactory publishTaskFactory, EventPublisher eventPublisher, Executor executor)
+    public WebHookPublisherImpl(WebHookListenerProvider listenerProvider, PublishTaskFactory publishTaskFactory, EventPublisher eventPublisher, Executor executor)
     {
-        this.consumerProvider = checkNotNull(consumerProvider);
+        this.listenerProvider = checkNotNull(listenerProvider);
         this.publishTaskFactory = checkNotNull(publishTaskFactory);
         this.eventPublisher = checkNotNull(eventPublisher);
         this.executor = checkNotNull(executor);
@@ -44,33 +44,33 @@ public final class WebHookPublisherImpl implements WebHookPublisher
     @Override
     public void publish(WebHookEvent webHookEvent)
     {
-        for (WebHookConsumer consumer : consumerProvider.getConsumers(webHookEvent))
+        for (WebHookListener listener : listenerProvider.getListeners(webHookEvent))
         {
-            if (match(webHookEvent, consumer))
+            if (match(webHookEvent, listener))
             {
-                publish(webHookEvent, consumer);
+                publish(webHookEvent, listener);
             }
         }
     }
 
-    private boolean match(WebHookEvent webHookEvent, WebHookConsumer consumer)
+    private boolean match(WebHookEvent webHookEvent, WebHookListener listener)
     {
-        return webHookEvent.getEventMatcher().matches(webHookEvent.getEvent(), consumer.getConsumerParams());
+        return webHookEvent.getEventMatcher().matches(webHookEvent.getEvent(), listener.getListenerParameters());
     }
 
-    private void publish(WebHookEvent webHookEvent, WebHookConsumer consumer)
+    private void publish(WebHookEvent webHookEvent, WebHookListener listener)
     {
-        final PublishTask publishTask = publishTaskFactory.getPublishTask(webHookEvent, consumer);
+        final PublishTask publishTask = publishTaskFactory.getPublishTask(webHookEvent, listener);
         try
         {
             executor.execute(publishTask);
-            eventPublisher.publish(new WebHookPublishedAnalyticsEvent(webHookEvent.getId(), consumer.getPluginKey(), consumer.getPath().toString()));
+            eventPublisher.publish(new WebHookPublishedAnalyticsEvent(webHookEvent.getId(), listener.getPluginKey(), listener.getPath().toString()));
         }
         catch (RejectedExecutionException ex)
         {
             logger.warn("Executor rejected the web hook '{}' saying '{}'", publishTask, ex.getMessage());
             logger.debug("Here is the full exception", ex);
-            eventPublisher.publish(new WebHookPublishRejectedAnalyticsEvent(webHookEvent.getId(), consumer.getPluginKey(), consumer.getPath().toString(), ex.getMessage()));
+            eventPublisher.publish(new WebHookPublishRejectedAnalyticsEvent(webHookEvent.getId(), listener.getPluginKey(), listener.getPath().toString(), ex.getMessage()));
         }
     }
 

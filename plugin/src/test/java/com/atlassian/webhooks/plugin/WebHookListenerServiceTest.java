@@ -8,10 +8,10 @@ import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
 import com.atlassian.webhooks.plugin.event.WebHookEventDispatcher;
-import com.atlassian.webhooks.plugin.manager.WebHookConsumerManager;
-import com.atlassian.webhooks.plugin.manager.WebHookConsumerManagerImpl;
-import com.atlassian.webhooks.plugin.service.WebHookConsumerCacheImpl;
-import com.atlassian.webhooks.plugin.service.WebHookConsumerConsumerServiceImpl;
+import com.atlassian.webhooks.plugin.manager.WebHookListenerManager;
+import com.atlassian.webhooks.plugin.manager.WebHookListenerManagerImpl;
+import com.atlassian.webhooks.plugin.service.WebHookListenerCacheImpl;
+import com.atlassian.webhooks.plugin.service.WebHookListenerServiceImpl;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import net.java.ao.EntityManager;
@@ -37,7 +37,7 @@ public class WebHookListenerServiceTest
 
     @SuppressWarnings ("UnusedDeclaration")
     private EntityManager entityManager;
-    private WebHookConsumerConsumerServiceImpl webHookConsumerConsumerService;
+    private WebHookListenerServiceImpl webHookListenerService;
     private UserManager userManager;
 
     @Before
@@ -47,66 +47,66 @@ public class WebHookListenerServiceTest
         when(userManager.getRemoteUsername()).thenReturn(LAST_UPDATED_USER);
 
         ActiveObjects ao = new TestActiveObjects(entityManager);
-        WebHookConsumerManager webHookConsumerManager = new WebHookConsumerManagerImpl(ao, userManager, mock(I18nResolver.class));
-        this.webHookConsumerConsumerService = new WebHookConsumerConsumerServiceImpl(new WebHookConsumerCacheImpl(webHookConsumerManager), webHookConsumerManager, mock(WebHookEventDispatcher.class));
+        WebHookListenerManager webHookListenerManager = new WebHookListenerManagerImpl(ao, userManager, mock(I18nResolver.class));
+        this.webHookListenerService = new WebHookListenerServiceImpl(new WebHookListenerCacheImpl(webHookListenerManager), webHookListenerManager, mock(WebHookEventDispatcher.class));
         //noinspection unchecked
         ao.migrate(WebHookAO.class);
 
         Plugin plugin = mock(Plugin.class);
         when(plugin.getKey()).thenReturn(PluginProperties.PLUGIN_KEY);
-        webHookConsumerConsumerService.onPluginStarted(new PluginEnabledEvent(plugin));
+        webHookListenerService.onPluginStarted(new PluginEnabledEvent(plugin));
     }
 
     @Test
     public void testWebHookRegistration()
     {
-        final WebHookAO webHookAO = webHookConsumerConsumerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookConsumerManager.WebHookRegistrationMethod.REST);
+        final WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
 
         assertNotNull(webHookAO);
 
-        final Optional<WebHookAO> exists = webHookConsumerConsumerService.find(null, TARGET_URL, EVENTS, PARAMETERS);
+        final Optional<WebHookAO> exists = webHookListenerService.find(null, TARGET_URL, EVENTS, PARAMETERS);
         assertSame(webHookAO.getID(), exists.get().getID());
     }
 
     @Test
     public void testWebHookRegistrationAndUpdate()
     {
-        WebHookAO webHookAO = webHookConsumerConsumerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookConsumerManager.WebHookRegistrationMethod.REST);
+        WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
 
-        final Optional<WebHookAO> exists = webHookConsumerConsumerService.find(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS);
+        final Optional<WebHookAO> exists = webHookListenerService.find(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS);
         assertSame(webHookAO.getID(), exists.get().getID());
 
-        webHookConsumerConsumerService.updateWebHook(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, Lists.newArrayList("rebel_lost_event"), PARAMETERS, true);
-        assertFalse("We are not listening on rebel_lost_event. We want the rebel captured.", webHookConsumerConsumerService.find(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS).isPresent());
+        webHookListenerService.updateWebHook(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, Lists.newArrayList("rebel_lost_event"), PARAMETERS, true);
+        assertFalse("We are not listening on rebel_lost_event. We want the rebel captured.", webHookListenerService.find(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS).isPresent());
     }
 
     @Test
     public void testFindingWebHookWithDifferentUrl()
     {
-        WebHookAO webHookAO = webHookConsumerConsumerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookConsumerManager.WebHookRegistrationMethod.REST);
+        WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
 
-        assertFalse("Messages about capture of Han Solo should go to SuperStar Destroyer", webHookConsumerConsumerService.find(null, "http://www.death-star.com.empire", EVENTS, PARAMETERS).isPresent());
+        assertFalse("Messages about capture of Han Solo should go to SuperStar Destroyer", webHookListenerService.find(null, "http://www.death-star.com.empire", EVENTS, PARAMETERS).isPresent());
     }
 
     @Test
     public void testFindingWebHookWithDifferentParams()
     {
-        WebHookAO webHookAO = webHookConsumerConsumerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookConsumerManager.WebHookRegistrationMethod.REST);
+        WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
 
-        assertFalse("We want Han Solo, not Leia!", webHookConsumerConsumerService.find(null, TARGET_URL, EVENTS, "rebel = 'Leia'").isPresent());
+        assertFalse("We want Han Solo, not Leia!", webHookListenerService.find(null, TARGET_URL, EVENTS, "rebel = 'Leia'").isPresent());
     }
 
     @Test
     public void testUpdateOfWebHookSetsUserName()
     {
-        WebHookAO webHookAO = webHookConsumerConsumerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookConsumerManager.WebHookRegistrationMethod.REST);
+        WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
         when(userManager.getRemoteUsername()).thenReturn("IG-88");
 
-        WebHookAO updatedWebHook = webHookConsumerConsumerService.updateWebHook(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, true);
+        WebHookAO updatedWebHook = webHookListenerService.updateWebHook(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, true);
         assertSame("IG-88", updatedWebHook.getLastUpdatedUser());
     }
 

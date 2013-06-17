@@ -1,13 +1,13 @@
 package com.atlassian.webhooks.plugin.service;
 
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
-import com.atlassian.webhooks.plugin.manager.WebHookConsumerManager;
+import com.atlassian.webhooks.plugin.manager.WebHookListenerManager;
 import com.google.common.base.Optional;
 
-public interface WebHookConsumerService
+public interface WebHookListenerService
 {
 
-    WebHookAO addWebHook(String name, String targetUrl, Iterable<String> events, String parameters, WebHookConsumerManager.WebHookRegistrationMethod registrationMethod);
+    WebHookAO addWebHook(String name, String targetUrl, Iterable<String> events, String parameters, WebHookListenerManager.WebHookListenerRegistrationMethod registrationMethod);
 
     WebHookAO updateWebHook(int id, String name, String targetUrl, Iterable<String> events, String parameters, boolean enabled);
 

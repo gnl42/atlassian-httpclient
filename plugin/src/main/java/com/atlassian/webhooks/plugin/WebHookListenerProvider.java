@@ -3,7 +3,9 @@ package com.atlassian.webhooks.plugin;
 import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 
-public interface PublishTaskFactory
+public interface WebHookListenerProvider
 {
-    PublishTask getPublishTask(WebHookEvent webHookEvent, WebHookListener listener);
+
+    Iterable<WebHookListener> getListeners(final WebHookEvent webHookEvent);
+
 }
