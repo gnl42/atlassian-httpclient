@@ -19,9 +19,9 @@
     <inceptionYear>2012</inceptionYear>
 
     <scm>
-        <connection>scm:git:git@bitbucket.org:atlassian/atlassian-webhooks-plugin.git</connection>
-        <developerConnection>scm:git:git@bitbucket.org:atlassian/atlassian-webhooks-plugin.git</developerConnection>
-        <url>https://bitbucket.org/atlassian/atlassian-webhooks-plugin</url>
+        <connection>scm:git:git@bitbucket.org:filiprogaczewski/atlassian-webhooks-plugin.git</connection>
+        <developerConnection>scm:git:git@bitbucket.org:filiprogaczewski/atlassian-webhooks-plugin.git</developerConnection>
+        <url>https://bitbucket.org/filiprogaczewski/atlassian-webhooks-plugin</url>
       <tag>HEAD</tag>
   </scm>
 
