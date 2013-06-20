@@ -3,6 +3,7 @@ package com.atlassian.webhooks.plugin.rest;
 
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.spi.provider.WebHookListenerActionValidator;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -19,7 +20,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
     }
 
     @Override
-    public MessageCollection validateWebHookAddition(WebHookListenerRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookRegistration(WebHookListenerRegistrationParameters registrationParameters)
     {
         ServiceReference serviceReference = bundleContext.getServiceReference(WebHookListenerActionValidator.class.getName());
         if (serviceReference != null)
@@ -27,7 +28,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
             try
             {
                 WebHookListenerActionValidator webHookListenerActionValidator = (WebHookListenerActionValidator) bundleContext.getService(serviceReference);
-                return webHookListenerActionValidator.validateWebHookAddition(registrationParameters);
+                return webHookListenerActionValidator.validateWebHookRegistration(registrationParameters);
             }
             finally
             {
@@ -41,7 +42,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
     }
 
     @Override
-    public MessageCollection validateWebHookDeletion(WebHookListenerRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookRemoval(WebHookListenerParameters registrationParameters)
     {
         ServiceReference serviceReference = bundleContext.getServiceReference(WebHookListenerActionValidator.class.getName());
         if (serviceReference != null)
@@ -49,7 +50,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
             try
             {
                 WebHookListenerActionValidator webHookListenerActionValidator = (WebHookListenerActionValidator) bundleContext.getService(serviceReference);
-                return webHookListenerActionValidator.validateWebHookDeletion(registrationParameters);
+                return webHookListenerActionValidator.validateWebHookRemoval(registrationParameters);
             }
             finally
             {

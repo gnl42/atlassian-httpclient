@@ -40,6 +40,7 @@
 
     <component-import key="jiraAuthenticationContext" interface="com.atlassian.jira.security.JiraAuthenticationContext" application="jira" />
     <component-import key="jiraVelocityRequestContextFactory" interface="com.atlassian.jira.util.velocity.VelocityRequestContextFactory" application="jira" />
+    <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
 
     <component-import key="pluginEventManager" interface="com.atlassian.plugin.event.PluginEventManager" />
 
@@ -49,5 +50,7 @@
         <description>Datastore for persistent webhooks.</description>
         <entity>com.atlassian.webhooks.plugin.ao.WebHookAO</entity>
     </ao>
+
+    <resource type="i18n" name="i18n" location="i18n/i18n"/>
 
 </atlassian-plugin>

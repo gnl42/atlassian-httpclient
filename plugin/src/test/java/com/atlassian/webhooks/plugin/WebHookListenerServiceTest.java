@@ -74,7 +74,7 @@ public class WebHookListenerServiceTest
         WebHookAO webHookAO = webHookListenerService.addWebHookListener(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
 
-        final Optional<WebHookAO> exists = webHookListenerService.findWebHookListener(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS);
+        final Optional<WebHookAO> exists = webHookListenerService.findWebHookListener(null, TARGET_URL, EVENTS, PARAMETERS);
         assertSame(webHookAO.getID(), exists.get().getID());
 
         webHookListenerService.updateWebHookListener(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, Lists.newArrayList("rebel_lost_event"), PARAMETERS, true);

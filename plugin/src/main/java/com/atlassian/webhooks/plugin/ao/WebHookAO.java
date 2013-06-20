@@ -31,7 +31,7 @@ public interface WebHookAO extends Entity
     String getParameters();
     void setParameters(String parameters);
 
-    // Was this created via REST, the UI, or something else?
+    // Was this created via REST, UI or SERVICE
     @NotNull
     String getRegistrationMethod();
     void setRegistrationMethod(String method);

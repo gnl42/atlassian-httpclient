@@ -4,9 +4,6 @@ import com.atlassian.annotations.PublicApi;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.google.common.base.Optional;
 
-// TODO we need some tests of this
-// TODO ask Justin about adding ClearCacheEvent to some cross-product-plugin
-
 /**
  * This WebHook listener service is responsible for adding, updating, removing and getting WebHookListeners registered
  * in atlassian-webhooks-plugin.  It may also be used to enforce cache clearing by the product-specific plugin.

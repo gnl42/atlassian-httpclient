@@ -8,13 +8,38 @@ import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * This interface should be implemented by the provider which wants to validate the parameters of WebHook listener before
+ * registration/update or removal.
+ */
 public interface WebHookListenerActionValidator
 {
-    MessageCollection validateWebHookAddition(WebHookListenerRegistrationParameters registrationParameters);
+    /**
+     * Validates the parameters of newly registered WebHook listener. If this method returns any errors, WebHook listener
+     * will not be registered.
+     *
+     * @param registrationParameters Parameters of WebHook listener.
+     * @return Collection with errors, if the validation failed. Empty collection if the validation passed.
+     */
+    MessageCollection validateWebHookRegistration(WebHookListenerRegistrationParameters registrationParameters);
 
+    /**
+     * Validates the parameters of WebHook listener before the update. If this method returns any errors, WebHook listener
+     * will not be updated.
+     *
+     * @param registrationParameters Parameters of WebHook listener.
+     * @return Collection with errors, if the validation failed. Empty collection if the validation passed.
+     */
     MessageCollection validateWebHookUpdate(WebHookListenerRegistrationParameters registrationParameters);
 
-    MessageCollection validateWebHookDeletion(WebHookListenerRegistrationParameters registrationParameters);
+    /**
+     * Validates the parameters of WebHook listener before the removal. If this method returns any errors, WebHook listener
+     * will not be deleted.
+     *
+     * @param registrationParameters Parameters of WebHook listener.
+     * @return Collection with errors, if the validation failed. Empty collection if the validation passed.
+     */
+    MessageCollection validateWebHookRemoval(WebHookListenerParameters registrationParameters);
 
     static final class ErrorMessageCollection implements MessageCollection
     {

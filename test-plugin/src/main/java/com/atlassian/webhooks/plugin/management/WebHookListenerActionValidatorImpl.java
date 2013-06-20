@@ -2,6 +2,7 @@ package com.atlassian.webhooks.plugin.management;
 
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.spi.provider.WebHookListenerActionValidator;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 
 /**
@@ -9,7 +10,7 @@ import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters
 public class WebHookListenerActionValidatorImpl implements WebHookListenerActionValidator
 {
     @Override
-    public MessageCollection validateWebHookAddition(final WebHookListenerRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookRegistration(final WebHookListenerRegistrationParameters registrationParameters)
     {
         if (registrationParameters.getName().equals("Filip's webhook"))
         {
@@ -30,7 +31,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
     }
 
     @Override
-    public MessageCollection validateWebHookDeletion(final WebHookListenerRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookRemoval(final WebHookListenerParameters registrationParameters)
     {
         if (registrationParameters.getName().equals("Jonathon's webhook"))
         {

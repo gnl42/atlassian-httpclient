@@ -28,7 +28,7 @@ public class PersistentWebHookListenerProvider implements WebHookListenerProvide
     }
 
     @Override
-    public Iterable<WebHookListener> getListeners(WebHookEvent webHookEvent)
+    public Iterable<WebHookListener> getListeners(final WebHookEvent webHookEvent)
     {
         return filter(transform(filter(internalWebHookListenerService.getAllWebHookListeners(), new Predicate<WebHookAO>()
         {

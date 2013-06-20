@@ -70,14 +70,14 @@ public class WebHookListenerCacheImpl implements WebHookListenerCache
     public Optional<WebHookAO> get(final Integer id)
     {
         SoftReference<WebHookAO> webHookAOSoftReference = cache.get(id);
-        if (webHookAOSoftReference.get() != null)
+        if (webHookAOSoftReference != null && webHookAOSoftReference.get() != null)
         {
             return Optional.of(webHookAOSoftReference.get());
         }
         else
         {
             Optional<WebHookAO> webHook = webHookListenerManager.getWebHook(id);
-            if (webHook.get() != null)
+            if (webHook.isPresent())
             {
                 cache.put(id, new SoftReference<WebHookAO>(webHook.get()));
                 return Optional.of(webHook.get());

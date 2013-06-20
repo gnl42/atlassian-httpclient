@@ -30,7 +30,7 @@ public class TestWebHookListenerActionValidator
     @Test
     public void testAddingWebHook() throws IOException
     {
-        HttpResponse response = create("Filip's webhook");
+        HttpResponse response = create("Filip's webhook", "dev_started_event");
         final String responseText = CharStreams.toString(new InputStreamReader(response.getEntity().getContent()));
         final int statusCode = response.getStatusLine().getStatusCode();
 
@@ -41,12 +41,12 @@ public class TestWebHookListenerActionValidator
     @Test
     public void testUpdatingWebHook() throws IOException, JSONException
     {
-        final HttpResponse createResponse = create("Jonathan's webhook");
+        final HttpResponse createResponse = create("Jonathan's webhook", "js_dev_started_event");
         assertThat(createResponse.getStatusLine().getStatusCode(), is(201));
         final JSONObject jsonObject = new JSONObject(CharStreams.toString(new InputStreamReader(createResponse.getEntity().getContent())));
         String self = jsonObject.getString("self");
 
-        final HttpResponse updateResponse = update("Seb's webhook", self);
+        final HttpResponse updateResponse = update("Seb's webhook", "dev_finished_event", self);
         final String responseText = CharStreams.toString(new InputStreamReader(updateResponse.getEntity().getContent()));
         assertThat(updateResponse.getStatusLine().getStatusCode(), is(400));
         assertThat(responseText, containsString("Seb is not allowed to updateWebHookListener WebHooks"));
@@ -55,7 +55,7 @@ public class TestWebHookListenerActionValidator
     @Test
     public void testDeletingWebHook() throws IOException, JSONException
     {
-        final HttpResponse webHookToImportantToBeDeleted = create("Jonathon's webhook");
+        final HttpResponse webHookToImportantToBeDeleted = create("Jonathon's webhook", "front_end_dev_started_event");
         assertThat(webHookToImportantToBeDeleted.getStatusLine().getStatusCode(), is(201));
         String responseText = CharStreams.toString(new InputStreamReader(webHookToImportantToBeDeleted.getEntity().getContent()));
         final String self = new JSONObject(responseText).getString("self");
@@ -65,12 +65,12 @@ public class TestWebHookListenerActionValidator
         assertThat(response.getStatusLine().getStatusCode(), is(409));
         assertThat(responseText, containsString("Jonathon's webhook are to important"));
 
-        final HttpResponse notThatImportantWebHook = create("Not that important webhook");
+        final HttpResponse notThatImportantWebHook = create("Not that important webhook", "");
         assertThat(notThatImportantWebHook.getStatusLine().getStatusCode(), is(201));
 
         final String notThatImportantWebHookSelf = new JSONObject(CharStreams.toString(new InputStreamReader(notThatImportantWebHook.getEntity().getContent()))).getString("self");
 
-        HttpResponse updateResponse = update("Another name for this meaningless webhook", notThatImportantWebHookSelf);
+        HttpResponse updateResponse = update("Another name for this meaningless webhook", "meaningless_event", notThatImportantWebHookSelf);
         responseText = CharStreams.toString(new InputStreamReader(updateResponse.getEntity().getContent()));
         assertThat(updateResponse.getStatusLine().getStatusCode(), is(200));
         assertThat(responseText, containsString("Another name for this meaningless webhook"));
@@ -79,16 +79,16 @@ public class TestWebHookListenerActionValidator
         assertThat(deleteResponse.getStatusLine().getStatusCode(), is(204));
     }
 
-    private HttpResponse create(final String name) throws IOException
+    private HttpResponse create(final String name, final String event) throws IOException
     {
         final HttpPost postRequest = new HttpPost(WEBHOOK_REST_URI);
-        return setEntityAndExecute(name, postRequest);
+        return setEntityAndExecute(name, event, postRequest);
     }
 
-    private HttpResponse update(final String name, final String self) throws IOException
+    private HttpResponse update(final String name, final String event, final String self) throws IOException
     {
         final HttpPut updateRequest = new HttpPut(self);
-        return setEntityAndExecute(name, updateRequest);
+        return setEntityAndExecute(name, event, updateRequest);
     }
 
     private HttpResponse delete(final String self) throws IOException
@@ -98,9 +98,9 @@ public class TestWebHookListenerActionValidator
         return client.execute(deleteRequest);
     }
 
-    private HttpResponse setEntityAndExecute(String name, final HttpEntityEnclosingRequestBase request) throws IOException
+    private HttpResponse setEntityAndExecute(String name, String event, final HttpEntityEnclosingRequestBase request) throws IOException
     {
-        request.setEntity(new StringEntity("{ \"name\": \""+ name + "\", \"url\": \"http://localhost:1000/webhook\", \"events\": [\"jira:issue_updated\"], \"parameters\": \"Project = DEMO\"}"));
+        request.setEntity(new StringEntity("{ \"name\": \""+ name + "\", \"url\": \"http://localhost:1000/webhook\", \"events\": [\""+event+"\"], \"parameters\": \"Project = DEMO\"}"));
         request.setHeader("Content-type", "application/json");
         authorize(request);
         return client.execute(request);

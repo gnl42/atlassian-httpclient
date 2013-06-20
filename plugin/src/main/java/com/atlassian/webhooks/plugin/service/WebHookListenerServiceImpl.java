@@ -8,12 +8,15 @@ import com.atlassian.webhooks.plugin.event.WebHookEventDispatcher;
 import com.atlassian.webhooks.plugin.manager.WebHookListenerManager;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.of;
+import static com.google.common.collect.Sets.symmetricDifference;
 
 public class WebHookListenerServiceImpl implements InternalWebHookListenerService
 {
@@ -73,7 +76,7 @@ public class WebHookListenerServiceImpl implements InternalWebHookListenerServic
             public boolean apply(final WebHookAO webHookAO)
             {
                 // You can't be a duplicate of yourself.
-                if (id != null && id != webHookAO.getID())
+                if (id != null && id.equals(webHookAO.getID()))
                 {
                     return false;
                 }
@@ -86,7 +89,7 @@ public class WebHookListenerServiceImpl implements InternalWebHookListenerServic
                 {
                     return false;
                 }
-                return StringUtils.equals(WebHookListenerEventJoiner.join(events), webHookAO.getEvents());
+                return symmetricDifference(events != null ? ImmutableSet.copyOf(events) : of(), ImmutableSet.copyOf(WebHookListenerEventJoiner.split(webHookAO.getEvents()))).isEmpty();
             }
         }, null);
         return Optional.fromNullable(webhookDao);

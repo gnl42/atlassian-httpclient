@@ -1,6 +1,7 @@
 package com.atlassian.webhooks.plugin.rest;
 
 import com.atlassian.plugins.rest.common.security.jersey.AdminOnlyResourceFilter;
+import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.webhooks.plugin.ao.DelegatingWebHookListenerParameters;
@@ -18,6 +19,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -31,9 +34,11 @@ public class RegistrationResource
     private final UserManager userManager;
     private final InternalWebHookListenerService internalWebHookListenerService;
     private final WebHookListenerActionValidator webHookListenerActionValidator;
+    private final I18nResolver i18n;
 
-    public RegistrationResource(UserManager userManager, InternalWebHookListenerService internalWebHookListenerService, WebHookListenerActionValidator webHookListenerActionValidator)
+    public RegistrationResource(UserManager userManager, InternalWebHookListenerService internalWebHookListenerService, WebHookListenerActionValidator webHookListenerActionValidator, I18nResolver i18n)
     {
+        this.i18n = checkNotNull(i18n);
         this.userManager = checkNotNull(userManager);
         this.internalWebHookListenerService = checkNotNull(internalWebHookListenerService);
         this.webHookListenerActionValidator = checkNotNull(webHookListenerActionValidator);
@@ -43,11 +48,13 @@ public class RegistrationResource
     @Consumes(MediaType.APPLICATION_JSON)
     public Response register(final WebHookListenerRegistration registration, @Context final UriInfo uriInfo, @DefaultValue("false") @QueryParam("ui") boolean registeredViaUI)
     {
-        final MessageCollection messageCollection = webHookListenerActionValidator.validateWebHookAddition(registration);
+        final MessageCollection messageCollection = webHookListenerActionValidator.validateWebHookRegistration(registration);
         if (!messageCollection.isEmpty())
         {
             return status(Response.Status.BAD_REQUEST).entity(new SerializableErrorCollection(messageCollection)).build();
         }
+
+        validateUniqueRegistration(null, registration, uriInfo);
 
         final WebHookAO webHookAO = internalWebHookListenerService.addWebHookListener(registration.getName(),
                 registration.getUrl(),
@@ -86,7 +93,7 @@ public class RegistrationResource
             return status(Response.Status.NOT_FOUND).build();
         }
         final MessageCollection messageCollection =
-                webHookListenerActionValidator.validateWebHookDeletion(new DelegatingWebHookListenerParameters(webHook.get()));
+                webHookListenerActionValidator.validateWebHookRemoval(new DelegatingWebHookListenerParameters(webHook.get()));
 
         try
         {
@@ -118,6 +125,8 @@ public class RegistrationResource
             return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(messageCollection)).build();
         }
 
+        validateUniqueRegistration(id, registration, uriInfo);
+
         final Optional<WebHookAO> webHookToUpdate = internalWebHookListenerService.getWebHookListener(id);
 
         try
@@ -134,6 +143,21 @@ public class RegistrationResource
         catch (IllegalArgumentException e)
         {
             return status(Status.NOT_FOUND).build();
+        }
+    }
+
+    private void validateUniqueRegistration(Integer id, WebHookListenerRegistration registration, UriInfo uriInfo)
+    {
+        final Optional<WebHookAO> exists = internalWebHookListenerService.findWebHookListener(id,
+                registration.getUrl(),
+                registration.getEvents(),
+                registration.getParameters());
+
+        if (exists.isPresent())
+        {
+            final URI duplicateUri = uriInfo.getBaseUriBuilder().path(RegistrationResource.class).path(String.valueOf(exists.get().getID())).build();
+            final ErrorWithUri error = new ErrorWithUri(i18n.getText("webhooks.duplicate.registration"), duplicateUri);
+            throw new WebApplicationException(status(Status.CONFLICT).entity(error).build());
         }
     }
 
@@ -166,6 +190,23 @@ public class RegistrationResource
             return ok(enablementResult.get().isEnabled()).build();
         }
         return status(Status.NOT_FOUND).build();
+    }
+
+    @SuppressWarnings ("UnusedDeclaration")
+    @XmlRootElement
+    private static class ErrorWithUri
+    {
+        @XmlElement
+        private String errorMessage;
+
+        @XmlElement
+        private URI uri;
+
+        public ErrorWithUri(final String errorMessage, final URI uri)
+        {
+            this.errorMessage = errorMessage;
+            this.uri = uri;
+        }
     }
 
 }

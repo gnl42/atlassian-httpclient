@@ -10,5 +10,4 @@ import com.atlassian.webhooks.spi.provider.WebHookListener;
 public interface WebHookListenerProvider
 {
     Iterable<WebHookListener> getListeners(final WebHookEvent webHookEvent);
-
 }
