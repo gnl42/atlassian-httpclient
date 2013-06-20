@@ -1,13 +1,11 @@
 package com.atlassian.webhooks.plugin.service;
 
-import com.atlassian.event.api.EventListener;
 import com.atlassian.plugin.event.PluginEventListener;
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.webhooks.plugin.PluginProperties;
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
 import com.atlassian.webhooks.plugin.event.WebHookEventDispatcher;
 import com.atlassian.webhooks.plugin.manager.WebHookListenerManager;
-import com.atlassian.webhooks.spi.provider.cache.ClearWebHookListenerCacheEvent;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -17,7 +15,7 @@ import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class WebHookListenerServiceImpl implements WebHookListenerService
+public class WebHookListenerServiceImpl implements InternalWebHookListenerService
 {
     private final WebHookListenerCache webHookListenerCache;
     private final WebHookListenerManager webHookListenerManager;
@@ -33,7 +31,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     @Override
-    public WebHookAO addWebHook(String name, String targetUrl, Iterable<String> events, String parameters, WebHookListenerManager.WebHookListenerRegistrationMethod registrationMethod)
+    public WebHookAO addWebHookListener(String name, String targetUrl, Iterable<String> events, String parameters, WebHookListenerManager.WebHookListenerRegistrationMethod registrationMethod)
     {
         checkNotNull(name);
         checkNotNull(targetUrl);
@@ -46,7 +44,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     @Override
-    public WebHookAO updateWebHook(int id, String name, String targetUrl, Iterable<String> events, String parameters, boolean enabled)
+    public WebHookAO updateWebHookListener(int id, String name, String targetUrl, Iterable<String> events, String parameters, boolean enabled)
     {
         checkNotNull(name);
         checkNotNull(targetUrl);
@@ -59,7 +57,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     @Override
-    public void removeWebHook(int id) throws IllegalArgumentException
+    public void removeWebHookListener(int id) throws IllegalArgumentException
     {
         Optional<WebHookAO> removedWebHook = webHookListenerCache.remove(id);
         webHookEventDispatcher.webHookDeleted(removedWebHook.get());
@@ -67,13 +65,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     @Override
-    public Optional<WebHookAO> getWebHook(int id)
-    {
-        return webHookRetrievalStrategy.get(id);
-    }
-
-    @Override
-    public Optional<WebHookAO> find(final Integer id, final String url, final Iterable<String> events, final String parameters)
+    public Optional<WebHookAO> findWebHookListener(final Integer id, final String url, final Iterable<String> events, final String parameters)
     {
         final WebHookAO webhookDao = Iterables.find(webHookRetrievalStrategy.getAll(), new Predicate<WebHookAO>()
         {
@@ -101,7 +93,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     @Override
-    public Optional<WebHookAO> enableWebHook(int id, boolean flag)
+    public Optional<WebHookAO> enableWebHookListener(int id, boolean flag)
     {
         Optional<WebHookAO> webHook = webHookListenerManager.enableWebHook(id, flag);
         if (webHook.isPresent())
@@ -121,7 +113,13 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     @Override
-    public Iterable<WebHookAO> getAllWebHooks()
+    public Optional<WebHookAO> getWebHookListener(int id)
+    {
+        return webHookRetrievalStrategy.get(id);
+    }
+
+    @Override
+    public Iterable<WebHookAO> getAllWebHookListeners()
     {
         return webHookRetrievalStrategy.getAll();
     }
@@ -136,9 +134,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
         }
     }
 
-    @EventListener
-    @SuppressWarnings("unused")
-    public final void onClearCacheEvent(final ClearWebHookListenerCacheEvent clearCacheEvent)
+    public void clearWebHookListenerCache()
     {
         webHookListenerCache.clear();
         webHookRetrievalStrategy = ACTIVE_OBJECT_WEB_HOOK_RETRIEVAL_STRATEGY;

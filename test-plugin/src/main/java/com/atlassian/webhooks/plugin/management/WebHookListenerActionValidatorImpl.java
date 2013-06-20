@@ -13,9 +13,9 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
     {
         if (registrationParameters.getName().equals("Filip's webhook"))
         {
-            return new DefaultMessageCollection(new DefaultMessage("We're not adding WebHook from Filip", null));
+            return new ErrorMessageCollection(new ErrorMessage("We're not adding WebHook from Filip"));
         }
-        return new DefaultMessageCollection();
+        return ErrorMessageCollection.emptyErrorMessageCollection();
     }
 
 
@@ -24,9 +24,9 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
     {
         if (registrationParameters.getName().equals("Seb's webhook"))
         {
-            return new DefaultMessageCollection(new DefaultMessage("Seb is not allowed to update WebHooks", null));
+            return new ErrorMessageCollection(new ErrorMessage("Seb is not allowed to updateWebHookListener WebHooks"));
         }
-        return new DefaultMessageCollection();
+        return ErrorMessageCollection.emptyErrorMessageCollection();
     }
 
     @Override
@@ -34,8 +34,8 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
     {
         if (registrationParameters.getName().equals("Jonathon's webhook"))
         {
-            return new DefaultMessageCollection(new DefaultMessage("Jonathon's webhook are to important to remove them", null));
+            return new ErrorMessageCollection(new ErrorMessage("Jonathon's webhook are to important to remove them"));
         }
-        return new DefaultMessageCollection();
+        return ErrorMessageCollection.emptyErrorMessageCollection();
     }
 }

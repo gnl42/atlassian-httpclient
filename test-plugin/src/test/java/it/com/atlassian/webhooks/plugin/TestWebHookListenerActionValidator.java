@@ -49,7 +49,7 @@ public class TestWebHookListenerActionValidator
         final HttpResponse updateResponse = update("Seb's webhook", self);
         final String responseText = CharStreams.toString(new InputStreamReader(updateResponse.getEntity().getContent()));
         assertThat(updateResponse.getStatusLine().getStatusCode(), is(400));
-        assertThat(responseText, containsString("Seb is not allowed to update WebHooks"));
+        assertThat(responseText, containsString("Seb is not allowed to updateWebHookListener WebHooks"));
     }
 
     @Test

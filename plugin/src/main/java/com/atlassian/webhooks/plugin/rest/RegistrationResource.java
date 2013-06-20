@@ -3,10 +3,10 @@ package com.atlassian.webhooks.plugin.rest;
 import com.atlassian.plugins.rest.common.security.jersey.AdminOnlyResourceFilter;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.sal.api.user.UserManager;
-import com.atlassian.webhooks.plugin.ao.DelegatingWebHookListenerRegistrationParameters;
+import com.atlassian.webhooks.plugin.ao.DelegatingWebHookListenerParameters;
 import com.atlassian.webhooks.plugin.ao.WebHookAO;
 import com.atlassian.webhooks.plugin.manager.WebHookListenerManager;
-import com.atlassian.webhooks.plugin.service.WebHookListenerService;
+import com.atlassian.webhooks.plugin.service.InternalWebHookListenerService;
 import com.atlassian.webhooks.spi.provider.WebHookListenerActionValidator;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -29,13 +29,13 @@ import static javax.ws.rs.core.Response.*;
 public class RegistrationResource
 {
     private final UserManager userManager;
-    private final WebHookListenerService webHookListenerService;
+    private final InternalWebHookListenerService internalWebHookListenerService;
     private final WebHookListenerActionValidator webHookListenerActionValidator;
 
-    public RegistrationResource(UserManager userManager, WebHookListenerService webHookListenerService, WebHookListenerActionValidator webHookListenerActionValidator)
+    public RegistrationResource(UserManager userManager, InternalWebHookListenerService internalWebHookListenerService, WebHookListenerActionValidator webHookListenerActionValidator)
     {
         this.userManager = checkNotNull(userManager);
-        this.webHookListenerService = checkNotNull(webHookListenerService);
+        this.internalWebHookListenerService = checkNotNull(internalWebHookListenerService);
         this.webHookListenerActionValidator = checkNotNull(webHookListenerActionValidator);
     }
 
@@ -49,9 +49,7 @@ public class RegistrationResource
             return status(Response.Status.BAD_REQUEST).entity(new SerializableErrorCollection(messageCollection)).build();
         }
 
-        // TODO validate unique registrations
-
-        final WebHookAO webHookAO = webHookListenerService.addWebHook(registration.getName(),
+        final WebHookAO webHookAO = internalWebHookListenerService.addWebHookListener(registration.getName(),
                 registration.getUrl(),
                 registration.getEvents(),
                 registration.getParameters(),
@@ -66,7 +64,7 @@ public class RegistrationResource
     @Path("{id}")
     public Response getWebHook(@PathParam ("id") final int id, @Context final UriInfo uriInfo)
     {
-        final Optional<WebHookAO> webhook = webHookListenerService.getWebHook(id);
+        final Optional<WebHookAO> webhook = internalWebHookListenerService.getWebHookListener(id);
         if (!webhook.isPresent())
         {
             return status(Response.Status.NOT_FOUND).build();
@@ -82,19 +80,19 @@ public class RegistrationResource
     @Path("{id}")
     public Response deleteWebHook(@PathParam("id") final int id)
     {
-        final Optional<WebHookAO> webHook = webHookListenerService.getWebHook(id);
+        final Optional<WebHookAO> webHook = internalWebHookListenerService.getWebHookListener(id);
         if (!webHook.isPresent())
         {
             return status(Response.Status.NOT_FOUND).build();
         }
         final MessageCollection messageCollection =
-                webHookListenerActionValidator.validateWebHookDeletion(new DelegatingWebHookListenerRegistrationParameters(webHook.get()));
+                webHookListenerActionValidator.validateWebHookDeletion(new DelegatingWebHookListenerParameters(webHook.get()));
 
         try
         {
             if (messageCollection.isEmpty())
             {
-                webHookListenerService.removeWebHook(id);
+                internalWebHookListenerService.removeWebHookListener(id);
                 return noContent().build();
             }
             else
@@ -120,11 +118,11 @@ public class RegistrationResource
             return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(messageCollection)).build();
         }
 
-        final Optional<WebHookAO> webHookToUpdate = webHookListenerService.getWebHook(id);
+        final Optional<WebHookAO> webHookToUpdate = internalWebHookListenerService.getWebHookListener(id);
 
         try
         {
-            final WebHookAO webhookDao = webHookListenerService.updateWebHook(id,
+            final WebHookAO webhookDao = internalWebHookListenerService.updateWebHookListener(id,
                     registration.getName(),
                     registration.getUrl(),
                     registration.getEvents(),
@@ -142,7 +140,7 @@ public class RegistrationResource
     @GET
     public Response getAllWebHooks(@Context final UriInfo uriInfo)
     {
-        final Iterable<WebHookAO> webHooks = webHookListenerService.getAllWebHooks();
+        final Iterable<WebHookAO> webHooks = internalWebHookListenerService.getAllWebHookListeners();
         return ok(
                 Iterables.transform(webHooks, new Function<WebHookAO, Object>()
                 {
@@ -162,7 +160,7 @@ public class RegistrationResource
     {
         boolean enabledFlag = Boolean.parseBoolean(enabled);
 
-        final Optional<WebHookAO> enablementResult = webHookListenerService.enableWebHook(id, enabledFlag);
+        final Optional<WebHookAO> enablementResult = internalWebHookListenerService.enableWebHookListener(id, enabledFlag);
         if (enablementResult.isPresent())
         {
             return ok(enablementResult.get().isEnabled()).build();

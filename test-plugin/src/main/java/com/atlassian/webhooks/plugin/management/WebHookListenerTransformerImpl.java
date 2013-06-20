@@ -1,8 +1,9 @@
 package com.atlassian.webhooks.plugin.management;
 
 import com.atlassian.webhooks.spi.provider.WebHookListener;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookListenerTransformer;
-import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
+import com.google.common.base.Optional;
 
 import java.net.URI;
 
@@ -11,9 +12,9 @@ import java.net.URI;
 public class WebHookListenerTransformerImpl implements WebHookListenerTransformer
 {
     @Override
-    public WebHookListener transform(final WebHookListenerRegistrationParameters webHookConsumerModel)
+    public Optional<WebHookListener> transform(final WebHookListenerParameters webHookListenerParameters)
     {
-        return new WebHookListener()
+        return Optional.<WebHookListener>of(new WebHookListener()
         {
             @Override
             public String getPluginKey()
@@ -24,13 +25,13 @@ public class WebHookListenerTransformerImpl implements WebHookListenerTransforme
             @Override
             public URI getPath()
             {
-                return URI.create(webHookConsumerModel.getUrl());
+                return URI.create(webHookListenerParameters.getUrl());
             }
 
             @Override
             public Object getListenerParameters()
             {
-                final String parameters = webHookConsumerModel.getParameters();
+                final String parameters = webHookListenerParameters.getParameters();
                 if (parameters.contains(":"))
                 {
                     return new RefAppListenerParameters(parameters.substring(0, parameters.indexOf(':')), parameters.substring(parameters.indexOf(':') + 1));
@@ -46,7 +47,7 @@ public class WebHookListenerTransformerImpl implements WebHookListenerTransforme
             {
                 return json;
             }
-        };
+        });
     }
 
     public static final class RefAppListenerParameters

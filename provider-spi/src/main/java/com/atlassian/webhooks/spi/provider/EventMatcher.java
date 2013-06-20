@@ -1,7 +1,7 @@
 package com.atlassian.webhooks.spi.provider;
 
 /**
- * Matches an event for publication to web hook listeners
+ * Matches an event for publication with parameters of a WebHook listener.
  */
 public interface EventMatcher<T>
 {
@@ -14,10 +14,10 @@ public interface EventMatcher<T>
     static final EventMatcher<Object> ALWAYS_FALSE = new AlwaysFalseEventMatcher();
 
     /**
-     * Tells whether the fired event matches the web hook registration.
+     * Tells whether the WebHook listener wants to accept a WebHook for the fired event.
      *
-     * @param event the event being fired, associated to the web hook.
-     * @param listenerParameters the params of the consumer listening to the web hook.
+     * @param event the event being fired, associated to the WebHook.
+     * @param listenerParameters the params of the listener waiting for the WebHook.
      * @return {@code true} if this event matches the web hook registration, {@code false} otherwise.
      */
     boolean matches(T event, Object listenerParameters);

@@ -3,11 +3,15 @@ package com.atlassian.webhooks.plugin;
 import com.atlassian.osgi.tracker.WaitableServiceTrackerCustomizer;
 import com.atlassian.osgi.tracker.WaitableServiceTrackerFactory;
 import com.atlassian.webhooks.spi.provider.WebHookListener;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookListenerTransformer;
-import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
+import com.google.common.base.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Finds the delegates transformation to {@link WebHookListenerTransformer} found in the bundleContext.
+ */
 public class OsgiWebHookListenerTransformer implements WebHookListenerTransformer
 {
     private WebHookListenerTransformer webHookListenerTransformer;
@@ -18,9 +22,9 @@ public class OsgiWebHookListenerTransformer implements WebHookListenerTransforme
     }
 
     @Override
-    public WebHookListener transform(final WebHookListenerRegistrationParameters webHookListenerModel)
+    public Optional<WebHookListener> transform(final WebHookListenerParameters webHookListenerParameters)
     {
-        return webHookListenerTransformer.transform(webHookListenerModel);
+        return webHookListenerTransformer.transform(webHookListenerParameters);
     }
 
     private final class WebHookModelTransformerWaitableServiceTrackerCustomizer implements WaitableServiceTrackerCustomizer<WebHookListenerTransformer>

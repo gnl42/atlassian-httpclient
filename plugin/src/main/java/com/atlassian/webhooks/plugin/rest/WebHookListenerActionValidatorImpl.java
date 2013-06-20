@@ -36,7 +36,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
         }
         else
         {
-            return new DefaultMessageCollection();
+            return ErrorMessageCollection.emptyErrorMessageCollection();
         }
     }
 
@@ -58,7 +58,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
         }
         else
         {
-            return new DefaultMessageCollection();
+            return ErrorMessageCollection.emptyErrorMessageCollection();
         }
     }
 
@@ -80,7 +80,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
         }
         else
         {
-            return new DefaultMessageCollection();
+            return ErrorMessageCollection.emptyErrorMessageCollection();
         }
     }
 }

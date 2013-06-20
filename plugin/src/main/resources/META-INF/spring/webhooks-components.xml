@@ -32,7 +32,7 @@
                 </beans:bean>
                 <beans:ref bean="moduleDescriptorWebHookRegistry" />
                 <beans:bean class="com.atlassian.webhooks.plugin.PersistentWebHookListenerProvider">
-                    <beans:constructor-arg index="0" ref="webHookListenerService" />
+                    <beans:constructor-arg index="0" ref="internalWebHookListenerService" />
                     <beans:constructor-arg index="1" ref="osgiWebHookModelTransformer" />
                 </beans:bean>
             </beans:list>
@@ -59,7 +59,7 @@
         <beans:constructor-arg index="0" ref="webHookListenerManager" />
     </beans:bean>
 
-    <beans:bean id="webHookListenerService" class="com.atlassian.webhooks.plugin.service.WebHookListenerServiceImpl">
+    <beans:bean id="internalWebHookListenerService" class="com.atlassian.webhooks.plugin.service.WebHookListenerServiceImpl">
         <beans:constructor-arg index="0" ref="webHookLIstenerCache" />
         <beans:constructor-arg index="1" ref="webHookListenerManager" />
         <beans:constructor-arg index="2" ref="webHookEventDispatcher" />

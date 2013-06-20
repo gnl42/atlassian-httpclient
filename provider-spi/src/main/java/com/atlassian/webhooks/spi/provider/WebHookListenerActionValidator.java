@@ -2,6 +2,7 @@ package com.atlassian.webhooks.spi.provider;
 
 import com.atlassian.sal.api.message.Message;
 import com.atlassian.sal.api.message.MessageCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.io.Serializable;
@@ -15,23 +16,40 @@ public interface WebHookListenerActionValidator
 
     MessageCollection validateWebHookDeletion(WebHookListenerRegistrationParameters registrationParameters);
 
-    static final class DefaultMessageCollection implements MessageCollection
+    static final class ErrorMessageCollection implements MessageCollection
     {
-        private List<Message> messages = Lists.newArrayList();
+        private List<Message> messages;
 
-        public DefaultMessageCollection(Message defaultMessage)
+        public static ErrorMessageCollection emptyErrorMessageCollection()
         {
+            return new ErrorMessageCollection(ImmutableList.<Message>of());
+        }
+
+        private ErrorMessageCollection(List<Message> messages)
+        {
+            this.messages = messages;
+        }
+
+        public ErrorMessageCollection()
+        {
+            this(Lists.<Message>newArrayList());
+        }
+
+        public ErrorMessageCollection(Message defaultMessage)
+        {
+            this();
             addMessage(defaultMessage);
         }
 
-        public DefaultMessageCollection()
+        public ErrorMessageCollection(String message)
         {
+            this(new ErrorMessage(message));
         }
 
         @Override
         public void addMessage(String key, Serializable... arguments)
         {
-            addMessage(new DefaultMessage(key, arguments));
+            addMessage(new ErrorMessage(key, arguments));
         }
 
         @Override
@@ -59,21 +77,26 @@ public interface WebHookListenerActionValidator
         }
     }
 
-    static final class DefaultMessage implements Message
+    static final class ErrorMessage implements Message
     {
-        private final String key;
+        private final String message;
         private final Serializable[] arguments;
 
-        public DefaultMessage(String key, Serializable[] arguments)
+        public ErrorMessage(String message, Serializable[] arguments)
         {
-            this.key = key;
+            this.message = message;
             this.arguments = arguments;
+        }
+
+        public ErrorMessage(String message)
+        {
+            this(message, null);
         }
 
         @Override
         public String getKey()
         {
-            return key;
+            return message;
         }
 
         @Override

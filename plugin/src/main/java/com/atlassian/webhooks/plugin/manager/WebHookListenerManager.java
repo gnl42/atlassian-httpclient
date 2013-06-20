@@ -8,17 +8,17 @@ import java.util.Collection;
 
 public interface WebHookListenerManager
 {
-
     public enum WebHookListenerRegistrationMethod
     {
         REST,
         UI,
+        SERVICE
     }
 
     WebHookAO addWebHook(@NotNull String name, @NotNull String targetUrl, @NotNull String events, String params, WebHookListenerRegistrationMethod registrationMethod);
 
     /**
-     * Updates existing webhook, returning the new object.
+     * Updates existing WebHook listener and returns the newly created WebHook.
      *
      * @param id webhook id
      * @param name webhook name

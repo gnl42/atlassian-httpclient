@@ -3,17 +3,13 @@ package com.atlassian.webhooks.plugin;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedAnalyticsEvent;
 import com.atlassian.webhooks.plugin.event.WebHookPublishedAnalyticsEvent;
-import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
+import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.atlassian.webhooks.spi.provider.WebHookPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

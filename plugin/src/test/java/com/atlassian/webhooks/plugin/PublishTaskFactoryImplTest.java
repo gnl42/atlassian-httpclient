@@ -9,12 +9,13 @@ import org.mockito.Mockito;
 
 import java.net.URI;
 
-public class PublishTaskFactoryImplTest {
-
+public class PublishTaskFactoryImplTest
+{
     private static final int TEN_MINUTES = 60 * 10 * 1000;
 
     @Test
-    public void testUriParametersParse() {
+    public void testUriParametersParse()
+    {
         PublishTaskFactoryImpl.PublishTaskImpl publishTask = createDefaultPublishTask(
                 "http://poszter.herokuapp.com/?thisShouldStayInUrl",
                 "admin");
@@ -24,7 +25,8 @@ public class PublishTaskFactoryImplTest {
     }
 
     @Test
-    public void testUriParametersAndFragmentParse() {
+    public void testUriParametersAndFragmentParse()
+    {
         PublishTaskFactoryImpl.PublishTaskImpl publishTask = createDefaultPublishTask(
                 "http://poszter.herokuapp.com/?thisShouldStayInUrl#ThisShouldGone",
                 "admin");
@@ -33,16 +35,12 @@ public class PublishTaskFactoryImplTest {
         Assert.assertEquals("http://poszter.herokuapp.com/?thisShouldStayInUrl&user_id=admin", uri.toString());
     }
 
-    /////////////////////////////////////////////////////////////////////////////
-
-    private PublishTaskFactoryImpl.PublishTaskImpl createDefaultPublishTask(String uri, String userName) {
+    private PublishTaskFactoryImpl.PublishTaskImpl createDefaultPublishTask(String uri, String userName)
+    {
         String body = "Mock Webhook Event";
         URI uriObj = URI.create(uri);
-        return new PublishTaskFactoryImpl.PublishTaskImpl(Mockito.mock(HttpClient.class),
-            Mockito.mock(RequestSigner.class),
+        return new PublishTaskFactoryImpl.PublishTaskImpl(Mockito.mock(HttpClient.class), Mockito.mock(RequestSigner.class),
                 new TokenBucket(1, TEN_MINUTES, 5), Mockito.mock(WebHookListener.class),
-            uriObj,
-            userName,
-            body);
+                uriObj, userName, body);
     }
 }

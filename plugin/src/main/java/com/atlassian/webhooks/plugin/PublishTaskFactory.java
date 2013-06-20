@@ -1,7 +1,7 @@
 package com.atlassian.webhooks.plugin;
 
-import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
+import com.atlassian.webhooks.spi.provider.WebHookListener;
 
 public interface PublishTaskFactory
 {

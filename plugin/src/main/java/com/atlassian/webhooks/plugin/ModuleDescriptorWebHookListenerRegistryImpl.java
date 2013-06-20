@@ -1,9 +1,9 @@
 package com.atlassian.webhooks.plugin;
 
-import com.atlassian.webhooks.spi.provider.PluginModuleListenerParameters;
 import com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookListenerRegistry;
-import com.atlassian.webhooks.spi.provider.WebHookListener;
+import com.atlassian.webhooks.spi.provider.PluginModuleListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
+import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;

@@ -60,53 +60,53 @@ public class WebHookListenerServiceTest
     @Test
     public void testWebHookRegistration()
     {
-        final WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
+        final WebHookAO webHookAO = webHookListenerService.addWebHookListener(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
 
         assertNotNull(webHookAO);
 
-        final Optional<WebHookAO> exists = webHookListenerService.find(null, TARGET_URL, EVENTS, PARAMETERS);
+        final Optional<WebHookAO> exists = webHookListenerService.findWebHookListener(null, TARGET_URL, EVENTS, PARAMETERS);
         assertSame(webHookAO.getID(), exists.get().getID());
     }
 
     @Test
     public void testWebHookRegistrationAndUpdate()
     {
-        WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
+        WebHookAO webHookAO = webHookListenerService.addWebHookListener(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
 
-        final Optional<WebHookAO> exists = webHookListenerService.find(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS);
+        final Optional<WebHookAO> exists = webHookListenerService.findWebHookListener(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS);
         assertSame(webHookAO.getID(), exists.get().getID());
 
-        webHookListenerService.updateWebHook(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, Lists.newArrayList("rebel_lost_event"), PARAMETERS, true);
-        assertFalse("We are not listening on rebel_lost_event. We want the rebel captured.", webHookListenerService.find(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS).isPresent());
+        webHookListenerService.updateWebHookListener(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, Lists.newArrayList("rebel_lost_event"), PARAMETERS, true);
+        assertFalse("We are not listening on rebel_lost_event. We want the rebel captured.", webHookListenerService.findWebHookListener(webHookAO.getID(), TARGET_URL, EVENTS, PARAMETERS).isPresent());
     }
 
     @Test
     public void testFindingWebHookWithDifferentUrl()
     {
-        WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
+        WebHookAO webHookAO = webHookListenerService.addWebHookListener(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
 
-        assertFalse("Messages about capture of Han Solo should go to SuperStar Destroyer", webHookListenerService.find(null, "http://www.death-star.com.empire", EVENTS, PARAMETERS).isPresent());
+        assertFalse("Messages about capture of Han Solo should go to SuperStar Destroyer", webHookListenerService.findWebHookListener(null, "http://www.death-star.com.empire", EVENTS, PARAMETERS).isPresent());
     }
 
     @Test
     public void testFindingWebHookWithDifferentParams()
     {
-        WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
+        WebHookAO webHookAO = webHookListenerService.addWebHookListener(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
 
-        assertFalse("We want Han Solo, not Leia!", webHookListenerService.find(null, TARGET_URL, EVENTS, "rebel = 'Leia'").isPresent());
+        assertFalse("We want Han Solo, not Leia!", webHookListenerService.findWebHookListener(null, TARGET_URL, EVENTS, "rebel = 'Leia'").isPresent());
     }
 
     @Test
     public void testUpdateOfWebHookSetsUserName()
     {
-        WebHookAO webHookAO = webHookListenerService.addWebHook(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
+        WebHookAO webHookAO = webHookListenerService.addWebHookListener(WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, WebHookListenerManager.WebHookListenerRegistrationMethod.REST);
         assertNotNull(webHookAO);
         when(userManager.getRemoteUsername()).thenReturn("IG-88");
 
-        WebHookAO updatedWebHook = webHookListenerService.updateWebHook(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, true);
+        WebHookAO updatedWebHook = webHookListenerService.updateWebHookListener(webHookAO.getID(), WEBHOOK_NAME, TARGET_URL, EVENTS, PARAMETERS, true);
         assertSame("IG-88", updatedWebHook.getLastUpdatedUser());
     }
 

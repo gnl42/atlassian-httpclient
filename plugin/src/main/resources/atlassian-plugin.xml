@@ -15,6 +15,11 @@
                interface="com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookListenerRegistry"
                public="true" />
 
+    <component key="webHookListenerServiceWrapper"
+               class="com.atlassian.webhooks.plugin.api.WebHookListenerServiceAPIWrapper"
+               interface="com.atlassian.webhooks.api.provider.WebHookListenerService"
+               public="true" />
+
     <component key="pluginLauncher" class="com.atlassian.webhooks.plugin.PluginLauncher" public="true">
         <interface>org.springframework.beans.factory.InitializingBean</interface>
         <interface>org.springframework.beans.factory.DisposableBean</interface>
