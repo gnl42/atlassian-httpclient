@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package com.atlassian.httpclient.apache.httpcomponents;
+package com.atlassian.httpclient.apache.httpcomponents.cache;
 
 import org.apache.http.client.cache.HttpCacheEntry;
 
