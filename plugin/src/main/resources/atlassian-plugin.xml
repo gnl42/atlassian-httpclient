@@ -41,7 +41,8 @@
     <component-import key="jiraAuthenticationContext" interface="com.atlassian.jira.security.JiraAuthenticationContext" application="jira" />
     <component-import key="jiraVelocityRequestContextFactory" interface="com.atlassian.jira.util.velocity.VelocityRequestContextFactory" application="jira" />
     <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
-
+    <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" />
+    <component-import key="webResourceManager" interface="com.atlassian.plugin.webresource.WebResourceManager" />
     <component-import key="pluginEventManager" interface="com.atlassian.plugin.event.PluginEventManager" />
 
     <rest key="webhooksRest" path="/webhooks" version="1.0" description="Provides webhook registration services." />
@@ -52,5 +53,52 @@
     </ao>
 
     <resource type="i18n" name="i18n" location="i18n/i18n"/>
+
+    <web-item key="webhooks-admin-link" name="Webhooks Admin Link" section="system.admin/administration" weight="32">
+        <label>WebHook Admin</label>
+        <link linkId="webhooks-admin">/secure/admin/WebHooksAdmin.jspa</link>
+        <!--<condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>-->
+    </web-item>
+
+    <servlet name="Webhooks Admin Actions" key="WebHooksAdminActions"
+             class="com.atlassian.webhooks.plugin.web.WebHookAdminServlet">
+        <description>List configured entity links for a specific entity</description>
+        <url-pattern>/secure/admin/WebHooksAdmin.jspa*</url-pattern>
+    </servlet>
+
+    <web-resource key="webhooks-resources">
+
+        <transformation extension="less">
+            <transformer key="lessTransformer"/>
+        </transformation>
+
+        <context>atl.plugins.webhooks.admin</context>
+
+        <!--<dependency>jira.webresources:jira-global</dependency>-->
+
+        <resource type="download" name="atlassian-webhooks.css" location="/css/atlassian-webhooks.less">
+            <property key="content-type" value="text/css"/>
+        </resource>
+    </web-resource>
+
+    <web-resource key="webhooks-admin-resources">
+        <context>atl.plugins.webhooks.admin</context>
+
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:ajs-underscorejs</dependency>
+        <dependency>com.atlassian.soy.soy-template-plugin:soy-deps</dependency>
+
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <transformation extension="soy">
+            <transformer key="soyTransformer"/>
+        </transformation>
+
+        <resource type="download" name="backbone.js" location="/js/3rdparty/backbone-0.9.2-min.js" />
+
+        <resource type="download" name="webhooks-admin-templates.js" location="/soy/webhooks-admin-templates.soy" />
+        <resource type="download" name="webhooks-admin.js" location="/js/webhooks-admin.js" />
+    </web-resource>
 
 </atlassian-plugin>

@@ -23,9 +23,13 @@
     <component key="testWebHookProvider" class="com.atlassian.webhooks.plugin.test.TestWebHookProvider"
                interface="com.atlassian.webhooks.spi.provider.WebHookProvider" public="true" />
 
+    <component key="testWebHookUI" class="com.atlassian.webhooks.plugin.test.ui.TestWebHookUIItem"
+               interface="com.atlassian.webhooks.spi.provider.WebHookUIItem" public="true" />
+
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
     <component-import key="httpClient" interface="com.atlassian.httpclient.api.HttpClient"/>
+    <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" />
 
     <!-- Refapp -->
     <component key="checkThreadContextRefapp" class="com.atlassian.webhooks.plugin.test.refapp.CheckThreadContextRefapp"
@@ -46,4 +50,12 @@
 
     <component key="webHookListenerTransformer" public="true" class="com.atlassian.webhooks.plugin.management.WebHookListenerTransformerImpl"
                interface="com.atlassian.webhooks.spi.provider.WebHookListenerTransformer" />
+
+    <web-resource key="webhooks-admin-resources">
+        <context>atl.plugins.webhooks.admin</context>
+        <dependency>atlassian-webhooks-plugin:webhooks-admin-resources</dependency>
+
+        <resource type="download" name="test-webhooks.js" location="/js/test-webhooks.js" />
+    </web-resource>
+
 </atlassian-plugin>

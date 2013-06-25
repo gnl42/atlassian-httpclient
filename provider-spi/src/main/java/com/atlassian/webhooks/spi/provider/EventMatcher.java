@@ -22,7 +22,6 @@ public interface EventMatcher<T>
      */
     boolean matches(T event, Object listenerParameters);
 
-
     static final class AlwaysTrueEventMatcher implements EventMatcher<Object>
     {
         @Override

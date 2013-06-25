@@ -1,0 +1,25 @@
+{namespace atl.plugins.webhooks.admin.templates}
+
+/**
+ * Render single WebHook information row contents (no <tr /> please, wrapped by Backbone).
+ * @param name the name of the webhook
+ * @param url the url that the webhook calls
+ */
+{template .webhookRow}
+<td>
+	<dl>
+		<dt>
+		    <span class="webhook-row-name">{$name}</span>
+		    {sp}<span class="webhook-disabled-info">({getText('webhooks.admin.disabled')})</span>
+		</dt>
+		<dd ><a class="webhook-row-url" href="{$url}">{$url}</a></dd>
+	</dl>
+</td>
+<td class="operations-container">
+    <div class="operations-list">
+        <a class="webhook-operation-delete" href="#"><span class="icon icon-delete"/></a>
+    </div>
+</td>
+{/template}
+
+

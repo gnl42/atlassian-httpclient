@@ -1,0 +1,11 @@
+<div class="field-group">
+    <label for="webhook-events-list">Events</label>
+    <ul id="webhook-events-list" class="events-list field-value" >
+        <input type="checkbox" data-event-type="death_star_destroyed_event" /> Death star destroyed event<br/>
+        <input type="checkbox" data-event-type="rebel_captured_event"/> Rebel captured event
+    </ul>
+</div>
+<div class="field-group">
+    <label for="death-star-parameters">Captured/destroyed name</label>
+    <input type="text" id="death-star-parameters" />
+</div>

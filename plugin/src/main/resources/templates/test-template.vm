@@ -1,0 +1,143 @@
+## TODO REMOVE
+
+##$webResourceManager.requireResourcesForContext('atl.plugins.webhooks.admin')
+<html>
+<head>
+    <title>$i18n.getText('webhooks.admin.title')</title>
+    <meta name="decorator" content="atl.admin" />
+    <meta name="admin.active.section" content="admin_system_menu/advanced_menu_section/advanced_section"/>
+    <meta name="admin.active.tab" content="webhooks-admin"/>
+</head>
+<body>
+<div class="webhooks">
+##    data-event-name-mappings="$action.eventNameMappings" data-all-events-key="$action.allEventsKey" data-no-events-key="$action.noEventsKey">
+
+    <header>
+        <nav class="aui-toolbar">
+            <div class="toolbar-split toolbar-split-right">
+                <ul class="toolbar-group">
+                    <li class="toolbar-item">
+                        <a id="add-webhook" class="toolbar-trigger" href="#">
+                            <span class="icon icon-add16"></span>
+                            $i18n.getText('webhooks.admin.add')
+                        </a>
+                    </li>
+                    <li class="toolbar-item">
+                        <a id="webhook-help" class="toolbar-trigger" title="$action.getHelpPath('admin.webhooks').getTitle()" href="$action.getHelpPath('admin.webhooks').getUrl()" target="_jirahelp"><span class="aui-icon aui-icon-help"></span></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+##        <h2>$i18n.getText('webhooks.admin.title')</h2>
+    </header>
+    <p>$i18n.getText('webhooks.admin.description')</p>
+    <div class="aui-message info on-webhooks-absent hidden">
+        <span class="aui-icon icon-info"></span>$i18n.getText("webhooks.admin.noneconfigured")
+    </div>
+    <div class="aui-group webhooks-container on-webhooks-present hidden">
+        <div class="aui-item webhook-list">
+            <table class="aui split-listing aui-table-rowhover event-webhooks">
+                <thead>
+                <tr>
+                    <th>$i18n.getText('webhooks.admin.column.webhooks')</th>
+                    <th class="operations"></th>
+                </tr>
+                </thead>
+            #* tbody generated with Backbone View will go here *#
+            </table>
+        </div>
+        <div class="aui-item webhook-details">
+            <form action="#" class="aui display-mode-display">
+				<h2 id="webhook-name-display" class="display-mode-display"></h2>
+				<div id="webhook-global-message" class="error display-mode-edit"></div>
+				<div class="field-group display-mode-edit">
+					<label for="webhook-name">$i18n.getText('common.concepts.name')<span class="aui-icon icon-required display-mode-edit"><span>$i18n.getText('AUI.form.label.text.required')</span></span></label>
+					<input id="webhook-name" type="text" class="text full-width display-mode-edit"/>
+					<div class="error display-mode-edit"></div>
+				</div>
+				<div class="field-group">
+					<label for="webhook-url">$i18n.getText('webhooks.admin.url.label')<span class="aui-icon icon-required display-mode-edit"><span>$i18n.getText('AUI.form.label.text.required')</span></span></label>
+					<input id="webhook-url" type="text" class="text full-width display-mode-edit"/>
+					<div class="error display-mode-edit"></div>
+					<a href="#" id="webhook-url-display" class="field-value display-mode-display"></a>
+				</div>
+##				<div class="field-group">
+##					<label for="webhook-edited-by-container">$i18n.getText('webhooks.admin.updatedBy')</label>
+##					<span id="webhook-edited-by-container" class="field-value">#* <a href="/jira/secure/ViewProfile.jspa?name=admin" rel="admin" class="user-hover">Admin</a> *#</span>
+##				</div>
+##     			<div class="field-group">
+##					<label for="webhook-edited-date-container">$i18n.getText('webhooks.admin.updatedDate')</label>
+##					<span id="webhook-edited-date-container" class="field-value">#* <time datetime="2010-03-22T11:03+1100">22/Mar/10</time> *#</span>
+##				</div>
+
+                #foreach($section in $webHookUIRegistry.sections)
+                    #foreach($webHookUIItem in $webHookUIRegistry.getItems($section))
+                        $webHookUIItem.getHtml()
+                    #end
+                #end
+
+## TODO pluggable
+## 			 	<div class="field-group">
+##					 <label for="webhook-jql">$i18n.getText('webhooks.admin.jql.label')</label>
+##					 <span id="webhook-jql-display" class="field-value display-mode-display"></span>
+##					 <div id="webhook-jql-autocomplete" class="atlassian-autocomplete display-mode-edit">
+##						 #if ($action.autocompleteEnabled)<span id="jqlerrormsg" class="icon jqlgood display-mode-edit"></span>#end
+##						 #* using span for overlabel because <label> gets styled heavily in field-group *#
+##						 <span id="webhook-jql-overlabel" for="webhook-jql" class="overlabel display-mode-edit">$i18n.getText('webhooks.admin.jql.empty')</span>
+##						 <textarea id="webhook-jql" class="search-entry advanced-search text full-width display-mode-edit" name="jql"></textarea>
+##						 <div class="error display-mode-edit"></div>
+####						 <a target="_jirahelp" class="display-mode-edit" title="$action.getHelpPath('advanced_search').getTitle()" href="$action.getHelpPath('advanced_search').getUrl()">$i18n.getText('webhooks.admin.jql.syntaxhelp')</a>
+##					 </div>
+##					 <div class="description display-mode-edit">$i18n.getText('webhooks.admin.jql.description')</div>
+##				 </div>
+##				<div class="field-group display-mode-display">
+##					<label for="webhook-events-list">$i18n.getText('admin.notifications.events')</label>
+##					<ul id="webhook-events-list" class="events-list field-value"></ul>
+##				</div>
+##
+##				<fieldset class="group display-mode-edit">
+##					<legend><span>$i18n.getText('admin.notifications.events')</span></legend>
+##
+##					<div class="checkbox">
+##						<input class="checkbox" type="checkbox" id="all-events-checkbox" name="all-events">
+##						<label for="all-events-checkbox">$i18n.getText('webhooks.admin.events.allevents')</label>
+##					</div>
+##					<div class="webhook-explicit-events">
+##						<div class="long-field">
+##							#set ($count = 0)
+##						#foreach($event in $action.events)
+##							#set ($count = $count + 1)
+##							<div class="checkbox">
+##								<input class="checkbox" type="checkbox" id="event-checkbox-${count}" name="$event.displayName" value="$event.value">
+##								<label for="event-checkbox-${count}">$event.displayName</label>
+##							</div>
+##						#end
+##
+##					</div>
+##					</div>
+##				</fieldset>
+##				<fieldset class="hidden parameters">
+##					<input type="hidden" title="autocompleteEnabled" value="$action.autocompleteEnabled"/>
+##				</fieldset>
+##                TODO replace with plugin
+##				<div id="jqlFieldz" style="display:none;">$textutils.htmlEncode($action.visibleFieldNamesJson)</div>
+##				<div id="jqlFunctionNamez" style="display:none;">$textutils.htmlEncode($action.visibleFunctionNamesJson)</div>
+##				<div id="jqlReservedWordz" style="display:none;">$textutils.htmlEncode($action.jqlReservedWordsJson)</div>
+
+				<div class="buttons-container left">
+                    <div class="buttons display-mode-display">
+						<input id="webhook-edit" type="button" class="button" value="$i18n.getText('common.words.edit')" class="button"/>
+                        <a id="webhook-delete" href="#" class="cancel">$i18n.getText('common.words.delete')</a>
+                        <a id="webhook-disable" href="#" class="cancel">$i18n.getText('admin.common.words.disable')</a>
+##                        <a id="webhook-test" href="#">$i18n.getText('admin.common.words.test')</a>
+                    </div>
+					<div class="buttons display-mode-edit">
+						#parse("/templates/accessKeys.vm")
+						<input id="webhook-submit" class="button submit" type="submit" value="$i18n.getText('common.words.save')" accesskey="${submitAccessKey}" title="${submitTitle}"/>
+						<a id="webhook-cancel" href="#" class="cancel" accesskey="${cancelAccessKey}" title="${cancelTitle}">$i18n.getText('common.words.cancel')</a>
+					</div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>

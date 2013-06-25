@@ -100,6 +100,11 @@
         <beans:constructor-arg ref="bundleContext"/>
     </beans:bean>
 
+    <!-- UI -->
+    <beans:bean id="webHookUIRegistry" class="com.atlassian.webhooks.plugin.web.WebHookUIRegistry">
+        <beans:constructor-arg index="0" ref="waitableServiceTrackerFactory" />
+    </beans:bean>
+
     <osgi:service id="pluginWebHookProvider" interface="com.atlassian.webhooks.spi.provider.WebHookProvider">
         <beans:bean class="com.atlassian.webhooks.plugin.provider.PluginWebHookProvider">
             <beans:constructor-arg ref="applicationProperties"/>
