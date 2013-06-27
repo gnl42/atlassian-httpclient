@@ -1,0 +1,134 @@
+.webhooks .atlassian-autocomplete .overlabel-apply,
+.webhooks .atlassian-autocomplete .search-entry,
+.webhooks .webhook-explicit-events {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.webhooks .webhooks-container > .aui-item {
+    border-top:1px solid #ddd;
+    padding-top:1em;
+    overflow: hidden
+}
+
+.webhooks .webhook-details {
+    border-left:1px solid #ddd;
+    width: 65%;
+}
+
+.webhooks .webhook-explicit-events {
+    width: 100%;
+}
+
+.webhooks .split-listing {
+    table-layout: fixed;
+}
+
+.webhooks .split-listing thead th + th {
+    width:50px;
+}
+
+.webhooks .split-listing tbody tr:hover {
+    cursor: pointer;
+}
+
+.webhooks .split-listing .operations-list .icon-tools {
+    display: inline-block;
+    padding:4px 7px 4px 22px;
+    vertical-align: baseline;
+    width:8px;
+}
+
+.webhooks .split-listing .operations-list .icon-tools > span {
+    padding-right: 8px;
+    text-indent: -999em;
+    text-align: left;
+}
+
+.webhooks .split-listing tr .operations-list {
+    display: none;
+}
+
+.webhooks .split-listing tr:hover .operations-list {
+    display: block;
+}
+
+.webhooks .split-listing td {
+    overflow: hidden;
+}
+
+.webhooks .split-listing .operations-container {
+    vertical-align: middle;
+    text-align: right;
+    width: 100%;
+    height: 100%;
+}
+
+
+.webhooks .atlassian-autocomplete {
+    position: relative;
+}
+
+.webhooks .atlassian-autocomplete .overlabel-apply {
+    padding: .5em .5em .5em 26px;
+    width: 100%!important;
+}
+
+.webhooks .atlassian-autocomplete .search-entry {
+    padding: .5em .5em .5em 26px;
+    min-height:48px;
+}
+
+#jqlerrormsg {
+    position: absolute;
+    top: 6px;
+    left: 4px;
+    width: 18px;
+    height: 16px;
+}
+
+.webhooks .events-list {
+    list-style: none;
+    margin:0;
+    padding:0;
+}
+
+.webhooks-detached-suggestion-container {
+    position: absolute!important;
+}
+
+.webhooks-detached-suggestion-container .suggestions {
+    width: 460px!important;
+}
+
+form.aui.display-mode-display .display-mode-edit,
+form.aui.display-mode-edit .display-mode-display {
+    display: none;
+}
+
+#webhook-jql-display,
+#webhook-url-display {
+    word-break: break-word;
+}
+
+/* overrides */
+table.aui .highlighted {
+    background-color: #F5F5F5
+}
+.buttons-container a + a::before {
+    color: #bbb;
+}
+
+.webhook-disabled .webhook-disabled-info {
+    font-style:italic;
+    display: inline;
+}
+
+.webhook-disabled-info {
+    display: none;
+}
+
+table.aui > tbody > .highlighted:first-child > td,
+table.aui > tbody > tr:first-child > .operations-container {
+    border-top: 0px;
+}

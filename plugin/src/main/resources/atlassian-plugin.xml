@@ -67,16 +67,11 @@
     </servlet>
 
     <web-resource key="webhooks-resources">
-
-        <transformation extension="less">
-            <transformer key="lessTransformer"/>
-        </transformation>
-
         <context>atl.plugins.webhooks.admin</context>
 
         <!--<dependency>jira.webresources:jira-global</dependency>-->
 
-        <resource type="download" name="atlassian-webhooks.css" location="/css/atlassian-webhooks.less">
+        <resource type="download" name="atlassian-webhooks.css" location="/css/atlassian-webhooks.css">
             <property key="content-type" value="text/css"/>
         </resource>
     </web-resource>
