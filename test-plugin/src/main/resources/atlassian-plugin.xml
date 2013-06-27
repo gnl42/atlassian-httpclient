@@ -9,13 +9,18 @@
     <junit key="all" package="com.atlassian.webhooks.plugin.junit"/>
 
     <servlet key="webHookServlet" class="com.atlassian.webhooks.plugin.test.WebHookServlet">
-        <url-pattern>/webhook*</url-pattern>
+        <url-pattern>/webhooks-test*</url-pattern>
     </servlet>
 
-    <webhook key="testWebhook" event="test_event" url="/plugins/servlet/webhook/test_event" />
-    <webhook key="annotatedWebhook" event="annotated_event" url="/plugins/servlet/webhook/annotated_event" />
-    <webhook key="pluginEnabledWebhook" event="plugin_enabled" url="/plugins/servlet/webhook/plugin_enabled" />
-    <webhook key="parameterizedWebHook" event="parameterized_event" url="/plugins/servlet/webhook/event_with_params">
+    <web-item key="webhooks-admin-link" name="Webhooks Admin Link" section="index.links" weight="30">
+        <label>WebHooks Admin</label>
+        <link linkId="webhooks-admin">/webhooks</link>
+    </web-item>
+
+    <webhook key="testWebhook" event="test_event" url="/plugins/servlet/webhooks-test/test_event" />
+    <webhook key="annotatedWebhook" event="annotated_event" url="/plugins/servlet/webhooks-test/annotated_event" />
+    <webhook key="pluginEnabledWebhook" event="plugin_enabled" url="/plugins/servlet/webhooks-test/plugin_enabled" />
+    <webhook key="parameterizedWebHook" event="parameterized_event" url="/plugins/servlet/webhooks-test/event_with_params">
         <param key="webhookParam">true</param>
     </webhook>
 
