@@ -70,10 +70,6 @@
 			this.$url = this.$el.find('.webhook-row-url');
 			this.$operationsList = this.$el.find(".operations-list");
 			var content = this.$el.find(".webhook-operations-list");
-//			new AJS.Dropdown({
-//				trigger: this.$el.find(".webhook-operations-trigger"),
-//				content: content
-//			});
 			this.$el.find(".webhook-operation-delete").click(this.deleteWebhook); // can't bind via events as Dropdown moves elements
 			this.selectionChanged(this.selectionModel, this.selectionModel.getSelected()); // handle event handlers reorder
 			this.lockChanged(this.selectionModel, this.selectionModel.isLocked());
@@ -123,16 +119,6 @@
 			this.$nameDisplay = $el.find("#webhook-name-display");
 			this.$url = $el.find("#webhook-url");
 			this.$urlDisplay = $el.find("#webhook-url-display");
-//			this.$jql = $el.find("#webhook-jql").expandOnInput();
-//			this.$jqlDisplay = $el.find("#webhook-jql-display");
-//			this.$jqlOverlabel = $el.find("#webhook-jql-overlabel").overlabel();
-//			this.$editedBy = $el.find("#webhook-edited-by-container");
-//			this.$editedDate = $el.find("#webhook-edited-date-container");
-//			this.$excludeDetails = $el.find("#webhook-exclude-details");
-//			this.$excludeDetailsDisplay = $el.find("#webhook-exclude-details-display");
-//			this.$allEventsCheckbox = $el.find("#all-events-checkbox");
-//			this.$explicitEventsContainer = $el.find(".webhook-explicit-events");
-//			this.$eventsList = $el.find("#webhook-events-list");
 			this.$toggleEnablement = $el.find("#webhook-disable");
 
 			this.selectedModel = undefined;
@@ -156,45 +142,6 @@
 				} else {
 					this.$toggleEnablement.text(AJS.I18n.getText('admin.common.words.enable'));
 				}
-
-//				var trimmedJql = AJS.$.trim(model.get("filter"));
-//				this.$jql.val(trimmedJql).trigger('refreshInputHeight').trigger('webhooks.valueChanged');
-//				this.$jqlDisplay.text(trimmedJql || AJS.I18n.getText('webhooks.admin.jql.empty'));
-//				this.$jqlOverlabel.toggleClass("hidden", !!trimmedJql);
-
-//				var lastUpdatedUserName = model.get("lastUpdatedUser");
-//				this.$editedBy.html(TEMPLATES.renderLastUpdatedUser({lastUpdatedUser: lastUpdatedUserName, lastUpdatedDisplayName: model.get("lastUpdatedDisplayName")}));
-//				this.$editedBy.closest('.field-group').toggle(!!lastUpdatedUserName);
-//
-//				var updatedDate = model.get("lastUpdatedShort");
-//				this.$editedDate.html(updatedDate);
-//				this.$editedDate.closest('.field-group').toggle(!!updatedDate);
-
-//				this.$excludeDetails.prop("checked", model.get("excludeIssueDetails"));
-//				var excludeDetailsDisplayText = model.get("excludeIssueDetails") ? AJS.I18n.getText('common.words.yes') : AJS.I18n.getText('common.words.no');
-//				this.$excludeDetailsDisplay.text(excludeDetailsDisplayText);
-
-//				var events = model.get("events");
-//                if (events.length == 0 || _.indexOf(events, ALL_EVENTS) != -1) {
-//					this.$allEventsCheckbox.attr("checked", "checked");
-//					this.$explicitEventsContainer.find("input.checkbox").removeAttr("checked");
-//					this.$eventsList.empty().append(TEMPLATES.allEvents());
-//				} else if (_.indexOf(events, NO_EVENTS) != -1) {
-//                    this.$allEventsCheckbox.removeAttr("checked", "checked");
-//                    this.$explicitEventsContainer.find("input.checkbox").removeAttr("checked");
-//                    this.$eventsList.empty().append(TEMPLATES.noEvents());
-//                } else {
-//                    this.$allEventsCheckbox.removeAttr("checked");
-//                    this.$explicitEventsContainer.show().find("input.checkbox").each(function (){
-//                        var $checkbox = AJS.$(this);
-//                        if (_.indexOf(events, $checkbox.val()) == -1) {
-//                            $checkbox.removeAttr("checked")
-//                        } else {
-//                            $checkbox.attr("checked", "checked")
-//                        }
-//                    });
-//                    this.$eventsList.empty().append(TEMPLATES.eventList({events: _.map(events, function(event) { return EVENT_MAPPING[event]; })}));
-//                }
                 WebHooks.render(model);
 
 				this.$form.find('#webhook-submit').val(model.isNew() ?
@@ -207,33 +154,16 @@
 				this.$url.val("");
 				this.$urlDisplay.text("");
                 WebHooks.reset();
-//				this.$jql.val("");
-//				this.$jqlDisplay.text("");
-//				this.$editedBy.empty();
-//				this.$editedDate.empty();
-//				this.$eventsList.empty();
 			}
 		},
 		editMode: function () {
 			this.selectionModel.lock();
 			this.$form.addClass("display-mode-edit").removeClass("display-mode-display");
-//            WebHooks.refresh();
-//			this.$jql.trigger('refreshInputHeight');
 		},
 		displayMode: function() {
 			this.selectionModel.unlock();
 			this.$form.addClass("display-mode-display").removeClass("display-mode-edit");
 		},
-//		toggleAllEvents: function() {
-//			if (this.$allEventsCheckbox.is(":checked")) {
-//				this.$explicitEventsContainer.find("input.checkbox").removeAttr("checked")
-//			}
-//		},
-//		toggleExplicitEvent: function(evt) {
-//			if (AJS.$(evt.target).is(":checked")) {
-//				this.$allEventsCheckbox.removeAttr("checked")
-//			}
-//		},
 		toggleEnable: function () {
 			var isEnabled = this.selectedModel.get("enabled"),
 					that = this;
@@ -445,6 +375,7 @@
 			});
 		}
 		popup.addHeader(AJS.I18n.getText('webhooks.delete.title'))
+// TODO
 //				.addPanel("warning-message", JIRA.Templates.infoMsg({msg: AJS.I18n.getText('webhooks.delete.confirm', model.escape("name"))}))
 				.addButton(AJS.I18n.getText('common.words.delete'), destroyModel, "aui-button")
 				.addCancel(AJS.I18n.getText('common.words.cancel'), function() {popup.remove()})
@@ -453,14 +384,14 @@
 	}
 	function displaySuccessMessage(message) {
 //		AJS.messages.success(message);
-        alert(message);
+//        alert(message);
         // todo
 	}
 	function displayErrorMessage(message) {
 //		AJS.Messages.error(message, {
 //			closeable: true
 //		});
-        alert(message);
+//        alert(message);
         // todo
 	}
 })();
