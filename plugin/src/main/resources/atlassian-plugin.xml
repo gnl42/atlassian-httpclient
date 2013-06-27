@@ -56,14 +56,14 @@
 
     <web-item key="webhooks-admin-link" name="Webhooks Admin Link" section="system.admin/administration" weight="32">
         <label>WebHook Admin</label>
-        <link linkId="webhooks-admin">/secure/admin/WebHooksAdmin.jspa</link>
+        <link linkId="webhooks-admin">/webhooks</link>
         <!--<condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>-->
     </web-item>
 
     <servlet name="Webhooks Admin Actions" key="WebHooksAdminActions"
              class="com.atlassian.webhooks.plugin.web.WebHookAdminServlet">
         <description>List configured entity links for a specific entity</description>
-        <url-pattern>/secure/admin/WebHooksAdmin.jspa*</url-pattern>
+        <url-pattern>/webhooks</url-pattern>
     </servlet>
 
     <web-resource key="webhooks-resources">
