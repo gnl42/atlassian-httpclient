@@ -376,22 +376,20 @@
 		}
 		popup.addHeader(AJS.I18n.getText('webhooks.delete.title'))
 // TODO
-//				.addPanel("warning-message", JIRA.Templates.infoMsg({msg: AJS.I18n.getText('webhooks.delete.confirm', model.escape("name"))}))
+				.addPanel("warning-message", aui.message.info({content: AJS.I18n.getText('webhooks.delete.confirm', model.escape("name"))}))
 				.addButton(AJS.I18n.getText('common.words.delete'), destroyModel, "aui-button")
 				.addCancel(AJS.I18n.getText('common.words.cancel'), function() {popup.remove()})
 				.show()
 				.updateHeight();
 	}
 	function displaySuccessMessage(message) {
+// TODO
 //		AJS.messages.success(message);
-//        alert(message);
-        // todo
 	}
 	function displayErrorMessage(message) {
+// TODO
 //		AJS.Messages.error(message, {
 //			closeable: true
 //		});
-//        alert(message);
-        // todo
 	}
 })();
