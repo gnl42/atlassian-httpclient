@@ -126,6 +126,8 @@
 			this.selectionModel.onSelectionChange(this.selectionChanged, this);
 
 			this.$form.on("cancel", function() {return false}); // so dirty form warning works after cancel
+
+            WebHooks.initialize(this.$el);
 		},
 		render: function() {
 			this.$form.find('.error').empty();
@@ -142,7 +144,7 @@
 				} else {
 					this.$toggleEnablement.text(AJS.I18n.getText('admin.common.words.enable'));
 				}
-                WebHooks.render(model);
+                WebHooks.render(this.$el, model);
 
 				this.$form.find('#webhook-submit').val(model.isNew() ?
 						AJS.I18n.getText('common.words.create') :
@@ -153,7 +155,7 @@
 				this.$nameDisplay.text("");
 				this.$url.val("");
 				this.$urlDisplay.text("");
-                WebHooks.reset();
+                WebHooks.reset(this.$el);
 			}
 		},
 		editMode: function () {
