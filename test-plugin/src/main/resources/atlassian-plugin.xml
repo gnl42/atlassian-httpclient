@@ -58,7 +58,7 @@
 
     <web-resource key="webhooks-admin-resources">
         <context>atl.plugins.webhooks.admin</context>
-        <dependency>atlassian-webhooks-plugin:webhooks-admin-resources</dependency>
+        <dependency>com.atlassian.webhooks.atlassian-webhooks-plugin:webhooks-admin-resources</dependency>
 
         <resource type="download" name="test-webhooks.js" location="/js/test-webhooks.js" />
     </web-resource>
