@@ -77,7 +77,7 @@
     </web-resource>
 
     <web-resource key="webhooks-admin-resources">
-        <context>atl.plugins.webhooks.admin</context>
+        <!--<context>atl.plugins.webhooks.admin</context>-->
 
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:ajs-underscorejs</dependency>
