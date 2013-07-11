@@ -23,7 +23,7 @@
             lastUpdatedDisplayName: '',
 			events:[],
 			enabled: true,
-            parameters: ''
+            parameters: {}
 		},
 		idAttribute: "self"
 	});
@@ -216,12 +216,13 @@
 				name: this.$name.val(),
 				url: this.$url.val(),
 				events: WebHooks.getEvents(),
-                parameters: WebHooks.getParameters()
+                parameters: JSON.stringify(WebHooks.getParameters())
 			}, {wait:true, success: submitSuccess, error: submitError});
 
 			return false; // so dirty form warning works after first submit
 
 			function submitSuccess(model, response) {
+                model.set("parameters", JSON.parse(model.get("parameters")));
 				var successMessage;
 				if (wasNew) {
 					successMessage = AJS.I18n.getText("webhooks.create.success", model.escape("name"));
