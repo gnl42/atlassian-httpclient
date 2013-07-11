@@ -74,6 +74,10 @@
                 <artifactId>maven-amps-plugin</artifactId>
                 <configuration>
                     <extractDependencies>true</extractDependencies>
+                    <enableFastdev>false</enableFastdev>
+                    <systemPropertyVariables>
+                        <plugin.resource.directories>${project.basedir}/../plugin/src/main/resources,${project.basedir}/src/main/resources</plugin.resource.directories>
+                    </systemPropertyVariables>
                     <libArtifacts>
                         <libArtifact>
                             <groupId>com.atlassian.webhooks</groupId>
@@ -112,7 +116,7 @@
                         <product>
                             <id>refapp</id>
                             <instanceId>refapp_3</instanceId>
-                            <version>3.0.0-m1</version>
+                            <version>3.0.0-m8</version>
                             <log4jProperties>src/test/aps/log4j-refapp.properties</log4jProperties>
                         </product>
                         <product>
