@@ -4,7 +4,15 @@
     var ALL_EVENTS = null;
     var NO_EVENTS = null;
     var EVENT_MAPPING = null;
-    WebHooks = {};
+
+    // Global object which should be extended by product-specific implementations of webhooks
+    WebHooks = {
+        initialize: function() { },
+        render: function() { },
+        getParameters: function() { },
+        getEvents: function() { },
+        reset: function() { }
+    };
 
     var WebHookModel = Backbone.Model.extend({
 		url: function() { return this.get("self") || this.collection.url; },
