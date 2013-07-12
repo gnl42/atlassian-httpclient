@@ -7,7 +7,7 @@
 
     // Global object which should be extended by product-specific implementations of webhooks
     WebHooks = {
-        initialize: function() { },
+        initialize: function($el, selectionModel) { },
         render: function() { },
         getParameters: function() { },
         getEvents: function() { },
@@ -131,12 +131,11 @@
 
 			this.selectedModel = undefined;
 			this.selectionModel = this.model;
-			this.selectionModel.onSelectionChange(this.selectionChanged, this);
+            WebHooks.initialize(this.$el, this.selectionModel); // doing it here so product specific code can subscribe to the events early
+            this.selectionModel.onSelectionChange(this.selectionChanged, this);
 
 			this.$form.on("cancel", function() {return false}); // so dirty form warning works after cancel
-
-            WebHooks.initialize(this.$el);
-		},
+        },
 		render: function() {
 			this.$form.find('.error').empty();
 			this.$el.find('.buttons-container').toggle(!!this.selectedModel);
@@ -163,7 +162,7 @@
 				this.$nameDisplay.text("");
 				this.$url.val("");
 				this.$urlDisplay.text("");
-                WebHooks.reset(this.$el);
+                WebHooks.reset();
 			}
 		},
 		editMode: function () {
