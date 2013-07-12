@@ -127,6 +127,8 @@
 			this.$nameDisplay = $el.find("#webhook-name-display");
 			this.$url = $el.find("#webhook-url");
 			this.$urlDisplay = $el.find("#webhook-url-display");
+            this.$editedBy = $el.find("#webhook-edited-by-container");
+            this.$editedDate = $el.find("#webhook-edited-date-container");
 			this.$toggleEnablement = $el.find("#webhook-disable");
 
 			this.selectedModel = undefined;
@@ -146,7 +148,16 @@
 				this.$url.val(model.get("url"));
 				this.$urlDisplay.text(model.get("url")).attr({href: model.get("url")});
 
-				if (model.get("enabled")) {
+                var lastUpdatedUserName = model.get("lastUpdatedUser");
+                this.$editedBy.html(TEMPLATES.renderLastUpdatedUser({lastUpdatedUser: lastUpdatedUserName, lastUpdatedDisplayName: model.get("lastUpdatedDisplayName")}));
+                this.$editedBy.closest('.field-group').toggle(!!lastUpdatedUserName);
+
+                var updatedDate = model.get("lastUpdatedShort");
+                this.$editedDate.html(updatedDate);
+                this.$editedDate.closest('.field-group').toggle(!!updatedDate);
+
+
+                if (model.get("enabled")) {
 					this.$toggleEnablement.text(AJS.I18n.getText('admin.common.words.disable'));
 				} else {
 					this.$toggleEnablement.text(AJS.I18n.getText('admin.common.words.enable'));

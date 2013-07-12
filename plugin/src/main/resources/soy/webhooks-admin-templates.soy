@@ -22,4 +22,20 @@
 </td>
 {/template}
 
+/**
+ * Render Creator entry
+ * @param lastUpdatedUser the user name of the creator
+ * @param lastUpdatedDisplayName the display name of the creator
+ */
+{template .renderLastUpdatedUser}
+	<a href="/jira/secure/ViewProfile.jspa?name={$lastUpdatedUser}" rel="{$lastUpdatedUser}" class="user-hover">{$lastUpdatedDisplayName}</a>
+{/template}
 
+/**
+ * Render Created Date
+ * @param updatedLong the timestamp of WebHook creation - long format
+ * @param updatedShort the timestamp of WebHook creation - short format
+ */
+{template .renderUpdatedDate}
+	 <time datetime="{$updatedLong}">{$updatedShort}</time>
+{/template}

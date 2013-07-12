@@ -58,6 +58,15 @@
                     <a href="#" id="webhook-url-display" class="field-value display-mode-display"></a>
                 </div>
 
+                <div class="field-group">
+                    <label for="webhook-edited-by-container">$i18n.getText('webhooks.admin.updatedBy')</label>
+                    <span id="webhook-edited-by-container" class="field-value">#* <a href="/jira/secure/ViewProfile.jspa?name=admin" rel="admin" class="user-hover">Admin</a> *#</span>
+                </div>
+                <div class="field-group">
+                    <label for="webhook-edited-date-container">$i18n.getText('webhooks.admin.updatedDate')</label>
+                    <span id="webhook-edited-date-container" class="field-value">#* <time datetime="2010-03-22T11:03+1100">22/Mar/10</time> *#</span>
+                </div>
+
                 #foreach($section in $webHookUIRegistry.sections)
                     #foreach($webHookUIItem in $webHookUIRegistry.getItems($section))
                         $webHookUIItem.getHtml()
