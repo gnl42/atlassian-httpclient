@@ -8,6 +8,7 @@
     // Global object which should be extended by product-specific implementations of webhooks
     WebHooks = {
         initialize: function($el, selectionModel) { },
+        getFormattedDateTime: function(dateTime) { },
         render: function() { },
         getParameters: function() { },
         getEvents: function() { },
@@ -152,9 +153,12 @@
                 this.$editedBy.html(TEMPLATES.renderLastUpdatedUser({lastUpdatedUser: lastUpdatedUserName, lastUpdatedDisplayName: model.get("lastUpdatedDisplayName")}));
                 this.$editedBy.closest('.field-group').toggle(!!lastUpdatedUserName);
 
-                var updatedDate = model.get("lastUpdatedShort");
-                this.$editedDate.html(updatedDate);
-                this.$editedDate.closest('.field-group').toggle(!!updatedDate);
+                var rawUpdatedDate = model.get("lastUpdated");
+                var updatedDate = new Date(rawUpdatedDate);
+                var updatedDateString = WebHooks.getFormattedDateTime(updatedDate) || (updatedDate .toLocaleDateString() + " " + updatedDate .toLocaleTimeString());
+                // Each product should display date formatted according to user's preferences
+                this.$editedDate.html(updatedDateString);
+                this.$editedDate.closest('.field-group').toggle(!!rawUpdatedDate);
 
 
                 if (model.get("enabled")) {

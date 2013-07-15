@@ -113,8 +113,6 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         public String lastUpdatedDisplayName;
         @XmlAttribute
         public Long lastUpdated;
-// TODO         @XmlAttribute
-//        private String lastUpdatedShort;
         @XmlAttribute
         public boolean enabled;
     }
