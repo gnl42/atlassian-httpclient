@@ -45,7 +45,7 @@
         <div class="aui-item webhook-details">
             <form action="#" class="aui display-mode-display">
                 <h2 id="webhook-name-display" class="display-mode-display"></h2>
-                <div id="webhook-global-message" class="error display-mode-edit"></div>
+                <div id="webhook-global-message"></div>
                 <div class="field-group display-mode-edit">
                     <label for="webhook-name">$i18n.getText('common.concepts.name')<span class="aui-icon icon-required display-mode-edit"><span>$i18n.getText('AUI.form.label.text.required')</span></span></label>
                     <input id="webhook-name" type="text" class="text full-width display-mode-edit"/>

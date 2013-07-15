@@ -174,6 +174,8 @@
 						AJS.I18n.getText('common.words.create') :
 						AJS.I18n.getText('common.words.save'));
 				this.$el.find('input.text, textarea').each(function(idx, el) {el.defaultValue = el.value});
+
+                this.$el.find("#webhook-global-message").empty();
 			} else {
 				this.$name.val("");
 				this.$nameDisplay.text("");
@@ -369,7 +371,7 @@
 	});
 
 	AJS.$(function () {
-            	EVENT_MAPPING = AJS.$(".webhooks").data("event-name-mappings");
+        EVENT_MAPPING = AJS.$(".webhooks").data("event-name-mappings");
 		new AddWebhookButton({model: selectionModel, el: "#add-webhook", webHooksModel: webHooksModel});
 		new WebHookDetailsView({model: selectionModel}).render();
 		AJS.$("table.event-webhooks").append(new WebHooksTable({model: webHooksModel, selectionModel: selectionModel}).render().$el);
@@ -381,6 +383,10 @@
 			},
 			success: function(model) { selectionModel.select(model.at(0))}
 		});
+
+        AJS.$("#webhook-submit, #webhook-edit").click(function() {
+           AJS.$("#webhook-global-message").empty();
+        });
 	});
 
 	function deleteWebhook(model) {
@@ -404,21 +410,22 @@
 			});
 		}
 		popup.addHeader(AJS.I18n.getText('webhooks.delete.title'))
-// TODO
-				.addPanel("warning-message", aui.message.info({content: AJS.I18n.getText('webhooks.delete.confirm', model.escape("name"))}))
-				.addButton(AJS.I18n.getText('common.words.delete'), destroyModel, "aui-button")
-				.addCancel(AJS.I18n.getText('common.words.cancel'), function() {popup.remove()})
-				.show()
-				.updateHeight();
+            .addPanel("warning-message", aui.message.info({content: AJS.I18n.getText('webhooks.delete.confirm', model.escape("name"))}))
+            .addButton(AJS.I18n.getText('common.words.delete'), destroyModel, "aui-button")
+            .addCancel(AJS.I18n.getText('common.words.cancel'), function() {popup.remove()})
+            .show()
+            .updateHeight();
 	}
 	function displaySuccessMessage(message) {
-// TODO
-//		AJS.messages.success(message);
+        AJS.messages.success(AJS.$("#webhook-global-message"), {
+            title: AJS.I18n.getText("webhooks.submit.duplicate.title"),
+            body: "<p>" + AJS.escapeHtml(message) + "</p>",
+            closeable: true});
 	}
 	function displayErrorMessage(message) {
-// TODO
-//		AJS.Messages.error(message, {
-//			closeable: true
-//		});
+        AJS.messages.error(AJS.$("#webhook-global-message"), {
+            title: AJS.I18n.getText("webhooks.submit.duplicate.title"),
+            body: "<p>" + AJS.escapeHtml(message) + "</p>",
+            closeable: true});
 	}
 })();
