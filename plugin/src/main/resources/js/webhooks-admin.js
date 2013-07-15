@@ -12,7 +12,9 @@
         render: function() { },
         getParameters: function() { },
         getEvents: function() { },
-        reset: function() { }
+        reset: function() { },
+        submitSuccess: function(model, response) { },
+        submitError: function(model, response) { }
     };
 
     var WebHookModel = Backbone.Model.extend({
@@ -245,6 +247,7 @@
 				}
 				displaySuccessMessage(successMessage);
 				that.displayMode();
+                WebHooks.submitSuccess.apply(WebHooks, arguments);
 			}
 			function submitError(model, response) {
 				try {
@@ -272,6 +275,7 @@
 					default:
 						displayErrorMessage(AJS.I18n.getText("webhooks.submit.error", response.status, response.statusText));
 				}
+                WebHooks.submitError.apply(WebHooks, arguments);
 			}
 		},
 		cancel: function () {
