@@ -1,6 +1,9 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorage;
+import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorageImpl;
+import com.atlassian.httpclient.apache.httpcomponents.cache.LoggingHttpCacheStorage;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.HttpStatus;
 import com.atlassian.httpclient.api.Request;
@@ -219,7 +222,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
         cacheConfig.setNeverCache1_0ResponsesWithQueryString(false);
 
         this.nonCachingHttpClient = client;
-        this.httpCacheStorage = new FlushableHttpCacheStorage(cacheConfig);
+        this.httpCacheStorage = new LoggingHttpCacheStorage(new FlushableHttpCacheStorageImpl(cacheConfig));
         httpClient = new CachingHttpAsyncClient(client, httpCacheStorage, cacheConfig);
 
         callbackExecutor = httpClientOptions.getCallbackExecutor();
