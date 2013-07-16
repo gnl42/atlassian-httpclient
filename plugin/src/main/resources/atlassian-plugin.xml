@@ -57,7 +57,6 @@
     <web-item key="webhooks-admin-link" name="Webhooks Admin Link" section="system.admin/administration" weight="32">
         <label>WebHook Admin</label>
         <link linkId="webhooks-admin">/webhooks</link>
-        <!--<condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>-->
     </web-item>
 
     <servlet name="Webhooks Admin Actions" key="WebHooksAdminActions"
