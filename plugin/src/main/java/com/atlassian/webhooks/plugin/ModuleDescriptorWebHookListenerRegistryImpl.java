@@ -16,6 +16,9 @@ import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Listener registry for WebHookListeners declared in atlassian-plugin.xml via <webhook> descriptor.
+ */
 public final class ModuleDescriptorWebHookListenerRegistryImpl implements ModuleDescriptorWebHookListenerRegistry, WebHookListenerProvider
 {
     private final Multimap<String, WebHookListener> listeners = newMultimap();

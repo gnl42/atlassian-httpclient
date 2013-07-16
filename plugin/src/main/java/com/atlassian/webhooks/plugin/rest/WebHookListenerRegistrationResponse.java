@@ -65,9 +65,6 @@ public class WebHookListenerRegistrationResponse extends WebHookListenerRegistra
         {
             final UserProfile userProfile = userManager.getUserProfile(webHookAO.getLastUpdatedUser());
             final String userFullName = userProfile != null ? userProfile.getFullName() : webHookAO.getLastUpdatedUser();
-            // TODO bring the data formatting back
-//            final String lastUpdatedShort = formatterFactory.formatter().forLoggedInUser().withStyle(DateTimeStyle.DATE_TIME_PICKER).format(webHookAO.getLastUpdated());
-
             return new WebHookListenerRegistrationResponse(webHookAO, self, userFullName, webHookAO.getLastUpdated().getTime());
         }
     }

@@ -10,7 +10,7 @@ import com.google.common.base.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Finds the delegates transformation to {@link WebHookListenerTransformer} found in the bundleContext.
+ * Finds the service implementing WebHookListenerTransformer in the bundleContext.
  */
 public class OsgiWebHookListenerTransformer implements WebHookListenerTransformer
 {

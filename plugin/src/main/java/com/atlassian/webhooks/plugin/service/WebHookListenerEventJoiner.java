@@ -6,6 +6,9 @@ import org.json.JSONException;
 
 import java.util.List;
 
+/**
+ * Joins and splits the vents into a JSON Array.
+ */
 public class WebHookListenerEventJoiner
 {
     public static String join(final Iterable<String> events)

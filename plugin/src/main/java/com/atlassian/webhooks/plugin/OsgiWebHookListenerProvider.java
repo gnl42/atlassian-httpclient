@@ -15,6 +15,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.transform;
 
+/**
+ * Waits for new services which implements WebHookListenerRegistry.
+ */
 public class OsgiWebHookListenerProvider implements WebHookListenerProvider
 {
 

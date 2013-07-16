@@ -12,7 +12,7 @@ import com.google.common.base.Optional;
 import static com.google.common.collect.Iterables.transform;
 
 /**
- * Implementation of {@link WebHookListenerService}. Wraps the internal InternalWebHookListenerService and WebHookAO.
+ * Implementation of {@link WebHookListenerService}. Wraps the InternalWebHookListenerService and WebHookAO.
  */
 public class WebHookListenerServiceAPIWrapper implements WebHookListenerService
 {

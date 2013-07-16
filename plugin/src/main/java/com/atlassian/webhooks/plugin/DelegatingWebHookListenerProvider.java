@@ -6,6 +6,12 @@ import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
+/**
+ * Concats the listener registered in various WebHookListenerProvider implementationsP:
+ *  - module descriptor listener provider
+ *  - persistent listener provider
+ *  - osgi listener provider
+ */
 public class DelegatingWebHookListenerProvider implements WebHookListenerProvider
 {
     private final Iterable<WebHookListenerProvider> listenerProviders;

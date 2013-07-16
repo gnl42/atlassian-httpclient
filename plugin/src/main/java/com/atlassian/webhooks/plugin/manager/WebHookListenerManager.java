@@ -15,6 +15,15 @@ public interface WebHookListenerManager
         SERVICE
     }
 
+    /**
+     * Add a new WebHook listener and returns the newly created WebHook listener.
+     *
+     * @param name webhook name
+     * @param targetUrl url where response will be sent
+     * @param events list of events.
+     * @param params parameters of the listener.
+     * @param registrationMethod REST, UI or SERVICE.
+     */
     WebHookAO addWebHook(@NotNull String name, @NotNull String targetUrl, @NotNull String events, String params, WebHookListenerRegistrationMethod registrationMethod);
 
     /**
@@ -24,6 +33,7 @@ public interface WebHookListenerManager
      * @param name webhook name
      * @param targetUrl url where response will be sent
      * @param events list of events.
+     * @param params parameters of the listener.
      * @param enabled indicates whether a webhook is enabled
      */
     WebHookAO updateWebHook(int id, String name, String targetUrl, String events, String params, boolean enabled) throws IllegalArgumentException;

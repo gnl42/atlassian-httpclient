@@ -49,8 +49,8 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
             if (registration.getParameters() != null &&
                     (registration.getParameters().contains("excludeIssueDetails") || registration.getParameters().contains("filter")))
             {
-                Optional<String> filter = ParametersParser.getFilter(registration.getParameters());
-                boolean excludeIssueDetails = ParametersParser.getExcludeIssueDetails(registration.getParameters());
+                Optional<String> filter = JiraParametersParser.getFilter(registration.getParameters());
+                boolean excludeIssueDetails = JiraParametersParser.getExcludeIssueDetails(registration.getParameters());
                 response.filter = filter.orNull();
                 response.excludeIssueDetails = excludeIssueDetails;
             }
@@ -117,9 +117,9 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         public boolean enabled;
     }
 
-    public static class ParametersParser
+    public static class JiraParametersParser
     {
-        private static final Logger logger = LoggerFactory.getLogger(ParametersParser.class);
+        private static final Logger logger = LoggerFactory.getLogger(JiraParametersParser.class);
 
         public static boolean getExcludeIssueDetails(String parameters)
         {
