@@ -262,7 +262,6 @@
 						var fieldErrors = errorObject.errors || {};
 //						that.$name.siblings(".error").text(fieldErrors.name || "");
 //						that.$url.siblings(".error").text(fieldErrors.url || "");
-//						that.$jql.siblings(".error").text(fieldErrors.jqlFilter || "");
 						break;
 					case 409:
 						var message = errorObject.errorMessage || "Resource conflict";
@@ -418,14 +417,14 @@
 	}
 	function displaySuccessMessage(message) {
         AJS.messages.success(AJS.$("#webhook-global-message"), {
-            title: AJS.I18n.getText("webhooks.submit.duplicate.title"),
-            body: "<p>" + AJS.escapeHtml(message) + "</p>",
-            closeable: true});
+            body: AJS.escapeHtml(message),
+            closeable: true
+        });
 	}
 	function displayErrorMessage(message) {
         AJS.messages.error(AJS.$("#webhook-global-message"), {
-            title: AJS.I18n.getText("webhooks.submit.duplicate.title"),
-            body: "<p>" + AJS.escapeHtml(message) + "</p>",
-            closeable: true});
+            body: AJS.escapeHtml(message),
+            closeable: true
+        });
 	}
 })();
