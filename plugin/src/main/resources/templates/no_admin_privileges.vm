@@ -12,7 +12,6 @@
             <span class="aui-icon icon-warning"></span>
             <strong>$i18n.getText('auth.config.applink.admin.privileges.required')</strong>
         </p>
-        <p><a href="$url">${i18n.getText('auth.config.applink.admin.privileges.required')}</a></p>
     </div>
 </div>
 </body>
