@@ -17,9 +17,6 @@
                             $i18n.getText('webhooks.admin.add')
                         </a>
                     </li>
-                    <li class="toolbar-item">
-                        <a id="webhook-help" class="toolbar-trigger" title="$action.getHelpPath('admin.webhooks').getTitle()" href="$action.getHelpPath('admin.webhooks').getUrl()" target="_jirahelp"><span class="aui-icon aui-icon-help"></span></a>
-                    </li>
                 </ul>
             </div>
         </nav>
