@@ -227,20 +227,24 @@
 		},
 		submit: function (evt) {
 			this.$form.find('.error').empty();
-			var that = this,
-                wasNew = this.selectedModel.isNew()
+			var that = this;
+            var wasNew = this.selectedModel.isNew();
+            var parameters = WebHooks.getParameters();
+
+            if (!_.isString(parameters)) {
+                parameters = JSON.stringify(parameters);
+            }
 
             this.selectedModel.save({
 				name: this.$name.val(),
 				url: this.$url.val(),
 				events: WebHooks.getEvents(),
-                parameters: JSON.stringify(WebHooks.getParameters())
+                parameters: parameters,
 			}, {wait:true, success: submitSuccess, error: submitError});
 
 			return false; // so dirty form warning works after first submit
 
 			function submitSuccess(model, response) {
-                model.set("parameters", JSON.parse(model.get("parameters")));
 				var successMessage;
 				if (wasNew) {
 					successMessage = AJS.I18n.getText("webhooks.create.success", model.escape("name"));
