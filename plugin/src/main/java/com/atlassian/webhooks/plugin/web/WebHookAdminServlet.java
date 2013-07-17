@@ -35,7 +35,6 @@ public class WebHookAdminServlet extends HttpServlet
             WebHookUIRegistry webHookUIRegistry,
             UserManager userManager)
     {
-        System.out.println("enablling webhooks");
         this.webHookUIRegistry = checkNotNull(webHookUIRegistry);
         this.userManager = checkNotNull(userManager);
         this.templateRenderer = checkNotNull(templateRenderer);

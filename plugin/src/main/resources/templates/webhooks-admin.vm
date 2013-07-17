@@ -7,8 +7,6 @@
 </head>
 <body>
 <div class="webhooks">
-##    data-event-name-mappings="$action.eventNameMappings" data-all-events-key="$action.allEventsKey" data-no-events-key="$action.noEventsKey">
-
     <header>
         <nav class="aui-toolbar">
             <div class="toolbar-split toolbar-split-right">
