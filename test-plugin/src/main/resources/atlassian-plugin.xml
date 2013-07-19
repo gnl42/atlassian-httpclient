@@ -14,7 +14,7 @@
 
     <web-item key="webhooks-admin-link" name="Webhooks Admin Link" section="index.links" weight="30">
         <label>WebHooks Admin</label>
-        <link linkId="webhooks-admin">/webhooks</link>
+        <link linkId="webhooks-admin">/plugins/servlet/webhooks</link>
     </web-item>
 
     <webhook key="testWebhook" event="test_event" url="/plugins/servlet/webhooks-test/test_event" />
