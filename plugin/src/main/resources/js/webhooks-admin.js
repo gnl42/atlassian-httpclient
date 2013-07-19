@@ -164,15 +164,15 @@
 
 
                 if (model.get("enabled")) {
-					this.$toggleEnablement.text(AJS.I18n.getText('admin.common.words.disable'));
+					this.$toggleEnablement.text(AJS.I18n.getText('webhooks.disable'));
 				} else {
-					this.$toggleEnablement.text(AJS.I18n.getText('admin.common.words.enable'));
+					this.$toggleEnablement.text(AJS.I18n.getText('webhooks.enable'));
 				}
                 WebHooks.render(this.$el, model);
 
 				this.$form.find('#webhook-submit').val(model.isNew() ?
-						AJS.I18n.getText('common.words.create') :
-						AJS.I18n.getText('common.words.save'));
+						AJS.I18n.getText('webhooks.create') :
+						AJS.I18n.getText('webhooks.save'));
 				this.$el.find('input.text, textarea').each(function(idx, el) {el.defaultValue = el.value});
 
                 this.$el.find("#webhook-global-message").empty();
@@ -414,8 +414,8 @@
 		}
 		popup.addHeader(AJS.I18n.getText('webhooks.delete.title'))
             .addPanel("warning-message", aui.message.info({content: AJS.I18n.getText('webhooks.delete.confirm', model.escape("name"))}))
-            .addButton(AJS.I18n.getText('common.words.delete'), destroyModel, "aui-button")
-            .addCancel(AJS.I18n.getText('common.words.cancel'), function() {popup.remove()})
+            .addButton(AJS.I18n.getText('webhooks.delete'), destroyModel, "aui-button")
+            .addCancel(AJS.I18n.getText('webhooks.cancel'), function() {popup.remove()})
             .show()
             .updateHeight();
 	}
