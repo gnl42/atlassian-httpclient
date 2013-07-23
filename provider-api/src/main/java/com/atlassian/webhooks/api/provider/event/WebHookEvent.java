@@ -1,10 +1,9 @@
-package com.atlassian.webhooks.plugin.event;
+package com.atlassian.webhooks.api.provider.event;
 
 import com.atlassian.analytics.api.annotations.Analytics;
 
 @Analytics("webhooks")
-// TODO move to API
-public class WebHookEvent
+public abstract class WebHookEvent
 {
     private final String name;
     private final String url;

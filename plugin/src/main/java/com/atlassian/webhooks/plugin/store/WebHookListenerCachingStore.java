@@ -3,8 +3,9 @@ package com.atlassian.webhooks.plugin.store;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.plugin.event.PluginEventListener;
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
+import com.atlassian.webhooks.api.provider.WebHookListenerService;
 import com.atlassian.webhooks.plugin.PluginProperties;
-import com.atlassian.webhooks.plugin.ao.WebHookAO;
+import com.atlassian.webhooks.plugin.ao.WebHookListenerAO;
 import com.atlassian.webhooks.spi.provider.WebHookClearCacheEvent;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.google.common.base.Optional;
@@ -61,11 +62,11 @@ public class WebHookListenerCachingStore
      * @param registrationMethod REST, UI or SERVICE.
      */
     public WebHookListenerParameters registerWebHookListener(String name, String url, Iterable<String> events, String parameters,
-            WebHookListenerStore.WebHookListenerRegistrationMethod registrationMethod)
+            WebHookListenerService.RegistrationMethod registrationMethod)
     {
-        final WebHookAO webHookAO = webHookListenerStore.addWebHook(name, url, events, parameters, registrationMethod);
-        final WebHookListenerParameters listenerParameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookAO);
-        cache.put(webHookAO.getID(), listenerParameters);
+        final WebHookListenerAO webHookListenerAO = webHookListenerStore.addWebHook(name, url, events, parameters, registrationMethod);
+        final WebHookListenerParameters listenerParameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookListenerAO);
+        cache.put(webHookListenerAO.getID(), listenerParameters);
         return listenerParameters;
     }
 
@@ -83,9 +84,9 @@ public class WebHookListenerCachingStore
     public WebHookListenerParameters updateWebHookListener(int id, String name, String url, Iterable<String> events,
             String parameters, boolean isEnabled) throws IllegalArgumentException
     {
-        final WebHookAO webHookAO = webHookListenerStore.updateWebHook(id, name, url, events, parameters, isEnabled);
-        final WebHookListenerParameters listenerParameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookAO);
-        cache.put(webHookAO.getID(), listenerParameters);
+        final WebHookListenerAO webHookListenerAO = webHookListenerStore.updateWebHook(id, name, url, events, parameters, isEnabled);
+        final WebHookListenerParameters listenerParameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookListenerAO);
+        cache.put(webHookListenerAO.getID(), listenerParameters);
         return listenerParameters;
     }
 
@@ -110,7 +111,7 @@ public class WebHookListenerCachingStore
      */
     public Optional<WebHookListenerParameters> enableWebHook(final int id, final boolean flag)
     {
-        final Optional<WebHookAO> webHookAOOption = webHookListenerStore.enableWebHook(id, flag);
+        final Optional<WebHookListenerAO> webHookAOOption = webHookListenerStore.enableWebHook(id, flag);
         if (webHookAOOption.isPresent())
         {
             WebHookListenerParameters parameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookAOOption.get());
@@ -130,7 +131,7 @@ public class WebHookListenerCachingStore
     }
 
     @EventListener @SuppressWarnings("unused")
-    public void clearWebHookListenerCache(final WebHookClearCacheEvent clearCacheEvent)
+    public void onClearCacheEvent(final WebHookClearCacheEvent clearCacheEvent)
     {
         cache.clear();
         webHookRetrievalStrategy = ACTIVE_OBJECT_WEB_HOOK_RETRIEVAL_STRATEGY;
@@ -167,11 +168,11 @@ public class WebHookListenerCachingStore
 
         private void fillCache()
         {
-            Iterable<WebHookAO> allWebhooks = webHookListenerStore.getAllWebHooks();
+            Iterable<WebHookListenerAO> allWebhooks = webHookListenerStore.getAllWebHooks();
             cache.clear();
-            for (WebHookAO webHookAO : allWebhooks)
+            for (WebHookListenerAO webHookListenerAO : allWebhooks)
             {
-                cache.put(webHookAO.getID(), WebHookListenerParametersImpl.createWebHookListenerParameters(webHookAO));
+                cache.put(webHookListenerAO.getID(), WebHookListenerParametersImpl.createWebHookListenerParameters(webHookListenerAO));
             }
             webHookRetrievalStrategy = CACHE_WEB_HOOK_RETRIEVAL_STRATEGY;
         }

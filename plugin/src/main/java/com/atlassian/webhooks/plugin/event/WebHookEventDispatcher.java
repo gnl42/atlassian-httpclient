@@ -1,6 +1,11 @@
 package com.atlassian.webhooks.plugin.event;
 
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.webhooks.api.provider.event.WebHookCreatedEvent;
+import com.atlassian.webhooks.api.provider.event.WebHookDeletedEvent;
+import com.atlassian.webhooks.api.provider.event.WebHookDisabledEvent;
+import com.atlassian.webhooks.api.provider.event.WebHookEditedEvent;
+import com.atlassian.webhooks.api.provider.event.WebHookEnabledEvent;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 
 public class WebHookEventDispatcher

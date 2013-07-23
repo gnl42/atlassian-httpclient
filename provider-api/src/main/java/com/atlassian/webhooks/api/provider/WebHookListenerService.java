@@ -33,25 +33,43 @@ public interface WebHookListenerService
     /**
      * Registers a new WebHook listener.
      *
-     * * TODO update response
      * @param registrationParameters The parameters of WebHook listener to register.
-     * @return parameters of the registered WebHook listener.
+     * @param registrationMethod REST, SERVICE or UI.
+     * @throws NullPointerException if any of required registration fields is null.
+     * @throws IllegalArgumentException if required fields are illegal.
+     * @throws NonUniqueRegistrationException if WebHook Listener with the same data already exists.
+     * @return parameters of the registered WebHook listener or message collection.
+     */
+    WebHookListenerServiceResponse registerWebHookListener(WebHookListenerRegistrationParameters registrationParameters, RegistrationMethod registrationMethod);
+
+    /**
+     * Registers a new WebHook listener.
+     *
+     * @param registrationParameters The parameters of WebHook listener to register.
+     * @throws NullPointerException if any of required registration fields is null.
+     * @throws IllegalArgumentException if required fields are illegal.
+     * @throws NonUniqueRegistrationException if WebHook Listener with the same data already exists.
+     * @return parameters of the registered WebHook listener or a message collection.
      */
     WebHookListenerServiceResponse registerWebHookListener(WebHookListenerRegistrationParameters registrationParameters);
 
     /**
      * Updates a WebHook listener with given id.
-     * TODO update response
+     *
      * @param id Id of the WebHook listener to updateWebHookListener.
      * @param registrationParameters The parameters of WebHook listener to update.
      * @return parameters of the updated WebHook listener.
+     * @throws NullPointerException if any of required registration fields is null.
+     * @throws IllegalArgumentException if required fields are illegal or webhook with given id doesn't exist.
+     * @throws NonUniqueRegistrationException if WebHook Listener with the same data already exists.
      */
     WebHookListenerServiceResponse updateWebHookListener(int id, WebHookListenerRegistrationParameters registrationParameters);
 
     /**
      * Deletes a WebHook listener with given id.
-     ** TODO update response
+     * @throws IllegalArgumentException if WebHook with given id doesn't exist.
      * @param id Id of WebHook listener to remove.
+     * @return a message collection with validation errors.
      */
     MessageCollection deleteWebHookListener(int id);
 
@@ -59,9 +77,17 @@ public interface WebHookListenerService
      * Enables or disables the WebHook listener.
      * @param id Id of WebHook to enable/disable.
      * @param flag Flag, true if setting to enabled, else false.
+     * @throws IllegalArgumentException if WebHook with given id doesn't exist.
      * @return Found and updated WebHook listener.
      */
     Optional<WebHookListenerParameters> enableWebHookListener(int id, boolean flag);
+
+    enum RegistrationMethod
+    {
+        REST,
+        UI,
+        SERVICE
+    }
 
     class NonUniqueRegistrationException extends RuntimeException
     {

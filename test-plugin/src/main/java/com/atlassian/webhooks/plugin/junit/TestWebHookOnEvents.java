@@ -70,7 +70,7 @@ public final class TestWebHookOnEvents
     public void testPersistentWebHook() throws InterruptedException, IOException
     {
         assertFalse(WebHookServlet.hasHooks());
-        registerWebHook("/plugins/servlet/webhook/persistent_event", "persitent_webhook_listener", "true:some_event_value");
+        registerWebHook("/plugins/servlet/webhooks-test/persistent_event", "persitent_webhook_listener", "true:some_event_value");
 
         ServiceAccessor.eventPublisher.publish(new EventWithPersistentListener("true", "some_event_value"));
         final WebHookServlet.Hook hook = WebHookServlet.waitAndPopPersistentEventWebHooks();

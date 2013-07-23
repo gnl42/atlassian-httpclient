@@ -1,13 +1,12 @@
 package com.atlassian.webhooks.plugin.event;
 
-// todo unify with WebHookEvent
-abstract class AbstractWebHookAnalyticsEvent
+abstract class AbstractWebHookEvent
 {
     private final String webHookId;
     private final String pluginKey;
     private final String uri;
 
-    protected AbstractWebHookAnalyticsEvent(String webHookId, String pluginKey, String uri)
+    protected AbstractWebHookEvent(String webHookId, String pluginKey, String uri)
     {
         this.webHookId = webHookId;
         this.pluginKey = pluginKey;

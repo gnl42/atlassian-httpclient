@@ -1,7 +1,6 @@
 package com.atlassian.webhooks.plugin.rest;
 
 import com.atlassian.plugins.rest.common.security.jersey.AdminOnlyResourceFilter;
-import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.webhooks.api.provider.WebHookListenerService;
@@ -47,7 +46,7 @@ public class RegistrationResource
     private final UserManager userManager;
     private final WebHookListenerService webHookListenerService;
 
-    public RegistrationResource(UserManager userManager, I18nResolver i18n, final WebHookListenerService webHookListenerService)
+    public RegistrationResource(UserManager userManager, final WebHookListenerService webHookListenerService)
     {
         this.webHookListenerService = checkNotNull(webHookListenerService);
         this.userManager = checkNotNull(userManager);
@@ -60,7 +59,7 @@ public class RegistrationResource
         try
         {
             final WebHookListenerServiceResponse webHookListenerServiceResponse =
-                    webHookListenerService.registerWebHookListener(registration); // TODO add registration method
+                    webHookListenerService.registerWebHookListener(registration, registeredViaUI ? WebHookListenerService.RegistrationMethod.UI : WebHookListenerService.RegistrationMethod.REST);
 
             if (!webHookListenerServiceResponse.getMessageCollection().isEmpty())
             {
@@ -69,13 +68,22 @@ public class RegistrationResource
             else
             {
                 final WebHookListenerParameters registeredListener = webHookListenerServiceResponse.getRegisteredListener().or(LISTENER_PARAMETERS_SUPPLIER);
-                final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(webHookListenerServiceResponse.getRegisteredListener())).build();
+                final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(webHookListenerServiceResponse.getRegisteredListener().get().getId())).build();
                 return created(uri).entity(new WebHookListenerRegistrationResponse.Factory(userManager).create(registeredListener, uri)).build();
             }
         }
         catch (NullPointerException npe)
         {
-            return status(Status.BAD_REQUEST).entity(npe.getMessage()).build();
+            return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(npe)).build();
+        }
+        catch (IllegalArgumentException e)
+        {
+            return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(e)).build();
+        }
+        catch (WebHookListenerService.NonUniqueRegistrationException e)
+        {
+//            URI duplicateUri = uriInfo.getBaseUriBuilder().path(RegistrationResource.class).path(String.valueOf(e.getDuplicateId())).build();
+            return status(Status.CONFLICT).entity(new SerializableErrorCollection(e)).build();
         }
     }
 
@@ -102,16 +110,16 @@ public class RegistrationResource
         }
         catch (IllegalArgumentException e)
         {
-            return status(Status.NOT_FOUND).entity(e.getMessage()).build();
+            return status(Status.NOT_FOUND).entity(new SerializableErrorCollection(e)).build();
         }
         catch (NullPointerException npe)
         {
-            return status(Status.BAD_REQUEST).entity(npe.getMessage()).build();
+            return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(npe)).build();
         }
         catch (WebHookListenerService.NonUniqueRegistrationException e)
         {
-            URI duplicateUri = uriInfo.getBaseUriBuilder().path(RegistrationResource.class).path(String.valueOf(e.getDuplicateId())).build();
-            return status(Status.CONFLICT).entity(new ErrorWithUri(e.getMessage(), duplicateUri)).build();
+//            URI duplicateUri = uriInfo.getBaseUriBuilder().path(RegistrationResource.class).path(String.valueOf(e.getDuplicateId())).build();
+            return status(Status.CONFLICT).entity(new SerializableErrorCollection(e)).build();
         }
     }
 
@@ -184,23 +192,6 @@ public class RegistrationResource
         return status(Status.NOT_FOUND).build();
     }
 
-    @SuppressWarnings ("UnusedDeclaration")
-    @XmlRootElement
-    private static class ErrorWithUri
-    {
-        @XmlElement
-        private String errorMessage;
-
-        @XmlElement
-        private URI uri;
-
-        public ErrorWithUri(final String errorMessage, final URI uri)
-        {
-            this.errorMessage = errorMessage;
-            this.uri = uri;
-        }
-    }
-
     private static final Supplier<WebHookListenerParameters> LISTENER_PARAMETERS_SUPPLIER = new Supplier<WebHookListenerParameters>()
     {
         @Override
@@ -209,5 +200,4 @@ public class RegistrationResource
             throw new WebApplicationException(Response.serverError().build());
         }
     };
-
 }

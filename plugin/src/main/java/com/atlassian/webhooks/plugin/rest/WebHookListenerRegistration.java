@@ -13,7 +13,7 @@ public class WebHookListenerRegistration implements WebHookListenerRegistrationP
     private final Iterable<String> events;
     private boolean enabled;
 
-    protected WebHookListenerRegistration(String name, String url, String parameters, Iterable<String> events, final boolean enabled)
+    public WebHookListenerRegistration(String name, String url, String parameters, Iterable<String> events, final boolean enabled)
     {
         this.name = name;
         this.url = url;

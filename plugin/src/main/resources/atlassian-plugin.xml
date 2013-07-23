@@ -49,7 +49,7 @@
 
     <ao key="webhooks-ao-module" name="Active Objects Module">
         <description>Datastore for persistent webhooks.</description>
-        <entity>com.atlassian.webhooks.plugin.ao.WebHookAO</entity>
+        <entity>com.atlassian.webhooks.plugin.ao.WebHookListenerAO</entity>
     </ao>
 
     <resource type="i18n" name="i18n" location="i18n/i18n"/>

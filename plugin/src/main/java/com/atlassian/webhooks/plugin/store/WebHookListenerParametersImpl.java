@@ -1,6 +1,6 @@
 package com.atlassian.webhooks.plugin.store;
 
-import com.atlassian.webhooks.plugin.ao.WebHookAO;
+import com.atlassian.webhooks.plugin.ao.WebHookListenerAO;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 
 import java.util.Date;
@@ -20,11 +20,11 @@ public class WebHookListenerParametersImpl implements WebHookListenerParameters
     private final Iterable<String> events;
     private final String registrationMethod;
 
-    public static WebHookListenerParameters createWebHookListenerParameters(WebHookAO webHookAO)
+    public static WebHookListenerParameters createWebHookListenerParameters(WebHookListenerAO webHookListenerAO)
     {
-        return new WebHookListenerParametersImpl(webHookAO.getID(), webHookAO.isEnabled(), webHookAO.getLastUpdated(),
-                webHookAO.getLastUpdatedUser(), webHookAO.getName(), webHookAO.getUrl(), webHookAO.getParameters(),
-                WebHookListenerEventJoiner.split(webHookAO.getEvents()), webHookAO.getRegistrationMethod());
+        return new WebHookListenerParametersImpl(webHookListenerAO.getID(), webHookListenerAO.isEnabled(), webHookListenerAO.getLastUpdated(),
+                webHookListenerAO.getLastUpdatedUser(), webHookListenerAO.getName(), webHookListenerAO.getUrl(), webHookListenerAO.getParameters(),
+                WebHookListenerEventJoiner.split(webHookListenerAO.getEvents()), webHookListenerAO.getRegistrationMethod());
     }
 
     public WebHookListenerParametersImpl(int id, boolean enabled, Date lastUpdated, String lastUpdatedUser, String name,

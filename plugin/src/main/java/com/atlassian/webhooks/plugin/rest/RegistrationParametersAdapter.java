@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * This class is introduced in order not to break JIRA WEBHOOK API, by changing REST input parameters. Please, don't add anything
+ * Introduced in order not to break JIRA WEBHOOK API, by changing REST input parameters. Please, don't add anything
  * here, legacy is legacy, new special parameters are supposed to be passed to the REST resource as parameters.
  * @deprecated in JIRA 7.0 we will break API and change filter and excludeIssueDetails to be a part of parameters.
  */

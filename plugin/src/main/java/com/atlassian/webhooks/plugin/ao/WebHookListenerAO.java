@@ -6,8 +6,7 @@ import net.java.ao.schema.StringLength;
 
 import java.util.Date;
 
-// TODO rename to WebHookListenerAO
-public interface WebHookAO extends Entity
+public interface WebHookListenerAO extends Entity
 {
     @NotNull
     @StringLength(StringLength.UNLIMITED)

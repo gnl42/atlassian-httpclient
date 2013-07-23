@@ -20,8 +20,7 @@ import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Sets.symmetricDifference;
 
 /**
- * Implementation of {@link WebHookListenerService}. Wraps the InternalWebHookListenerService and WebHookAO.
- * TODO use API in plugin as well and add verification here.
+ * Implementation of {@link WebHookListenerService}.
  */
 public class WebHookListenerServiceImpl implements WebHookListenerService
 {
@@ -54,9 +53,10 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     @Override
-    public WebHookListenerServiceResponse registerWebHookListener(WebHookListenerRegistrationParameters registrationParameters)
+    public WebHookListenerServiceResponse registerWebHookListener(final WebHookListenerRegistrationParameters registrationParameters, final RegistrationMethod registrationMethod)
     {
         checkWebHookListenerParameters(registrationParameters);
+        validateUniqueRegistration(null, registrationParameters);
         final MessageCollection messageCollection =
                 webHookListenerActionValidator.validateWebHookRegistration(registrationParameters);
         if (!messageCollection.isEmpty())
@@ -65,19 +65,17 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
         }
         final WebHookListenerParameters registeredListener = webHookListenerCachingStore.registerWebHookListener(
                 registrationParameters.getName(), registrationParameters.getUrl(), registrationParameters.getEvents(),
-                registrationParameters.getParameters(), null);
+                registrationParameters.getParameters(), registrationMethod);
         webHookEventDispatcher.webHookCreated(registeredListener);
         return new WebHookListenerServiceResponse(registeredListener);
     }
 
-    /**
-     *
-     * @param id Id of the WebHook listener to updateWebHookListener.
-     * @param registrationParameters The parameters of WebHook listener to update.
-     * @return updated WebHookListener or collection with error messages.
-     * @throws IllegalArgumentException
-     * @throws NullPointerException
-     */
+    @Override
+    public WebHookListenerServiceResponse registerWebHookListener(WebHookListenerRegistrationParameters registrationParameters)
+    {
+        return registerWebHookListener(registrationParameters, RegistrationMethod.SERVICE);
+    }
+
     @Override
     public WebHookListenerServiceResponse updateWebHookListener(int id, WebHookListenerRegistrationParameters registrationParameters)
             throws IllegalArgumentException
@@ -97,12 +95,6 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
         return new WebHookListenerServiceResponse(updatedListener);
     }
 
-    /**
-     *
-     * @param id Id of WebHookListener to remove.
-     * @throws IllegalArgumentException when WebHookListener with given id is not found.
-     * @return collection of messages
-     */
     @Override
     public MessageCollection deleteWebHookListener(int id)
     {
@@ -116,6 +108,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
         {
             webHookListenerCachingStore.removeWebHookListener(id);
         }
+        webHookEventDispatcher.webHookDeleted(webHookListener.get());
         return messageCollection;
     }
 
@@ -154,7 +147,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
      * @param id of the listener to update.
      * @throws NonUniqueRegistrationException if the listener with such parameters already exists.
      */
-    private void validateUniqueRegistration(int id, WebHookListenerRegistrationParameters webHookListenerParameters)
+    private void validateUniqueRegistration(Integer id, WebHookListenerRegistrationParameters webHookListenerParameters)
     {
         final Optional<WebHookListenerParameters> exists = findWebHookListener(id, webHookListenerParameters.getUrl(), webHookListenerParameters.getEvents(), webHookListenerParameters.getParameters());
         if (exists.isPresent())

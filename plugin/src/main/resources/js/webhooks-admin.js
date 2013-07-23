@@ -239,7 +239,7 @@
 				name: this.$name.val(),
 				url: this.$url.val(),
 				events: WebHooks.getEvents(),
-                parameters: parameters,
+                parameters: parameters
 			}, {wait:true, success: submitSuccess, error: submitError});
 
 			return false; // so dirty form warning works after first submit
@@ -262,16 +262,17 @@
 					errorObject = {};
 				}
 				switch (response.status) {
-					case 400:
-						var fieldErrors = errorObject.errors || {};
-//						that.$name.siblings(".error").text(fieldErrors.name || "");
-//						that.$url.siblings(".error").text(fieldErrors.url || "");
+                    case 400:
+						var fieldErrors = errorObject.messages || {};
+                        _.each(fieldErrors, function(error, index) {
+                            that.$el.find("#webhook-" + error.key).siblings(".error").text(error.arguments[0]);
+                        });
 						break;
 					case 409:
-						var message = errorObject.errorMessage || "Resource conflict";
+						var messages = errorObject.messages || "Resource conflict";
 						AJS.messages.error(that.$form.find("#webhook-global-message"), {
 							title: AJS.I18n.getText("webhooks.submit.duplicate.title"),
-							body: "<p>" + AJS.escapeHtml(message) + "</p>",
+							body: "<p>" + AJS.escapeHtml(messages[0]) + "</p>",
 							closeable: false});
 						break;
 					case 404:
@@ -405,7 +406,8 @@
 				error : function (model, response) {
 					if (response.status == 409) {
 						var errorResponse = AJS.$.parseJSON(response.responseText);
-						displayErrorMessage(errorResponse.errorMessages.join("<br>"));
+                        var messages = errorResponse.messages;
+						displayErrorMessage(_.pluck(messages, 'arguments').join("<br />"));
 					} else {
 						displayErrorMessage(AJS.I18n.getText("webhooks.delete.error", model.escape("name"), response.status, response.statusText));
 					}

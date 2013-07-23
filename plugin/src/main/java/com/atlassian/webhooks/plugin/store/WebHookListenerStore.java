@@ -4,7 +4,8 @@ import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.user.UserManager;
-import com.atlassian.webhooks.plugin.ao.WebHookAO;
+import com.atlassian.webhooks.api.provider.WebHookListenerService;
+import com.atlassian.webhooks.plugin.ao.WebHookListenerAO;
 import com.google.common.base.Optional;
 import net.java.ao.DBParam;
 
@@ -15,13 +16,6 @@ import javax.validation.constraints.NotNull;
 
 public class WebHookListenerStore
 {
-    public enum WebHookListenerRegistrationMethod
-    {
-        REST,
-        UI,
-        SERVICE
-    }
-
     private final ActiveObjects ao;
     private final UserManager userManager;
     private final I18nResolver i18n;
@@ -34,7 +28,7 @@ public class WebHookListenerStore
     }
 
     /**
-     * Add a new WebHook listener and returns the newly created WebHook listener.
+     * Adds a new WebHook listener and returns the newly created WebHook listener.
      *
      * @param name WebHook Listener name.
      * @param targetUrl url where response will be sent.
@@ -42,19 +36,19 @@ public class WebHookListenerStore
      * @param params parameters of the listener.
      * @param registrationMethod REST, UI or SERVICE.
      */
-    public WebHookAO addWebHook(
+    public WebHookListenerAO addWebHook(
             @NotNull final String name,
             @NotNull final String targetUrl,
             @NotNull final Iterable<String> events,
             final String params,
-            final WebHookListenerRegistrationMethod registrationMethod)
+            final WebHookListenerService.RegistrationMethod registrationMethod)
     {
-        return ao.executeInTransaction(new TransactionCallback<WebHookAO>()
+        return ao.executeInTransaction(new TransactionCallback<WebHookListenerAO>()
         {
             @Override
-            public WebHookAO doInTransaction()
+            public WebHookListenerAO doInTransaction()
             {
-                final WebHookAO webHookAO = ao.create(WebHookAO.class,
+                final WebHookListenerAO webHookListenerAO = ao.create(WebHookListenerAO.class,
                         new DBParam("LAST_UPDATED_USER", userManager.getRemoteUsername()),
                         new DBParam("URL", targetUrl),
                         new DBParam("LAST_UPDATED", new Date()),
@@ -64,8 +58,8 @@ public class WebHookListenerStore
                         new DBParam("EVENTS", WebHookListenerEventJoiner.join(events)),
                         new DBParam("ENABLED", true)
                 );
-                webHookAO.save();
-                return webHookAO;
+                webHookListenerAO.save();
+                return webHookListenerAO;
             }
         });
     }
@@ -81,7 +75,7 @@ public class WebHookListenerStore
      * @param enabled indicates whether a WebHook Listener is enabled.
      * @throws IllegalArgumentException when listener with the specified id doesn't exist.
      */
-    public WebHookAO updateWebHook(
+    public WebHookListenerAO updateWebHook(
             final int id,
             final String name,
             final String targetUrl,
@@ -89,15 +83,15 @@ public class WebHookListenerStore
             final String params,
             final boolean enabled) throws IllegalArgumentException
     {
-        final Optional<WebHookAO> originalWebHook = getWebHook(id);
+        final Optional<WebHookListenerAO> originalWebHook = getWebHook(id);
         if (!originalWebHook.isPresent())
         {
             throw new IllegalArgumentException(i18n.getText("webhooks.invalid.webhook.id"));
         }
-        return ao.executeInTransaction(new TransactionCallback<WebHookAO>() {
+        return ao.executeInTransaction(new TransactionCallback<WebHookListenerAO>() {
             @Override
-            public WebHookAO doInTransaction() {
-                final WebHookAO webHook = ao.get(WebHookAO.class, id);
+            public WebHookListenerAO doInTransaction() {
+                final WebHookListenerAO webHook = ao.get(WebHookListenerAO.class, id);
                 webHook.setUrl(targetUrl);
                 webHook.setName(name);
                 webHook.setLastUpdatedUser(userManager.getRemoteUsername());
@@ -119,14 +113,14 @@ public class WebHookListenerStore
      * @param id of the WebHook Listener.
      * @return the WebHook listener.
      */
-    public Optional<WebHookAO> getWebHook(final int id)
+    public Optional<WebHookListenerAO> getWebHook(final int id)
     {
-        return ao.executeInTransaction(new TransactionCallback<Optional<WebHookAO>>()
+        return ao.executeInTransaction(new TransactionCallback<Optional<WebHookListenerAO>>()
         {
             @Override
-            public Optional<WebHookAO> doInTransaction()
+            public Optional<WebHookListenerAO> doInTransaction()
             {
-                return Optional.fromNullable(ao.get(WebHookAO.class, id));
+                return Optional.fromNullable(ao.get(WebHookListenerAO.class, id));
             }
         });
     }
@@ -139,7 +133,7 @@ public class WebHookListenerStore
      */
     public void removeWebHook(final int id) throws IllegalArgumentException
     {
-        final Optional<WebHookAO> webHookToDelete = getWebHook(id);
+        final Optional<WebHookListenerAO> webHookToDelete = getWebHook(id);
         if (!webHookToDelete.isPresent())
         {
             throw new IllegalArgumentException(i18n.getText("webhooks.invalid.webhook.id"));
@@ -149,13 +143,13 @@ public class WebHookListenerStore
             @Override
             public Object doInTransaction()
             {
-                final WebHookAO webHookAO = ao.get(WebHookAO.class, id);
-                if (webHookAO == null)
+                final WebHookListenerAO webHookListenerAO = ao.get(WebHookListenerAO.class, id);
+                if (webHookListenerAO == null)
                 {
                     throw new IllegalArgumentException(i18n.getText("webhooks.invalid.webhook.id"));
                 }
-                ao.delete(webHookAO);
-                return webHookAO;
+                ao.delete(webHookListenerAO);
+                return webHookListenerAO;
             }
         });
     }
@@ -164,14 +158,14 @@ public class WebHookListenerStore
      * Get a list of all listeners in the system
      * @return collection of WebHook listeners.
      */
-    public Collection<WebHookAO> getAllWebHooks()
+    public Collection<WebHookListenerAO> getAllWebHooks()
     {
-        return ao.executeInTransaction(new TransactionCallback<Collection<WebHookAO>>()
+        return ao.executeInTransaction(new TransactionCallback<Collection<WebHookListenerAO>>()
         {
             @Override
-            public Collection<WebHookAO> doInTransaction()
+            public Collection<WebHookListenerAO> doInTransaction()
             {
-                return Arrays.asList(ao.find(WebHookAO.class));
+                return Arrays.asList(ao.find(WebHookListenerAO.class));
             }
         });
     }
@@ -183,24 +177,24 @@ public class WebHookListenerStore
      * @return the changed listener, else none.
      * @throws IllegalArgumentException the specified id does not exist
      */
-    public Optional<WebHookAO> enableWebHook(final int id, final boolean enabled)
+    public Optional<WebHookListenerAO> enableWebHook(final int id, final boolean enabled)
     {
-        final WebHookAO updatedWebHookListener = ao.executeInTransaction(new TransactionCallback<WebHookAO>()
+        final WebHookListenerAO updatedWebHookListener = ao.executeInTransaction(new TransactionCallback<WebHookListenerAO>()
         {
             @Override
-            public WebHookAO doInTransaction()
+            public WebHookListenerAO doInTransaction()
             {
-                final Optional<WebHookAO> webHookAOOption = getWebHook(id);
+                final Optional<WebHookListenerAO> webHookAOOption = getWebHook(id);
                 if (!webHookAOOption.isPresent())
                 {
                     throw new IllegalArgumentException(i18n.getText("webhooks.invalid.webhook.id"));
                 }
-                final WebHookAO webHookAO = webHookAOOption.get();
-                webHookAO.setEnabled(enabled);
-                webHookAO.setLastUpdated(new Date());
-                webHookAO.setLastUpdatedUser(userManager.getRemoteUsername());
-                webHookAO.save();
-                return webHookAO;
+                final WebHookListenerAO webHookListenerAO = webHookAOOption.get();
+                webHookListenerAO.setEnabled(enabled);
+                webHookListenerAO.setLastUpdated(new Date());
+                webHookListenerAO.setLastUpdatedUser(userManager.getRemoteUsername());
+                webHookListenerAO.save();
+                return webHookListenerAO;
             }
         });
         return Optional.fromNullable(updatedWebHookListener);
