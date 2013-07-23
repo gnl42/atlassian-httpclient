@@ -32,7 +32,7 @@
                 </beans:bean>
                 <beans:ref bean="moduleDescriptorWebHookRegistry" />
                 <beans:bean class="com.atlassian.webhooks.plugin.PersistentWebHookListenerProvider">
-                    <beans:constructor-arg index="0" ref="internalWebHookListenerService" />
+                    <beans:constructor-arg index="0" ref="webHookListenerService" />
                     <beans:constructor-arg index="1" ref="osgiWebHookModelTransformer" />
                 </beans:bean>
             </beans:list>
@@ -49,20 +49,21 @@
 
     <beans:bean id="moduleDescriptorWebHookRegistry" class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookListenerRegistryImpl" />
 
-    <beans:bean id="webHookListenerManager" class="com.atlassian.webhooks.plugin.manager.WebHookListenerManagerImpl">
+    <beans:bean id="webHookListenerStore" class="com.atlassian.webhooks.plugin.store.WebHookListenerStore">
         <beans:constructor-arg index="0" ref="ao" />
         <beans:constructor-arg index="1" ref="userManager" />
         <beans:constructor-arg index="2" ref="i18nResolver" />
     </beans:bean>
 
-    <beans:bean id="webHookLIstenerCache" class="com.atlassian.webhooks.plugin.service.WebHookListenerCacheImpl">
-        <beans:constructor-arg index="0" ref="webHookListenerManager" />
+    <beans:bean id="webHookListenerCachingStore" class="com.atlassian.webhooks.plugin.store.WebHookListenerCachingStore">
+        <beans:constructor-arg index="0" ref="webHookListenerStore" />
     </beans:bean>
 
-    <beans:bean id="internalWebHookListenerService" class="com.atlassian.webhooks.plugin.service.WebHookListenerServiceImpl">
-        <beans:constructor-arg index="0" ref="webHookLIstenerCache" />
-        <beans:constructor-arg index="1" ref="webHookListenerManager" />
+    <beans:bean id="webHookListenerService" class="com.atlassian.webhooks.plugin.service.WebHookListenerServiceImpl">
+        <beans:constructor-arg index="0" ref="webHookListenerCachingStore" />
+        <beans:constructor-arg index="1" ref="webHookListenerActionValidator" />
         <beans:constructor-arg index="2" ref="webHookEventDispatcher" />
+        <beans:constructor-arg index="2" ref="i18nResolver" />
     </beans:bean>
 
     <beans:bean id="webHookPublisher" class="com.atlassian.webhooks.plugin.WebHookPublisherImpl">

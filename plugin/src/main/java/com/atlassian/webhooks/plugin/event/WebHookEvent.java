@@ -3,15 +3,16 @@ package com.atlassian.webhooks.plugin.event;
 import com.atlassian.analytics.api.annotations.Analytics;
 
 @Analytics("webhooks")
-public class WebHookAnalyticsEvent
+// TODO move to API
+public class WebHookEvent
 {
     private final String name;
     private final String url;
-    private final String events;
+    private final Iterable<String> events;
     private final String filter;
     private final String registrationMethod;
 
-    public WebHookAnalyticsEvent(String name, String url, String events, String parameters, String registrationMethod)
+    public WebHookEvent(String name, String url, Iterable<String> events, String parameters, String registrationMethod)
     {
         this.name = name;
         this.url = url;
@@ -30,7 +31,7 @@ public class WebHookAnalyticsEvent
         return url;
     }
 
-    public String getEvents()
+    public Iterable<String> getEvents()
     {
         return events;
     }

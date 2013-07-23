@@ -3,9 +3,10 @@ package com.atlassian.webhooks.plugin.event;
 import com.atlassian.analytics.api.annotations.Analytics;
 
 @Analytics("webhooks.enabled")
-public class WebHookAnalyticsEnabledEvent extends WebHookAnalyticsEvent
+// TODO move to API
+public class WebHookEnabledEvent extends WebHookEvent
 {
-	public WebHookAnalyticsEnabledEvent(String name, String url, String events, String parameters, String registrationMethod)
+	public WebHookEnabledEvent(String name, String url, Iterable<String> events, String parameters, String registrationMethod)
     {
 		super(name, url, events, parameters, registrationMethod);
 	}

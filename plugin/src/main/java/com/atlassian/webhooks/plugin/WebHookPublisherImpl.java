@@ -1,8 +1,8 @@
 package com.atlassian.webhooks.plugin;
 
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedAnalyticsEvent;
-import com.atlassian.webhooks.plugin.event.WebHookPublishedAnalyticsEvent;
+import com.atlassian.webhooks.plugin.event.WebHookRejectedEvent;
+import com.atlassian.webhooks.plugin.event.WebHookPublishedEvent;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.atlassian.webhooks.spi.provider.WebHookListener;
 import com.atlassian.webhooks.spi.provider.WebHookPublisher;
@@ -60,13 +60,13 @@ public final class WebHookPublisherImpl implements WebHookPublisher
         try
         {
             executor.execute(publishTask);
-            eventPublisher.publish(new WebHookPublishedAnalyticsEvent(webHookEvent.getId(), listener.getPluginKey(), listener.getPath().toString()));
+            eventPublisher.publish(new WebHookPublishedEvent(webHookEvent.getId(), listener.getPluginKey(), listener.getPath().toString()));
         }
         catch (RejectedExecutionException ex)
         {
             logger.warn("Executor rejected the web hook '{}' saying '{}'", publishTask, ex.getMessage());
             logger.debug("Here is the full exception", ex);
-            eventPublisher.publish(new WebHookPublishRejectedAnalyticsEvent(webHookEvent.getId(), listener.getPluginKey(), listener.getPath().toString(), ex.getMessage()));
+            eventPublisher.publish(new WebHookRejectedEvent(webHookEvent.getId(), listener.getPluginKey(), listener.getPath().toString(), ex.getMessage()));
         }
     }
 

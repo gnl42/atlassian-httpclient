@@ -1,8 +1,11 @@
 package com.atlassian.webhooks.spi.provider;
 
+import com.atlassian.annotations.PublicSpi;
+
 /**
  * Matches an event for publication with parameters of a WebHook listener.
  */
+@PublicSpi
 public interface EventMatcher<T>
 {
 

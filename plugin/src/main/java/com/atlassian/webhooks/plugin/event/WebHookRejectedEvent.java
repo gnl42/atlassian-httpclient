@@ -6,11 +6,11 @@ import com.atlassian.analytics.api.annotations.Analytics;
  * Fired when the web hook publishing queue is full and the event will be discarded
  */
 @Analytics("webhooks.publishrejected")
-public final class WebHookPublishRejectedAnalyticsEvent extends AbstractWebHookAnalyticsEvent
+public final class WebHookRejectedEvent extends AbstractWebHookAnalyticsEvent
 {
     private final String rejectionMessage;
 
-    public WebHookPublishRejectedAnalyticsEvent(String webHookId, String pluginKey, String uri, String rejectionMessage)
+    public WebHookRejectedEvent(String webHookId, String pluginKey, String uri, String rejectionMessage)
     {
         super(webHookId, pluginKey, uri);
         this.rejectionMessage = rejectionMessage;

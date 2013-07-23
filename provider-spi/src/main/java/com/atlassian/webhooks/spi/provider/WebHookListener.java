@@ -1,10 +1,13 @@
 package com.atlassian.webhooks.spi.provider;
 
+import com.atlassian.annotations.PublicSpi;
+
 import java.net.URI;
 
 /**
  * WebHookListener encapsulates the data about a single listener registered for particular set of events.
  */
+@PublicSpi
 public interface WebHookListener
 {
     /**

@@ -1,5 +1,6 @@
 package com.atlassian.webhooks.spi.provider;
 
+import com.atlassian.annotations.PublicSpi;
 import com.atlassian.sal.api.message.Message;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.google.common.collect.ImmutableList;
@@ -11,7 +12,9 @@ import java.util.List;
 /**
  * This interface should be implemented by the provider which wants to validate the parameters of WebHook listener before
  * registration/update or removal.
+ * There can be only one WebHookListenerActionValidator per product.
  */
+@PublicSpi
 public interface WebHookListenerActionValidator
 {
     /**

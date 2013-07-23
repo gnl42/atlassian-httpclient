@@ -1,4 +1,4 @@
-package com.atlassian.webhooks.plugin.service;
+package com.atlassian.webhooks.plugin.store;
 
 import com.google.common.collect.Lists;
 import org.json.JSONArray;

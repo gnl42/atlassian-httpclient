@@ -1,7 +1,7 @@
 package com.atlassian.webhooks.plugin.rest;
 
-import com.atlassian.webhooks.plugin.ao.WebHookAO;
-import com.atlassian.webhooks.plugin.service.WebHookListenerEventJoiner;
+import com.atlassian.webhooks.plugin.store.WebHookListenerParametersImpl;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -10,7 +10,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.internal.matchers.TypeSafeMatcher;
-import org.mockito.Mockito;
 
 import java.net.URI;
 import java.util.Date;
@@ -19,7 +18,6 @@ import java.util.Set;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
 public class RegistrationParametersAdapterTest
 {
@@ -62,14 +60,13 @@ public class RegistrationParametersAdapterTest
     public void testCrossProductWebHookMarshaling() throws Exception
     {
         final Date date = new Date();
-        final WebHookAO webHookAO = Mockito.mock(WebHookAO.class);
-        when(webHookAO.getEvents()).thenReturn(WebHookListenerEventJoiner.join(Lists.newArrayList("jira:issue_created", "jira:issue_updated")));
-        when(webHookAO.getRegistrationMethod()).thenReturn("REST");
-        when(webHookAO.getLastUpdated()).thenReturn(date);
-        when(webHookAO.getName()).thenReturn("REBEL WEBHOOK");
-        when(webHookAO.getLastUpdatedUser()).thenReturn("Rebel spy");
-        when(webHookAO.getUrl()).thenReturn("http://rebel-base.gov.rebel");
-        final WebHookListenerRegistrationResponse response = new WebHookListenerRegistrationResponse(webHookAO, URI.create("http://imperial-jira.gov.empire/WEBHOOK-1"), "Rebel spy", date.getTime());
+        final WebHookListenerParameters webHookListenerParameters = new WebHookListenerParametersImpl(0, true, date, "Rebel spy", "REBEL WEBHOOK",
+                "http://rebel-base.gov.rebel", null, Lists.newArrayList("jira:issue_created", "jira:issue_updated"), "REST"
+        );
+
+        final WebHookListenerRegistrationResponse response = new WebHookListenerRegistrationResponse(
+                webHookListenerParameters,  URI.create("http://imperial-jira.gov.empire/WEBHOOK-1"), "Rebel spy", date.getTime());
+
         RegistrationParametersAdapter.AdaptedRegistrationParameters marshaledResponse = parametersAdapter.marshal(response);
         assertThat(marshaledResponse, Matchers.instanceOf(RegistrationParametersAdapter.AdaptedRegistrationResponse.class));
         RegistrationParametersAdapter.AdaptedRegistrationResponse registrationResponse = (RegistrationParametersAdapter.AdaptedRegistrationResponse) marshaledResponse;

@@ -1,11 +1,13 @@
 package com.atlassian.webhooks.spi.provider;
 
+import com.atlassian.annotations.PublicSpi;
 import com.google.common.base.Optional;
 
 /**
  * Contract for transformation of an internal WebHook representation into representation on which WebHookProvider can
  * operate.
  */
+@PublicSpi
 public interface WebHookListenerTransformer
 {
 

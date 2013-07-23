@@ -4,27 +4,40 @@ import com.atlassian.plugins.rest.common.security.jersey.AdminOnlyResourceFilter
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.sal.api.user.UserManager;
-import com.atlassian.webhooks.plugin.ao.DelegatingWebHookListenerParameters;
-import com.atlassian.webhooks.plugin.ao.WebHookAO;
-import com.atlassian.webhooks.plugin.manager.WebHookListenerManager;
-import com.atlassian.webhooks.plugin.service.InternalWebHookListenerService;
-import com.atlassian.webhooks.spi.provider.WebHookListenerActionValidator;
+import com.atlassian.webhooks.api.provider.WebHookListenerService;
+import com.atlassian.webhooks.api.provider.WebHookListenerServiceResponse;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.sun.jersey.spi.container.ResourceFilters;
 
-import javax.ws.rs.*;
+import java.net.URI;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.net.URI;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.ws.rs.core.Response.*;
+import static javax.ws.rs.core.Response.Status;
+import static javax.ws.rs.core.Response.created;
+import static javax.ws.rs.core.Response.noContent;
+import static javax.ws.rs.core.Response.ok;
+import static javax.ws.rs.core.Response.status;
 
 @Path("webhook")
 @ResourceFilters(AdminOnlyResourceFilter.class)
@@ -32,46 +45,81 @@ import static javax.ws.rs.core.Response.*;
 public class RegistrationResource
 {
     private final UserManager userManager;
-    private final InternalWebHookListenerService internalWebHookListenerService;
-    private final WebHookListenerActionValidator webHookListenerActionValidator;
-    private final I18nResolver i18n;
+    private final WebHookListenerService webHookListenerService;
 
-    public RegistrationResource(UserManager userManager, InternalWebHookListenerService internalWebHookListenerService, WebHookListenerActionValidator webHookListenerActionValidator, I18nResolver i18n)
+    public RegistrationResource(UserManager userManager, I18nResolver i18n, final WebHookListenerService webHookListenerService)
     {
-        this.i18n = checkNotNull(i18n);
+        this.webHookListenerService = checkNotNull(webHookListenerService);
         this.userManager = checkNotNull(userManager);
-        this.internalWebHookListenerService = checkNotNull(internalWebHookListenerService);
-        this.webHookListenerActionValidator = checkNotNull(webHookListenerActionValidator);
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response register(final WebHookListenerRegistration registration, @Context final UriInfo uriInfo, @DefaultValue("false") @QueryParam("ui") boolean registeredViaUI)
     {
-        final MessageCollection messageCollection = webHookListenerActionValidator.validateWebHookRegistration(registration);
-        if (!messageCollection.isEmpty())
+        try
         {
-            return status(Response.Status.BAD_REQUEST).entity(new SerializableErrorCollection(messageCollection)).build();
+            final WebHookListenerServiceResponse webHookListenerServiceResponse =
+                    webHookListenerService.registerWebHookListener(registration); // TODO add registration method
+
+            if (!webHookListenerServiceResponse.getMessageCollection().isEmpty())
+            {
+                return status(Response.Status.BAD_REQUEST).entity(new SerializableErrorCollection(webHookListenerServiceResponse.getMessageCollection())).build();
+            }
+            else
+            {
+                final WebHookListenerParameters registeredListener = webHookListenerServiceResponse.getRegisteredListener().or(LISTENER_PARAMETERS_SUPPLIER);
+                final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(webHookListenerServiceResponse.getRegisteredListener())).build();
+                return created(uri).entity(new WebHookListenerRegistrationResponse.Factory(userManager).create(registeredListener, uri)).build();
+            }
         }
+        catch (NullPointerException npe)
+        {
+            return status(Status.BAD_REQUEST).entity(npe.getMessage()).build();
+        }
+    }
 
-        validateUniqueRegistration(null, registration, uriInfo);
+    @PUT
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam ("id") final int id, final WebHookListenerRegistration registration, @Context final UriInfo uriInfo)
+    {
+        try
+        {
+            final WebHookListenerServiceResponse webHookListenerServiceResponse =
+                    webHookListenerService.updateWebHookListener(id, registration);
 
-        final WebHookAO webHookAO = internalWebHookListenerService.addWebHookListener(registration.getName(),
-                registration.getUrl(),
-                registration.getEvents(),
-                registration.getParameters(),
-                registeredViaUI ? WebHookListenerManager.WebHookListenerRegistrationMethod.UI : WebHookListenerManager.WebHookListenerRegistrationMethod.REST
-        );
-
-        final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(webHookAO.getID())).build();
-        return created(uri).entity(new WebHookListenerRegistrationResponse.Factory(userManager).create(webHookAO, uri)).build();
+            if (!webHookListenerServiceResponse.getMessageCollection().isEmpty())
+            {
+                return status(Response.Status.BAD_REQUEST).entity(new SerializableErrorCollection(webHookListenerServiceResponse.getMessageCollection())).build();
+            }
+            else
+            {
+                final WebHookListenerParameters registeredListener = webHookListenerServiceResponse.getRegisteredListener().or(LISTENER_PARAMETERS_SUPPLIER);
+                final URI self = uriInfo.getAbsolutePath();
+                return ok(new WebHookListenerRegistrationResponse.Factory(userManager).create(registeredListener, self)).build();
+            }
+        }
+        catch (IllegalArgumentException e)
+        {
+            return status(Status.NOT_FOUND).entity(e.getMessage()).build();
+        }
+        catch (NullPointerException npe)
+        {
+            return status(Status.BAD_REQUEST).entity(npe.getMessage()).build();
+        }
+        catch (WebHookListenerService.NonUniqueRegistrationException e)
+        {
+            URI duplicateUri = uriInfo.getBaseUriBuilder().path(RegistrationResource.class).path(String.valueOf(e.getDuplicateId())).build();
+            return status(Status.CONFLICT).entity(new ErrorWithUri(e.getMessage(), duplicateUri)).build();
+        }
     }
 
     @GET
     @Path("{id}")
     public Response getWebHook(@PathParam ("id") final int id, @Context final UriInfo uriInfo)
     {
-        final Optional<WebHookAO> webhook = internalWebHookListenerService.getWebHookListener(id);
+        final Optional<WebHookListenerParameters> webhook = webHookListenerService.getWebHookListener(id);
         if (!webhook.isPresent())
         {
             return status(Response.Status.NOT_FOUND).build();
@@ -87,19 +135,11 @@ public class RegistrationResource
     @Path("{id}")
     public Response deleteWebHook(@PathParam("id") final int id)
     {
-        final Optional<WebHookAO> webHook = internalWebHookListenerService.getWebHookListener(id);
-        if (!webHook.isPresent())
-        {
-            return status(Response.Status.NOT_FOUND).build();
-        }
-        final MessageCollection messageCollection =
-                webHookListenerActionValidator.validateWebHookRemoval(new DelegatingWebHookListenerParameters(webHook.get()));
-
         try
         {
+            final MessageCollection messageCollection = webHookListenerService.deleteWebHookListener(id);
             if (messageCollection.isEmpty())
             {
-                internalWebHookListenerService.removeWebHookListener(id);
                 return noContent().build();
             }
             else
@@ -107,71 +147,23 @@ public class RegistrationResource
                 return status(Status.CONFLICT).entity(new SerializableErrorCollection(messageCollection)).build();
             }
         }
-        catch (IllegalArgumentException iae)
-        {
-            return status(Status.BAD_REQUEST).build();
-        }
-    }
-
-    @PUT
-    @Path("{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam ("id") final int id, final WebHookListenerRegistration registration, @Context final UriInfo uriInfo)
-    {
-        final MessageCollection messageCollection = webHookListenerActionValidator.validateWebHookUpdate(registration);
-
-        if (!messageCollection.isEmpty())
-        {
-            return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(messageCollection)).build();
-        }
-
-        validateUniqueRegistration(id, registration, uriInfo);
-
-        final Optional<WebHookAO> webHookToUpdate = internalWebHookListenerService.getWebHookListener(id);
-
-        try
-        {
-            final WebHookAO webhookDao = internalWebHookListenerService.updateWebHookListener(id,
-                    registration.getName(),
-                    registration.getUrl(),
-                    registration.getEvents(),
-                    registration.getParameters(),
-                    webHookToUpdate.get().isEnabled());
-            final URI self = uriInfo.getAbsolutePath();
-            return ok(new WebHookListenerRegistrationResponse.Factory(userManager).create(webhookDao, self)).build();
-        }
         catch (IllegalArgumentException e)
         {
-            return status(Status.NOT_FOUND).build();
-        }
-    }
-
-    private void validateUniqueRegistration(Integer id, WebHookListenerRegistration registration, UriInfo uriInfo)
-    {
-        final Optional<WebHookAO> exists = internalWebHookListenerService.findWebHookListener(id,
-                registration.getUrl(),
-                registration.getEvents(),
-                registration.getParameters());
-
-        if (exists.isPresent())
-        {
-            final URI duplicateUri = uriInfo.getBaseUriBuilder().path(RegistrationResource.class).path(String.valueOf(exists.get().getID())).build();
-            final ErrorWithUri error = new ErrorWithUri(i18n.getText("webhooks.duplicate.registration"), duplicateUri);
-            throw new WebApplicationException(status(Status.CONFLICT).entity(error).build());
+            return status(Response.Status.NOT_FOUND).build();
         }
     }
 
     @GET
     public Response getAllWebHooks(@Context final UriInfo uriInfo)
     {
-        final Iterable<WebHookAO> webHooks = internalWebHookListenerService.getAllWebHookListeners();
+        final Iterable<WebHookListenerParameters> allWebHookListeners = webHookListenerService.getAllWebHookListeners();
         return ok(
-                Iterables.transform(webHooks, new Function<WebHookAO, Object>()
+                Iterables.transform(allWebHookListeners, new Function<WebHookListenerParameters, Object>()
                 {
                     @Override
-                    public WebHookListenerRegistrationResponse apply(final WebHookAO webHook)
+                    public WebHookListenerRegistrationResponse apply(final WebHookListenerParameters webHook)
                     {
-                        final URI self = uriInfo.getAbsolutePathBuilder().path(String.valueOf(webHook.getID())).build();
+                        final URI self = uriInfo.getAbsolutePathBuilder().path(String.valueOf(webHook.getId())).build();
                         return new WebHookListenerRegistrationResponse.Factory(userManager).create(webHook, self);
                     }
                 })
@@ -180,11 +172,11 @@ public class RegistrationResource
 
     @PUT
     @Path("{id}/enabled")
-    public Response enableWebHook(@PathParam("id") final int id, final String enabled)
+    public Response enableWebHook(@PathParam("id") int id, final String enabled)
     {
         boolean enabledFlag = Boolean.parseBoolean(enabled);
 
-        final Optional<WebHookAO> enablementResult = internalWebHookListenerService.enableWebHookListener(id, enabledFlag);
+        final Optional<WebHookListenerParameters> enablementResult = webHookListenerService.enableWebHookListener(id, enabledFlag);
         if (enablementResult.isPresent())
         {
             return ok(enablementResult.get().isEnabled()).build();
@@ -208,5 +200,14 @@ public class RegistrationResource
             this.uri = uri;
         }
     }
+
+    private static final Supplier<WebHookListenerParameters> LISTENER_PARAMETERS_SUPPLIER = new Supplier<WebHookListenerParameters>()
+    {
+        @Override
+        public WebHookListenerParameters get()
+        {
+            throw new WebApplicationException(Response.serverError().build());
+        }
+    };
 
 }

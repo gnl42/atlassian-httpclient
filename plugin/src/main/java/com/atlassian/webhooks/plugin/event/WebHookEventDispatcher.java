@@ -1,7 +1,7 @@
 package com.atlassian.webhooks.plugin.event;
 
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.webhooks.plugin.ao.WebHookAO;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 
 public class WebHookEventDispatcher
 {
@@ -12,38 +12,38 @@ public class WebHookEventDispatcher
         this.eventPublisher = eventPublisher;
     }
 
-    public void webHookCreated(WebHookAO webHook)
+    public void webHookCreated(WebHookListenerParameters webHook)
     {
         eventPublisher.publish(
-                new WebHookAnalyticsCreatedEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
+                new WebHookCreatedEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
         );
     }
 
-    public void webHookDeleted(WebHookAO webHook)
+    public void webHookDeleted(WebHookListenerParameters webHook)
     {
         eventPublisher.publish(
-                new WebHookAnalyticsDeletedEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
+                new WebHookDeletedEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
         );
     }
 
-    public void webHookEdited(WebHookAO webHook)
+    public void webHookEdited(WebHookListenerParameters webHook)
     {
         eventPublisher.publish(
-                new WebHookAnalyticsEditedEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
+                new WebHookEditedEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
         );
     }
 
-    public void webHookEnabled(WebHookAO webHook)
+    public void webHookEnabled(WebHookListenerParameters webHook)
     {
         eventPublisher.publish(
-                new WebHookAnalyticsEnabledEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
+                new WebHookEnabledEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
         );
     }
 
-    public void webHookDisabled(WebHookAO webHook)
+    public void webHookDisabled(WebHookListenerParameters webHook)
     {
         eventPublisher.publish(
-                new WebHookAnalyticsDisabledEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
+                new WebHookDisabledEvent(webHook.getName(), webHook.getUrl(), webHook.getEvents(), webHook.getParameters(), webHook.getRegistrationMethod())
         );
     }
 }

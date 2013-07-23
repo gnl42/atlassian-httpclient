@@ -1,7 +1,10 @@
 package com.atlassian.webhooks.spi.provider;
 
+import com.atlassian.annotations.PublicSpi;
+
 import java.util.Date;
 
+@PublicSpi
 public interface WebHookListenerParameters extends WebHookListenerRegistrationParameters
 {
     /**
@@ -17,5 +20,7 @@ public interface WebHookListenerParameters extends WebHookListenerRegistrationPa
     Date getLastUpdated();
 
     String getLastUpdatedUser();
+
+    String getRegistrationMethod();
 
 }

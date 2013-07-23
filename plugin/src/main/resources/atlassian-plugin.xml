@@ -15,8 +15,8 @@
                interface="com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookListenerRegistry"
                public="true" />
 
-    <component key="webHookListenerServiceWrapper"
-               class="com.atlassian.webhooks.plugin.api.WebHookListenerServiceAPIWrapper"
+    <component key="webHookListenerService"
+               class="com.atlassian.webhooks.plugin.api.WebHookListenerServiceImpl"
                interface="com.atlassian.webhooks.api.provider.WebHookListenerService"
                public="true" />
 

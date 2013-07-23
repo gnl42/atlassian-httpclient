@@ -1,8 +1,8 @@
 package com.atlassian.webhooks.plugin;
 
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.webhooks.plugin.event.WebHookPublishRejectedAnalyticsEvent;
-import com.atlassian.webhooks.plugin.event.WebHookPublishedAnalyticsEvent;
+import com.atlassian.webhooks.plugin.event.WebHookRejectedEvent;
+import com.atlassian.webhooks.plugin.event.WebHookPublishedEvent;
 import com.atlassian.webhooks.spi.provider.EventMatcher;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.atlassian.webhooks.spi.provider.WebHookListener;
@@ -71,7 +71,7 @@ public final class WebHookPublisherImplTest
 
         verify(publishTaskFactory).getPublishTask(event, listener);
         verify(executor).execute(publishTask);
-        verify(eventPublisher).publish(isA(WebHookPublishedAnalyticsEvent.class));
+        verify(eventPublisher).publish(isA(WebHookPublishedEvent.class));
     }
 
     @Test
@@ -92,7 +92,7 @@ public final class WebHookPublisherImplTest
 
         verify(publishTaskFactory).getPublishTask(event, listener);
         verify(executor).execute(publishTask);
-        verify(eventPublisher).publish(isA(WebHookPublishRejectedAnalyticsEvent.class));
+        verify(eventPublisher).publish(isA(WebHookRejectedEvent.class));
     }
 
     @Test

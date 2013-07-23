@@ -1,7 +1,8 @@
 package com.atlassian.webhooks.plugin;
 
+import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.event.PluginEventManager;
-import com.atlassian.webhooks.plugin.service.InternalWebHookListenerService;
+import com.atlassian.webhooks.plugin.store.WebHookListenerCachingStore;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -11,23 +12,29 @@ import org.springframework.beans.factory.InitializingBean;
 public class PluginLauncher implements InitializingBean, DisposableBean
 {
     private final PluginEventManager pluginEventManager;
-    private final InternalWebHookListenerService internalWebHookListenerService;
+    private final EventPublisher eventPublisher;
+    private final WebHookListenerCachingStore webHookListenerCachingStore;
 
-    public PluginLauncher(PluginEventManager pluginEventManager, InternalWebHookListenerService internalWebHookListenerService)
+    public PluginLauncher(PluginEventManager pluginEventManager,
+            EventPublisher eventPublisher,
+            WebHookListenerCachingStore webHookListenerCachingStore)
     {
         this.pluginEventManager = pluginEventManager;
-        this.internalWebHookListenerService = internalWebHookListenerService;
+        this.eventPublisher = eventPublisher;
+        this.webHookListenerCachingStore = webHookListenerCachingStore;
     }
 
     @Override
     public void destroy() throws Exception
     {
-        pluginEventManager.unregister(internalWebHookListenerService);
+        pluginEventManager.unregister(webHookListenerCachingStore);
+        eventPublisher.register(webHookListenerCachingStore);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
-        pluginEventManager.register(internalWebHookListenerService);
+        pluginEventManager.register(webHookListenerCachingStore);
+        eventPublisher.unregister(webHookListenerCachingStore);
     }
 }

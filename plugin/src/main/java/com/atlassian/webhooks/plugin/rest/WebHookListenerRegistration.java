@@ -11,13 +11,15 @@ public class WebHookListenerRegistration implements WebHookListenerRegistrationP
 	private final String url;
 	private final String parameters;
     private final Iterable<String> events;
+    private boolean enabled;
 
-    protected WebHookListenerRegistration(String name, String url, String parameters, Iterable<String> events)
+    protected WebHookListenerRegistration(String name, String url, String parameters, Iterable<String> events, final boolean enabled)
     {
         this.name = name;
         this.url = url;
         this.parameters = parameters;
         this.events = events;
+        this.enabled = enabled;
     }
 
     @Override
@@ -42,5 +44,11 @@ public class WebHookListenerRegistration implements WebHookListenerRegistrationP
     public Iterable<String> getEvents()
     {
         return events;
+    }
+
+    @Override
+    public boolean isEnabled()
+    {
+        return enabled;
     }
 }

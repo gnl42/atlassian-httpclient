@@ -1,14 +1,14 @@
 package com.atlassian.webhooks.plugin;
 
-import com.atlassian.webhooks.plugin.ao.DelegatingWebHookListenerParameters;
-import com.atlassian.webhooks.plugin.ao.WebHookAO;
-import com.atlassian.webhooks.plugin.service.InternalWebHookListenerService;
+import com.atlassian.webhooks.api.provider.WebHookListenerService;
 import com.atlassian.webhooks.spi.provider.WebHookEvent;
 import com.atlassian.webhooks.spi.provider.WebHookListener;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookListenerTransformer;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 
@@ -18,31 +18,33 @@ import static com.google.common.collect.Iterables.transform;
  */
 public class PersistentWebHookListenerProvider implements WebHookListenerProvider
 {
-    private final InternalWebHookListenerService internalWebHookListenerService;
     private final WebHookListenerTransformer webHookListenerTransformer;
+    private final WebHookListenerService webHookListenerService;
 
-    public PersistentWebHookListenerProvider(InternalWebHookListenerService internalWebHookListenerService, WebHookListenerTransformer webHookListenerTransformer)
+    public PersistentWebHookListenerProvider(WebHookListenerService webHookListenerService,
+            WebHookListenerTransformer webHookListenerTransformer)
     {
-        this.internalWebHookListenerService = internalWebHookListenerService;
-        this.webHookListenerTransformer = webHookListenerTransformer;
+
+        this.webHookListenerTransformer = checkNotNull(webHookListenerTransformer);
+        this.webHookListenerService = checkNotNull(webHookListenerService);
     }
 
     @Override
     public Iterable<WebHookListener> getListeners(final WebHookEvent webHookEvent)
     {
-        return filter(transform(filter(internalWebHookListenerService.getAllWebHookListeners(), new Predicate<WebHookAO>()
+        return filter(transform(filter(webHookListenerService.getAllWebHookListeners(), new Predicate<WebHookListenerParameters>()
         {
             @Override
-            public boolean apply(final WebHookAO webHookListenerParameters)
+            public boolean apply(final WebHookListenerParameters webHookListenerParameters)
             {
                 return webHookListenerParameters.isEnabled();
             }
-        }), new Function<WebHookAO, WebHookListener>()
+        }), new Function<WebHookListenerParameters, WebHookListener>()
         {
             @Override
-            public WebHookListener apply(final WebHookAO webHookAO)
+            public WebHookListener apply(final WebHookListenerParameters webHookListenerParameters)
             {
-                return webHookListenerTransformer.transform(new DelegatingWebHookListenerParameters(webHookAO)).orNull();
+                return webHookListenerTransformer.transform(webHookListenerParameters).orNull();
             }
         }), new Predicate<WebHookListener>()
         {

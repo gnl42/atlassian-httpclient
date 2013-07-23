@@ -1,8 +1,11 @@
 package com.atlassian.webhooks.spi.provider;
 
+import com.atlassian.annotations.PublicSpi;
+
 /**
  * Parameters with which the WebHook Listener is registered.
  */
+@PublicSpi
 public interface WebHookListenerRegistrationParameters
 {
     /**
@@ -24,4 +27,9 @@ public interface WebHookListenerRegistrationParameters
      * Returns all events for which the listener is registered.
      */
     Iterable<String> getEvents();
+
+    /**
+     * Returns if the listener is enabled.
+     */
+    boolean isEnabled();
 }

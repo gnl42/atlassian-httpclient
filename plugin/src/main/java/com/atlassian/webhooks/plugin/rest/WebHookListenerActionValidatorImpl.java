@@ -5,11 +5,15 @@ import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.spi.provider.WebHookListenerActionValidator;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
+import com.google.common.base.Function;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Retrieves the product's implementation of {@link WebHookListenerActionValidator} from the bundleContext.
+ */
 public class WebHookListenerActionValidatorImpl implements WebHookListenerActionValidator
 {
     private final BundleContext bundleContext;
@@ -20,51 +24,45 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
     }
 
     @Override
-    public MessageCollection validateWebHookRegistration(WebHookListenerRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookRegistration(final WebHookListenerRegistrationParameters registrationParameters)
     {
-        ServiceReference serviceReference = bundleContext.getServiceReference(WebHookListenerActionValidator.class.getName());
-        if (serviceReference != null)
+        return doValidation(new Function<WebHookListenerActionValidator, MessageCollection>()
         {
-            try
+            @Override
+            public MessageCollection apply(WebHookListenerActionValidator validator)
             {
-                WebHookListenerActionValidator webHookListenerActionValidator = (WebHookListenerActionValidator) bundleContext.getService(serviceReference);
-                return webHookListenerActionValidator.validateWebHookRegistration(registrationParameters);
+                return validator.validateWebHookRegistration(registrationParameters);
             }
-            finally
-            {
-                bundleContext.ungetService(serviceReference);
-            }
-        }
-        else
-        {
-            return ErrorMessageCollection.emptyErrorMessageCollection();
-        }
+        });
     }
 
     @Override
-    public MessageCollection validateWebHookRemoval(WebHookListenerParameters registrationParameters)
+    public MessageCollection validateWebHookRemoval(final WebHookListenerParameters registrationParameters)
     {
-        ServiceReference serviceReference = bundleContext.getServiceReference(WebHookListenerActionValidator.class.getName());
-        if (serviceReference != null)
+        return doValidation(new Function<WebHookListenerActionValidator, MessageCollection>()
         {
-            try
+            @Override
+            public MessageCollection apply(WebHookListenerActionValidator validator)
             {
-                WebHookListenerActionValidator webHookListenerActionValidator = (WebHookListenerActionValidator) bundleContext.getService(serviceReference);
-                return webHookListenerActionValidator.validateWebHookRemoval(registrationParameters);
+                return validator.validateWebHookRemoval(registrationParameters);
             }
-            finally
-            {
-                bundleContext.ungetService(serviceReference);
-            }
-        }
-        else
-        {
-            return ErrorMessageCollection.emptyErrorMessageCollection();
-        }
+        });
     }
 
     @Override
-    public MessageCollection validateWebHookUpdate(WebHookListenerRegistrationParameters registrationParameters)
+    public MessageCollection validateWebHookUpdate(final WebHookListenerRegistrationParameters registrationParameters)
+    {
+        return doValidation(new Function<WebHookListenerActionValidator, MessageCollection>()
+        {
+            @Override
+            public MessageCollection apply(WebHookListenerActionValidator validator)
+            {
+                return validator.validateWebHookUpdate(registrationParameters);
+            }
+        });
+    }
+
+    private MessageCollection doValidation(Function<WebHookListenerActionValidator, MessageCollection> validationFunction)
     {
         ServiceReference serviceReference = bundleContext.getServiceReference(WebHookListenerActionValidator.class.getName());
         if (serviceReference != null)
@@ -72,7 +70,7 @@ public class WebHookListenerActionValidatorImpl implements WebHookListenerAction
             try
             {
                 WebHookListenerActionValidator webHookListenerActionValidator = (WebHookListenerActionValidator) bundleContext.getService(serviceReference);
-                return webHookListenerActionValidator.validateWebHookUpdate(registrationParameters);
+                return validationFunction.apply(webHookListenerActionValidator);
             }
             finally
             {

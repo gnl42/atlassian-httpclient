@@ -10,13 +10,14 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.net.URI;
 
 /**
  * This class is introduced in order not to break JIRA WEBHOOK API, by changing REST input parameters. Please, don't add anything
  * here, legacy is legacy, new special parameters are supposed to be passed to the REST resource as parameters.
+ * @deprecated in JIRA 7.0 we will break API and change filter and excludeIssueDetails to be a part of parameters.
  */
 public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParametersAdapter.AdaptedRegistrationParameters, WebHookListenerRegistration>
 {
@@ -30,11 +31,11 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         if (adaptedRegistrationParameters.filter != null || adaptedRegistrationParameters.excludeIssueDetails != null)
         {
             final String parameters = createJiraParameters(adaptedRegistrationParameters);
-            return new WebHookListenerRegistration(adaptedRegistrationParameters.name, adaptedRegistrationParameters.url, parameters, Lists.newArrayList(adaptedRegistrationParameters.events));
+            return new WebHookListenerRegistration(adaptedRegistrationParameters.name, adaptedRegistrationParameters.url, parameters, Lists.newArrayList(adaptedRegistrationParameters.events), adaptedRegistrationParameters.enabled);
         }
         else
         {
-            return new WebHookListenerRegistration(adaptedRegistrationParameters.name, adaptedRegistrationParameters.url, adaptedRegistrationParameters.parameters, Lists.newArrayList(adaptedRegistrationParameters.events));
+            return new WebHookListenerRegistration(adaptedRegistrationParameters.name, adaptedRegistrationParameters.url, adaptedRegistrationParameters.parameters, Lists.newArrayList(adaptedRegistrationParameters.events), adaptedRegistrationParameters.enabled);
         }
     }
 
@@ -93,6 +94,7 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         @XmlAttribute
         public String[] events;
         @XmlAttribute
+        // TODO check whether this requires serialization of jsonobject during post
         public String parameters;
         @XmlAttribute
         public String url;
@@ -100,6 +102,8 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         public String filter;
         @XmlAttribute
         public Boolean excludeIssueDetails;
+        @XmlAttribute
+        public boolean enabled;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -113,8 +117,6 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         public String lastUpdatedDisplayName;
         @XmlAttribute
         public Long lastUpdated;
-        @XmlAttribute
-        public boolean enabled;
     }
 
     public static class JiraParametersParser

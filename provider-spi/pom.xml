@@ -27,5 +27,10 @@
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.annotations</groupId>
+            <artifactId>atlassian-annotations</artifactId>
+            <version>0.7</version>
+        </dependency>
     </dependencies>
 </project>

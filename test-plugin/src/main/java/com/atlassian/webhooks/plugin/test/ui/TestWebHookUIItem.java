@@ -30,10 +30,17 @@ public class TestWebHookUIItem implements WebHookUIItem
     }
 
     @Override
-    public String getHtml() throws IOException
+    public String getHtml()
     {
-        StringWriter writer = new StringWriter();
-        templateRenderer.render(TEMPLATE_PATH, writer);
-        return writer.toString();
+        try
+        {
+            StringWriter writer = new StringWriter();
+            templateRenderer.render(TEMPLATE_PATH, writer);
+            return writer.toString();
+        }
+        catch (IOException e)
+        {
+            return "";
+        }
     }
 }

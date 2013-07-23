@@ -1,7 +1,9 @@
 package com.atlassian.webhooks.api.provider;
 
 import com.atlassian.annotations.PublicApi;
+import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
+import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
 import com.google.common.base.Optional;
 
 /**
@@ -31,29 +33,49 @@ public interface WebHookListenerService
     /**
      * Registers a new WebHook listener.
      *
-     * @param webHookListenerParameters The parameters of WebHook listener to registerWebHookListener.
+     * * TODO update response
+     * @param registrationParameters The parameters of WebHook listener to register.
      * @return parameters of the registered WebHook listener.
      */
-    WebHookListenerParameters registerWebHookListener(WebHookListenerParameters webHookListenerParameters);
+    WebHookListenerServiceResponse registerWebHookListener(WebHookListenerRegistrationParameters registrationParameters);
 
     /**
      * Updates a WebHook listener with given id.
-     *
+     * TODO update response
      * @param id Id of the WebHook listener to updateWebHookListener.
-     * @param webHookListenerParameters The parameters of WebHook listener to updateWebHookListener.
+     * @param registrationParameters The parameters of WebHook listener to update.
      * @return parameters of the updated WebHook listener.
      */
-    WebHookListenerParameters updateWebHookListener(int id, WebHookListenerParameters webHookListenerParameters);
+    WebHookListenerServiceResponse updateWebHookListener(int id, WebHookListenerRegistrationParameters registrationParameters);
 
     /**
      * Deletes a WebHook listener with given id.
-     *
+     ** TODO update response
      * @param id Id of WebHook listener to remove.
      */
-    void deleteWebHookListener(int id);
+    MessageCollection deleteWebHookListener(int id);
 
     /**
-     * Clears the cache with WebHook listeners.
+     * Enables or disables the WebHook listener.
+     * @param id Id of WebHook to enable/disable.
+     * @param flag Flag, true if setting to enabled, else false.
+     * @return Found and updated WebHook listener.
      */
-    void clearWebHookListenerCache();
+    Optional<WebHookListenerParameters> enableWebHookListener(int id, boolean flag);
+
+    class NonUniqueRegistrationException extends RuntimeException
+    {
+        private final Integer duplicateId;
+
+        public NonUniqueRegistrationException(final String message, final Integer duplicateId)
+        {
+            super(message);
+            this.duplicateId = duplicateId;
+        }
+
+        public Integer getDuplicateId()
+        {
+            return duplicateId;
+        }
+    }
 }

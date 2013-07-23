@@ -1,5 +1,6 @@
 package com.atlassian.webhooks.plugin.event;
 
+// todo unify with WebHookEvent
 abstract class AbstractWebHookAnalyticsEvent
 {
     private final String webHookId;
