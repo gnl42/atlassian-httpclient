@@ -28,13 +28,13 @@ public class PluginLauncher implements InitializingBean, DisposableBean
     public void destroy() throws Exception
     {
         pluginEventManager.unregister(webHookListenerCachingStore);
-        eventPublisher.register(webHookListenerCachingStore);
+        eventPublisher.unregister(webHookListenerCachingStore);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
         pluginEventManager.register(webHookListenerCachingStore);
-        eventPublisher.unregister(webHookListenerCachingStore);
+        eventPublisher.register(webHookListenerCachingStore);
     }
 }

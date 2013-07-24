@@ -11,7 +11,7 @@ import java.util.Date;
 public class WebHookListenerParametersImpl implements WebHookListenerParameters
 {
     private final int id;
-    private final boolean enabled;
+    private final Boolean enabled;
     private final Date lastUpdated;
     private final String lastUpdatedUser;
     private final String name;
@@ -27,7 +27,7 @@ public class WebHookListenerParametersImpl implements WebHookListenerParameters
                 WebHookListenerEventJoiner.split(webHookListenerAO.getEvents()), webHookListenerAO.getRegistrationMethod());
     }
 
-    public WebHookListenerParametersImpl(int id, boolean enabled, Date lastUpdated, String lastUpdatedUser, String name,
+    public WebHookListenerParametersImpl(int id, Boolean enabled, Date lastUpdated, String lastUpdatedUser, String name,
             String url, String parameters, Iterable<String> events, String registrationMethod)
     {
         this.id = id;
@@ -48,7 +48,7 @@ public class WebHookListenerParametersImpl implements WebHookListenerParameters
     }
 
     @Override
-    public boolean isEnabled()
+    public Boolean isEnabled()
     {
         return enabled;
     }

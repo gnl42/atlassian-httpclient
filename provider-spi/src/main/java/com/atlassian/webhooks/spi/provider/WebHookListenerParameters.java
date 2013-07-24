@@ -15,7 +15,7 @@ public interface WebHookListenerParameters extends WebHookListenerRegistrationPa
     /**
      * Returns true if the WebHook Listener is enabled, otherwise returns
      */
-    boolean isEnabled();
+    Boolean isEnabled();
 
     Date getLastUpdated();
 

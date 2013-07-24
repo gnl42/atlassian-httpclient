@@ -31,5 +31,5 @@ public interface WebHookListenerRegistrationParameters
     /**
      * Returns if the listener is enabled.
      */
-    boolean isEnabled();
+    Boolean isEnabled();
 }

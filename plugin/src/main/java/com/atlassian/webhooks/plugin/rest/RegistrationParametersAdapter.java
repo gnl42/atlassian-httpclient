@@ -102,7 +102,7 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         @XmlAttribute
         public Boolean excludeIssueDetails;
         @XmlAttribute
-        public boolean enabled;
+        public Boolean enabled;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

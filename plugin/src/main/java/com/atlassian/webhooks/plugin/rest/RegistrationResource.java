@@ -28,8 +28,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.ws.rs.core.Response.Status;
@@ -82,7 +80,6 @@ public class RegistrationResource
         }
         catch (WebHookListenerService.NonUniqueRegistrationException e)
         {
-//            URI duplicateUri = uriInfo.getBaseUriBuilder().path(RegistrationResource.class).path(String.valueOf(e.getDuplicateId())).build();
             return status(Status.CONFLICT).entity(new SerializableErrorCollection(e)).build();
         }
     }
@@ -118,7 +115,6 @@ public class RegistrationResource
         }
         catch (WebHookListenerService.NonUniqueRegistrationException e)
         {
-//            URI duplicateUri = uriInfo.getBaseUriBuilder().path(RegistrationResource.class).path(String.valueOf(e.getDuplicateId())).build();
             return status(Status.CONFLICT).entity(new SerializableErrorCollection(e)).build();
         }
     }

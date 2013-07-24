@@ -82,9 +82,10 @@ public class WebHookListenerCachingStore
      * @throws IllegalArgumentException when listener with the specified id doesn't exist.
      */
     public WebHookListenerParameters updateWebHookListener(int id, String name, String url, Iterable<String> events,
-            String parameters, boolean isEnabled) throws IllegalArgumentException
+            String parameters, Boolean isEnabled) throws IllegalArgumentException
     {
-        final WebHookListenerAO webHookListenerAO = webHookListenerStore.updateWebHook(id, name, url, events, parameters, isEnabled);
+        boolean enabled = isEnabled != null ? isEnabled : cache.get(id).isEnabled();
+        final WebHookListenerAO webHookListenerAO = webHookListenerStore.updateWebHook(id, name, url, events, parameters, enabled);
         final WebHookListenerParameters listenerParameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookListenerAO);
         cache.put(webHookListenerAO.getID(), listenerParameters);
         return listenerParameters;
