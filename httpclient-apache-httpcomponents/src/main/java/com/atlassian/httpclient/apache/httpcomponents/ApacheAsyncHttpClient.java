@@ -18,6 +18,9 @@ import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -65,15 +68,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static com.atlassian.util.concurrent.Promises.*;
-import static com.google.common.base.Preconditions.*;
+import static com.atlassian.util.concurrent.Promises.rejected;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
 
-public final class DefaultHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean
+public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final EventPublisher eventPublisher;
-    private final ApplicationProperties applicationProperties;
+    private final Function<Object, Void> eventConsumer;
+    private final Supplier<String> applicationName;
     private final ThreadLocalContextManager<C> threadLocalContextManager;
     private final ExecutorService callbackExecutor;
     private final HttpClientOptions httpClientOptions;
@@ -82,15 +86,33 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
     private final HttpAsyncClient nonCachingHttpClient;
     private final FlushableHttpCacheStorage httpCacheStorage;
 
-    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager)
+    public ApacheAsyncHttpClient(EventPublisher eventConsumer, ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager)
     {
-        this(eventPublisher, applicationProperties, threadLocalContextManager, new HttpClientOptions());
+        this(eventConsumer, applicationProperties, threadLocalContextManager, new HttpClientOptions());
     }
 
-    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
+    public ApacheAsyncHttpClient(final EventPublisher eventConsumer, final ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
     {
-        this.eventPublisher = checkNotNull(eventPublisher);
-        this.applicationProperties = checkNotNull(applicationProperties);
+        this(new DefaultApplicationNameSupplier(applicationProperties),
+                new EventConsumerFunction(eventConsumer),
+                threadLocalContextManager,
+                options);
+    }
+
+    public ApacheAsyncHttpClient(String applicationName)
+    {
+        this(applicationName, new HttpClientOptions());
+    }
+
+    public ApacheAsyncHttpClient(String applicationName, final HttpClientOptions options)
+    {
+        this(Suppliers.ofInstance(applicationName), Functions.constant((Void) null), new NoOpThreadLocalContextManager<C>(), options);
+    }
+
+    public ApacheAsyncHttpClient(Supplier<String> applicationName, Function<Object, Void> eventConsumer, ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
+    {
+        this.eventConsumer = checkNotNull(eventConsumer);
+        this.applicationName = checkNotNull(applicationName);
         this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
         this.httpClientOptions = checkNotNull(options);
 
@@ -139,12 +161,12 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
 
             client.setRedirectStrategy(new DefaultRedirectStrategy()
             {
-                final String[] REDIRECT_METHODS = { HttpHead.METHOD_NAME, HttpGet.METHOD_NAME, HttpPost.METHOD_NAME, HttpPut.METHOD_NAME, HttpDelete.METHOD_NAME, HttpPatch.METHOD_NAME};
+                final String[] REDIRECT_METHODS = {HttpHead.METHOD_NAME, HttpGet.METHOD_NAME, HttpPost.METHOD_NAME, HttpPut.METHOD_NAME, HttpDelete.METHOD_NAME, HttpPatch.METHOD_NAME};
 
                 @Override
                 protected boolean isRedirectable(String method)
                 {
-                    for (String m: REDIRECT_METHODS)
+                    for (String m : REDIRECT_METHODS)
                     {
                         if (m.equalsIgnoreCase(method))
                         {
@@ -155,8 +177,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
                 }
 
                 @Override
-                public HttpUriRequest getRedirect(final HttpRequest request, final HttpResponse response, final HttpContext context)
-                        throws ProtocolException
+                public HttpUriRequest getRedirect(final HttpRequest request, final HttpResponse response, final HttpContext context) throws ProtocolException
                 {
                     URI uri = getLocationURI(request, response, context);
                     String method = request.getRequestLine().getMethod();
@@ -231,11 +252,9 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
 
     private String getUserAgent(HttpClientOptions options)
     {
-        return String.format("Atlassian HttpClient %s / %s-%s (%s) / %s",
+        return format("Atlassian HttpClient %s / %s / %s",
                 MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api"),
-                applicationProperties.getDisplayName(),
-                applicationProperties.getVersion(),
-                applicationProperties.getBuildNumber(),
+                applicationName.get(),
                 options.getUserAgent());
     }
 
@@ -344,7 +363,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
     {
         if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code)
         {
-            eventPublisher.publish(new HttpRequestCompletedEvent(
+            eventConsumer.apply(new HttpRequestCompletedEvent(
                     request.getUri().toString(),
                     request.getMethod().name(),
                     statusCode,
@@ -353,7 +372,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
         }
         else
         {
-            eventPublisher.publish(new HttpRequestFailedEvent(
+            eventConsumer.apply(new HttpRequestFailedEvent(
                     request.getUri().toString(),
                     request.getMethod().name(),
                     statusCode,
@@ -364,7 +383,7 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
 
     private void publishEvent(Request request, long requestDuration, Throwable ex)
     {
-        eventPublisher.publish(new HttpRequestFailedEvent(
+        eventConsumer.apply(new HttpRequestFailedEvent(
                 request.getUri().toString(),
                 request.getMethod().name(),
                 ex.toString(),
@@ -407,5 +426,60 @@ public final class DefaultHttpClient<C> extends AbstractHttpClient implements Ht
     public void flushCacheByUriPattern(Pattern urlPattern)
     {
         httpCacheStorage.flushByUriPattern(urlPattern);
+    }
+
+    private static final class NoOpThreadLocalContextManager<C> implements ThreadLocalContextManager<C>
+    {
+        @Override
+        public C getThreadLocalContext()
+        {
+            return null;
+        }
+
+        @Override
+        public void setThreadLocalContext(C context)
+        {
+        }
+
+        @Override
+        public void resetThreadLocalContext()
+        {
+        }
+    }
+
+    private static final class DefaultApplicationNameSupplier implements Supplier<String>
+    {
+        private final ApplicationProperties applicationProperties;
+
+        public DefaultApplicationNameSupplier(ApplicationProperties applicationProperties)
+        {
+            this.applicationProperties = checkNotNull(applicationProperties);
+        }
+
+        @Override
+        public String get()
+        {
+            return format("%s-%s (%s)",
+                    applicationProperties.getDisplayName(),
+                    applicationProperties.getVersion(),
+                    applicationProperties.getBuildNumber());
+        }
+    }
+
+    private static class EventConsumerFunction implements Function<Object, Void>
+    {
+        private final EventPublisher eventPublisher;
+
+        public EventConsumerFunction(EventPublisher eventPublisher)
+        {
+            this.eventPublisher = eventPublisher;
+        }
+
+        @Override
+        public Void apply(Object event)
+        {
+            eventPublisher.publish(event);
+            return null;
+        }
     }
 }

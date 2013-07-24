@@ -18,7 +18,7 @@ public final class DefaultHttpClientFactory implements HttpClientFactory, Dispos
     private final EventPublisher eventPublisher;
     private final ApplicationProperties applicationProperties;
     private final ThreadLocalContextManager threadLocalContextManager;
-    private final Set<DefaultHttpClient> httpClients = new CopyOnWriteArraySet<DefaultHttpClient>();
+    private final Set<ApacheAsyncHttpClient> httpClients = new CopyOnWriteArraySet<ApacheAsyncHttpClient>();
 
     public DefaultHttpClientFactory(EventPublisher eventPublisher, ApplicationProperties applicationProperties, ThreadLocalContextManager threadLocalContextManager)
     {
@@ -42,7 +42,7 @@ public final class DefaultHttpClientFactory implements HttpClientFactory, Dispos
     private HttpClient doCreate(HttpClientOptions options, ThreadLocalContextManager threadLocalContextManager)
     {
         checkNotNull(options);
-        final DefaultHttpClient httpClient = new DefaultHttpClient(eventPublisher, applicationProperties, threadLocalContextManager, options);
+        final ApacheAsyncHttpClient httpClient = new ApacheAsyncHttpClient(eventPublisher, applicationProperties, threadLocalContextManager, options);
         httpClients.add(httpClient);
         return httpClient;
     }
@@ -50,7 +50,7 @@ public final class DefaultHttpClientFactory implements HttpClientFactory, Dispos
     @Override
     public void destroy() throws Exception
     {
-        for (DefaultHttpClient httpClient : httpClients)
+        for (ApacheAsyncHttpClient httpClient : httpClients)
         {
             httpClient.destroy();
         }
