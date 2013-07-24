@@ -94,7 +94,6 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         @XmlAttribute
         public String[] events;
         @XmlAttribute
-        // TODO check whether this requires serialization of jsonobject during post
         public String parameters;
         @XmlAttribute
         public String url;
