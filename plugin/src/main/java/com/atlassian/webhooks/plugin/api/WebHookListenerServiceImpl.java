@@ -137,9 +137,9 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
      */
     private void checkWebHookListenerParameters(WebHookListenerRegistrationParameters webHookListenerParameters)
     {
-        checkNotNull(webHookListenerParameters.getName(), i18n.getText("webhooks.empty.field", "name"));
-        checkNotNull(webHookListenerParameters.getUrl(), i18n.getText("webhooks.empty.field", "url"));
-        checkNotNull(webHookListenerParameters.getEvents(), i18n.getText("webhooks.empty.field", "events"));
+        checkParameter(!StringUtils.isEmpty(webHookListenerParameters.getName()), "name");
+        checkParameter(!StringUtils.isEmpty(webHookListenerParameters.getUrl()), "url");
+        checkParameter(webHookListenerParameters.getEvents() != null, "events");
     }
 
     /**
@@ -183,4 +183,19 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
         return Optional.fromNullable(webHookListenerParameters);
     }
 
+    /**
+     * Check if the parameter condition.
+     * @param condition - evaluated condition
+     * @param parameterName - name of the parameters.
+     * @throws WebHookRequiredParametersException if the condition was evaluated to false.
+     */
+    private void checkParameter(boolean condition, String parameterName)
+    {
+        if (!condition)
+        {
+            throw new WebHookRequiredParametersException(
+                    new WebHookListenerActionValidator.ErrorMessage(parameterName,
+                            new String[] {i18n.getText("webhooks.empty.field", parameterName)}));
+        }
+    }
 }

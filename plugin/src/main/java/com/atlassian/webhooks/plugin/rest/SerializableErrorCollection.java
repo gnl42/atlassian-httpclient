@@ -22,6 +22,11 @@ public class SerializableErrorCollection
         this(new WebHookListenerActionValidator.ErrorMessageCollection(e.getMessage()));
     }
 
+    public SerializableErrorCollection(Message message)
+    {
+        this.messageCollection = new WebHookListenerActionValidator.ErrorMessageCollection(message);
+    }
+
     public SerializableErrorCollection(MessageCollection messageCollection)
     {
         this.messageCollection = messageCollection;

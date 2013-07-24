@@ -70,9 +70,9 @@ public class RegistrationResource
                 return created(uri).entity(new WebHookListenerRegistrationResponse.Factory(userManager).create(registeredListener, uri)).build();
             }
         }
-        catch (NullPointerException npe)
+        catch (WebHookListenerService.WebHookRequiredParametersException e)
         {
-            return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(npe)).build();
+            return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(e.getErrorMessage())).build();
         }
         catch (IllegalArgumentException e)
         {
@@ -109,9 +109,9 @@ public class RegistrationResource
         {
             return status(Status.NOT_FOUND).entity(new SerializableErrorCollection(e)).build();
         }
-        catch (NullPointerException npe)
+        catch (WebHookListenerService.WebHookRequiredParametersException e)
         {
-            return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(npe)).build();
+            return status(Status.BAD_REQUEST).entity(new SerializableErrorCollection(e.getErrorMessage())).build();
         }
         catch (WebHookListenerService.NonUniqueRegistrationException e)
         {
