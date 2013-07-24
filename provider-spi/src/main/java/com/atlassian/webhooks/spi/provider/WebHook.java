@@ -14,7 +14,7 @@ public @interface WebHook
 {
     String id();
 
-    Class<? extends EventMatcher> matcher() default EventMatcher.AlwaysTrueEventMatcher.class;
+    Class<? extends EventMatcher> matcher() default EventMatcher.EventClassEventMatcher.class;
 
     Class<? extends EventSerializerFactory> serializerFactory() default ReflectionEventSerializerFactory.class;
 

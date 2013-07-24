@@ -96,7 +96,7 @@ public final class AnnotationWebHookRegistry implements WebHookRegistry
         {
             this.id = checkNotNull(annotation).id();
             this.event = checkNotNull(event);
-            this.eventMatcher = checkNotNull(constructionStrategy).get(annotation.matcher());
+            this.eventMatcher = checkNotNull(constructionStrategy).getEventMatcher(annotation.matcher(), event);
             this.jsonSupplier = Suppliers.memoize(new Supplier<String>()
             {
                 @Override

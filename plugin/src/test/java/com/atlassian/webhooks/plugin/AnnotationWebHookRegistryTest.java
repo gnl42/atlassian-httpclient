@@ -2,6 +2,7 @@ package com.atlassian.webhooks.plugin;
 
 import com.atlassian.webhooks.spi.provider.*;
 import com.google.common.collect.Iterables;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.*;
 public final class AnnotationWebHookRegistryTest
 {
     public static final String WEB_HOOK_ID = "web_hook_id";
+
     @Mock
     private ConstructionStrategy constructionStrategy;
 
@@ -77,6 +79,16 @@ public final class AnnotationWebHookRegistryTest
         assertTrue(Iterables.isEmpty(registry.getWebHookIds()));
     }
 
+    @Test
+    public void testGetWebHookForEventWithDefaultEventMatcher()
+    {
+        final AnnotationWebHookRegistry annotationWebHookRegistry = new AnnotationWebHookRegistry(new DefaultConstructorConstructionStrategy());
+        Iterable<WebHookEvent> webHooks = annotationWebHookRegistry.getWebHooks(new AnnotationEventWithDefaultArgs());
+        assertFalse(Iterables.isEmpty(webHooks));
+        WebHookEvent webHookEvent = Iterables.get(webHooks, 0);
+        assertThat(webHookEvent.getEventMatcher(), Matchers.instanceOf(EventMatcher.EventClassEventMatcher.class));
+    }
+
     @WebHook(id = WEB_HOOK_ID, matcher = EventMatcher.class, serializerFactory = EventSerializerFactory.class)
     private static final class ValidAnnotatedEvent
     {
@@ -86,4 +98,10 @@ public final class AnnotationWebHookRegistryTest
     private static final class InvalidAnnotatedEvent
     {
     }
+
+    @WebHook(id = "def_args_webhook_id")
+    private static final class AnnotationEventWithDefaultArgs
+    {
+    }
+
 }

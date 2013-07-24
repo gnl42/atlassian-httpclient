@@ -12,7 +12,7 @@ public final class WebHookRegistration
     private final String id;
     private Class<?> eventClass;
     private EventSerializerFactory eventSerializerFactory;
-    private EventMatcher eventMatcher = EventMatcher.ALWAYS_TRUE;
+    private EventMatcher eventMatcher;
 
     public WebHookRegistration(String id)
     {
@@ -27,6 +27,7 @@ public final class WebHookRegistration
     public WebHookRegistration setEventTrigger(Class<?> eventClass)
     {
         this.eventClass = eventClass;
+        this.eventMatcher = new EventMatcher.EventClassEventMatcher(eventClass);
         return this;
     }
 

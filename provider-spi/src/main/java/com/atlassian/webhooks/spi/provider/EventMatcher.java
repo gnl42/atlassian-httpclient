@@ -42,4 +42,20 @@ public interface EventMatcher<T>
             return false;
         }
     }
+
+    static final class EventClassEventMatcher implements EventMatcher<Object>
+    {
+        private final Class<?> eventClass;
+
+        public EventClassEventMatcher(Class<?> eventClass)
+        {
+            this.eventClass = eventClass;
+        }
+
+        @Override
+        public boolean matches(final Object event, final Object listenerParameters)
+        {
+            return eventClass.isInstance(event);
+        }
+    }
 }
