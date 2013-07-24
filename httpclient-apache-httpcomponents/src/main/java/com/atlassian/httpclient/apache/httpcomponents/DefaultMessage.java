@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 
 /**
@@ -308,7 +309,7 @@ abstract class DefaultMessage implements Message
                 }
                 else if (subtype.startsWith("boundary="))
                 {
-                    contentType = contentType.concat(';'+subtype);
+                    contentType = contentType.concat(';' + subtype);
                 }
             }
         }
@@ -332,9 +333,6 @@ abstract class DefaultMessage implements Message
 
     protected void checkMutable()
     {
-        if (isFrozen)
-        {
-            throw new IllegalStateException("Object cannot be changed once frozen");
-        }
+        checkState(!isFrozen, "Object cannot be changed once frozen");
     }
 }

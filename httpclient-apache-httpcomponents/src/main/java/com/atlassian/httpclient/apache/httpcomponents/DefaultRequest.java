@@ -10,12 +10,19 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.atlassian.httpclient.api.Request.Method.DELETE;
+import static com.atlassian.httpclient.api.Request.Method.GET;
+import static com.atlassian.httpclient.api.Request.Method.HEAD;
+import static com.atlassian.httpclient.api.Request.Method.OPTIONS;
+import static com.atlassian.httpclient.api.Request.Method.POST;
+import static com.atlassian.httpclient.api.Request.Method.PUT;
+import static com.atlassian.httpclient.api.Request.Method.TRACE;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class DefaultRequest extends DefaultMessage implements Request
 {
-    private AbstractHttpClient httpClient;
+    private final AbstractHttpClient httpClient;
 
     private Method method;
 
@@ -23,12 +30,14 @@ public class DefaultRequest extends DefaultMessage implements Request
     private boolean cacheDisabled;
 
     private Map<String, String> attributes;
+
     public DefaultRequest(AbstractHttpClient httpClient)
     {
-        this.httpClient = httpClient;
+        this.httpClient = checkNotNull(httpClient);
         attributes = newHashMap();
         setAccept("*/*");
     }
+
     public DefaultRequest(AbstractHttpClient httpClient, URI uri)
     {
         this(httpClient, uri, null, null);
@@ -43,49 +52,50 @@ public class DefaultRequest extends DefaultMessage implements Request
     @Override
     public ResponsePromise get()
     {
-        setMethod(Method.GET);
-        return httpClient.execute(this);
+        return http(GET);
     }
 
     @Override
     public ResponsePromise post()
     {
-        setMethod(Method.POST);
-        return httpClient.execute(this);
+        return http(POST);
     }
 
     @Override
     public ResponsePromise put()
     {
-        setMethod(Method.PUT);
-        return httpClient.execute(this);
+        return http(PUT);
     }
 
     @Override
     public ResponsePromise delete()
     {
-        setMethod(Method.DELETE);
-        return httpClient.execute(this);
+        return http(DELETE);
     }
 
     @Override
     public ResponsePromise options()
     {
-        setMethod(Method.OPTIONS);
-        return httpClient.execute(this);
+        return http(OPTIONS);
     }
 
     @Override
     public ResponsePromise head()
     {
-        setMethod(Method.HEAD);
-        return httpClient.execute(this);
+        return http(HEAD);
     }
 
     @Override
     public ResponsePromise trace()
     {
-        setMethod(Method.TRACE);
+        return http(TRACE);
+    }
+
+    @Override
+    public ResponsePromise http(Method method)
+    {
+        checkNotNull(method, "HTTP method must not be null");
+        setMethod(method);
         return httpClient.execute(this);
     }
 
@@ -192,10 +202,7 @@ public class DefaultRequest extends DefaultMessage implements Request
             case POST:
             case PUT:
             case TRACE:
-                if (!hasEntity())
-                {
-                    throw new IllegalStateException("Request method " + method + " requires an entity");
-                }
+                // no-op
                 break;
         }
 
