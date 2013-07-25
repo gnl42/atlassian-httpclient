@@ -1,11 +1,16 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.google.common.io.InputSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import static com.google.common.io.Closeables.closeQuietly;
+import static com.google.common.io.Resources.getResource;
+import static com.google.common.io.Resources.newInputStreamSupplier;
+import static java.lang.String.format;
 
 final class MavenUtils
 {
@@ -16,32 +21,32 @@ final class MavenUtils
     static String getVersion(String groupId, String artifactId)
     {
         final Properties props = new Properties();
-        InputStream resourceAsStream = null;
+        InputStream is = null;
         try
         {
-            resourceAsStream = MavenUtils.class.getResourceAsStream(String.format("/META-INF/maven/%s/%s/pom.properties", groupId, artifactId));
-            props.load(resourceAsStream);
+            is = getPomInputStreamSupplier(groupId, artifactId).getInput();
+            props.load(is);
             return props.getProperty("version", UNKNOWN_VERSION);
         }
         catch (Exception e)
         {
             logger.debug("Could not find version for maven artifact {}:{}", groupId, artifactId);
-            logger.debug("Got the following exception", e);
+            logger.debug("Got the following exception:", e);
             return UNKNOWN_VERSION;
         }
         finally
         {
-            if (resourceAsStream != null)
-            {
-                try
-                {
-                    resourceAsStream.close();
-                }
-                catch (IOException ioe)
-                {
-                    // ignore
-                }
-            }
+            closeQuietly(is);
         }
+    }
+
+    private static InputSupplier<InputStream> getPomInputStreamSupplier(String groupId, String artifactId)
+    {
+        return newInputStreamSupplier(getResource(MavenUtils.class, getPomFilePath(groupId, artifactId)));
+    }
+
+    private static String getPomFilePath(String groupId, String artifactId)
+    {
+        return format("/META-INF/maven/%s/%s/pom.properties", groupId, artifactId);
     }
 }

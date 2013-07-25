@@ -148,6 +148,14 @@ public interface Request extends Message
      */
     ResponsePromise trace();
 
+    /**
+     * Executes this request through the {@link HttpClient} service using the given HTTP method.
+     *
+     * @param method the HTTP method to use.
+     * @return A promise object that can be used to receive the response and handle exceptions
+     */
+    ResponsePromise execute(Method method);
+
     Method getMethod();
 
     @Override

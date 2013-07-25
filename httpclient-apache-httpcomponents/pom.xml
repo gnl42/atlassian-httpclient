@@ -24,10 +24,12 @@
         <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.atlassian.event</groupId>
             <artifactId>atlassian-event</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.atlassian.analytics</groupId>

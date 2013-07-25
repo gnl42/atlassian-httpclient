@@ -30,7 +30,7 @@ public final class DefaultHttpClientIntegrationTest
     @ClassRule
     public static final JettyServer SERVER = new JettyServer();
 
-    private DefaultHttpClient httpClient;
+    private ApacheAsyncHttpClient httpClient;
 
     @Mock
     private EventPublisher eventPublisher;
@@ -45,7 +45,7 @@ public final class DefaultHttpClientIntegrationTest
         when(applicationProperties.getVersion()).thenReturn("1");
         when(applicationProperties.getBuildNumber()).thenReturn("0001");
 
-        httpClient = new DefaultHttpClient<Object>(eventPublisher, applicationProperties, new ThreadLocalContextManager<Object>()
+        httpClient = new ApacheAsyncHttpClient<Object>(eventPublisher, applicationProperties, new ThreadLocalContextManager<Object>()
         {
             @Override
             public Object getThreadLocalContext()
