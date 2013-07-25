@@ -8,7 +8,7 @@
     <osgi:service id="httpClientService" ref="httpClient" interface="com.atlassian.httpclient.api.HttpClient"/>
     <osgi:service id="httpClientFactoryService" ref="httpClientFactory" interface="com.atlassian.httpclient.api.factory.HttpClientFactory"/>
 
-    <beans:bean id="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClient">
+    <beans:bean id="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.ApacheAsyncHttpClient">
         <beans:constructor-arg ref="eventPublisher"/>
         <beans:constructor-arg ref="applicationProperties"/>
         <beans:constructor-arg>
