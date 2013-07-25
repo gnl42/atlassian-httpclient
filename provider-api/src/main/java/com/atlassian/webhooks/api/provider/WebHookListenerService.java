@@ -36,7 +36,6 @@ public interface WebHookListenerService
      *
      * @param registrationParameters The parameters of WebHook listener to register.
      * @param registrationMethod REST, SERVICE or UI.
-     * @throws WebHookRequiredParametersException if any of required registration fields is null.
      * @throws IllegalArgumentException if required fields are illegal.
      * @throws NonUniqueRegistrationException if WebHook Listener with the same data already exists.
      * @return parameters of the registered WebHook listener or message collection.
@@ -47,7 +46,6 @@ public interface WebHookListenerService
      * Registers a new WebHook listener.
      *
      * @param registrationParameters The parameters of WebHook listener to register.
-     * @throws WebHookRequiredParametersException if any of required registration fields is null.
      * @throws IllegalArgumentException if required fields are illegal.
      * @throws NonUniqueRegistrationException if WebHook Listener with the same data already exists.
      * @return parameters of the registered WebHook listener or a message collection.
@@ -60,7 +58,6 @@ public interface WebHookListenerService
      * @param id Id of the WebHook listener to updateWebHookListener.
      * @param registrationParameters The parameters of WebHook listener to update.
      * @return parameters of the updated WebHook listener.
-     * @throws WebHookRequiredParametersException if any of required registration fields is null.
      * @throws IllegalArgumentException if required fields are illegal or webhook with given id doesn't exist.
      * @throws NonUniqueRegistrationException if WebHook Listener with the same data already exists.
      */
@@ -103,21 +100,6 @@ public interface WebHookListenerService
         public Integer getDuplicateId()
         {
             return duplicateId;
-        }
-    }
-
-    class WebHookRequiredParametersException extends RuntimeException
-    {
-        private final Message message;
-
-        public WebHookRequiredParametersException(final Message message)
-        {
-            this.message = message;
-        }
-
-        public Message getErrorMessage()
-        {
-            return message;
         }
     }
 }

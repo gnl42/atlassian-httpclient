@@ -135,7 +135,6 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
 
     /**
      * Verifies WebHookRegistrationParameters.
-     * @throws WebHookRequiredParametersException if any of required parameters is null.
      * @param webHookListenerParameters registration parameters to verify.
      */
     private WebHookListenerActionValidator.ErrorMessageCollection checkWebHookListenerParameters(WebHookListenerRegistrationParameters webHookListenerParameters)
