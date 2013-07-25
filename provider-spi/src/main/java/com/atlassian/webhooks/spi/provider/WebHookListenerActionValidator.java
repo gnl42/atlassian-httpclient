@@ -3,7 +3,6 @@ package com.atlassian.webhooks.spi.provider;
 import com.atlassian.annotations.PublicSpi;
 import com.atlassian.sal.api.message.Message;
 import com.atlassian.sal.api.message.MessageCollection;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.io.Serializable;
@@ -50,7 +49,7 @@ public interface WebHookListenerActionValidator
 
         public static ErrorMessageCollection emptyErrorMessageCollection()
         {
-            return new ErrorMessageCollection(ImmutableList.<Message>of());
+            return new ErrorMessageCollection(Lists.<Message>newArrayList());
         }
 
         private ErrorMessageCollection(List<Message> messages)
