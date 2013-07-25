@@ -154,7 +154,7 @@ public interface Request extends Message
      * @param method the HTTP method to use.
      * @return A promise object that can be used to receive the response and handle exceptions
      */
-    ResponsePromise http(Method method);
+    ResponsePromise execute(Method method);
 
     Method getMethod();
 

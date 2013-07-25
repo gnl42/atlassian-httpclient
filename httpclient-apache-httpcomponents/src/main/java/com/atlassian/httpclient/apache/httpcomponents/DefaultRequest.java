@@ -52,47 +52,47 @@ public class DefaultRequest extends DefaultMessage implements Request
     @Override
     public ResponsePromise get()
     {
-        return http(GET);
+        return execute(GET);
     }
 
     @Override
     public ResponsePromise post()
     {
-        return http(POST);
+        return execute(POST);
     }
 
     @Override
     public ResponsePromise put()
     {
-        return http(PUT);
+        return execute(PUT);
     }
 
     @Override
     public ResponsePromise delete()
     {
-        return http(DELETE);
+        return execute(DELETE);
     }
 
     @Override
     public ResponsePromise options()
     {
-        return http(OPTIONS);
+        return execute(OPTIONS);
     }
 
     @Override
     public ResponsePromise head()
     {
-        return http(HEAD);
+        return execute(HEAD);
     }
 
     @Override
     public ResponsePromise trace()
     {
-        return http(TRACE);
+        return execute(TRACE);
     }
 
     @Override
-    public ResponsePromise http(Method method)
+    public ResponsePromise execute(Method method)
     {
         checkNotNull(method, "HTTP method must not be null");
         setMethod(method);
