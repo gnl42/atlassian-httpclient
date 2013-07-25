@@ -20,6 +20,11 @@
                interface="com.atlassian.webhooks.api.provider.WebHookListenerService"
                public="true" />
 
+    <component key="webHookListenerUpgradeStore"
+               class="com.atlassian.webhooks.plugin.store.WebHookListenerUpgradeTaskStore"
+               interface="com.atlassian.webhooks.api.provider.WebHookUpgradeTaskStore"
+               public="true" />
+
     <component key="pluginLauncher" class="com.atlassian.webhooks.plugin.PluginLauncher" public="true">
         <interface>org.springframework.beans.factory.InitializingBean</interface>
         <interface>org.springframework.beans.factory.DisposableBean</interface>

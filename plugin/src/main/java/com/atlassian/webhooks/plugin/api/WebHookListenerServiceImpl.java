@@ -1,6 +1,7 @@
 package com.atlassian.webhooks.plugin.api;
 
 import com.atlassian.sal.api.message.I18nResolver;
+import com.atlassian.sal.api.message.Message;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.api.provider.WebHookListenerService;
 import com.atlassian.webhooks.api.provider.WebHookListenerServiceResponse;
@@ -53,12 +54,14 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     @Override
-    public WebHookListenerServiceResponse registerWebHookListener(final WebHookListenerRegistrationParameters registrationParameters, final RegistrationMethod registrationMethod)
+    public WebHookListenerServiceResponse registerWebHookListener(
+            final WebHookListenerRegistrationParameters registrationParameters,
+            final RegistrationMethod registrationMethod)
     {
-        checkWebHookListenerParameters(registrationParameters);
         validateUniqueRegistration(null, registrationParameters);
         final MessageCollection messageCollection =
                 webHookListenerActionValidator.validateWebHookRegistration(registrationParameters);
+        messageCollection.addAll(checkWebHookListenerParameters(registrationParameters).getMessages());
         if (!messageCollection.isEmpty())
         {
             return new WebHookListenerServiceResponse(messageCollection);
@@ -80,10 +83,10 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     public WebHookListenerServiceResponse updateWebHookListener(int id, WebHookListenerRegistrationParameters registrationParameters)
             throws IllegalArgumentException
     {
-        checkWebHookListenerParameters(registrationParameters);
         validateUniqueRegistration(id, registrationParameters);
         final MessageCollection messageCollection =
                 webHookListenerActionValidator.validateWebHookUpdate(registrationParameters);
+        messageCollection.addAll(checkWebHookListenerParameters(registrationParameters).getMessages());
         if (!messageCollection.isEmpty())
         {
             return new WebHookListenerServiceResponse(messageCollection);
@@ -132,14 +135,25 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
 
     /**
      * Verifies WebHookRegistrationParameters.
-     * @throws NullPointerException if any of required parameters is null.
+     * @throws WebHookRequiredParametersException if any of required parameters is null.
      * @param webHookListenerParameters registration parameters to verify.
      */
-    private void checkWebHookListenerParameters(WebHookListenerRegistrationParameters webHookListenerParameters)
+    private WebHookListenerActionValidator.ErrorMessageCollection checkWebHookListenerParameters(WebHookListenerRegistrationParameters webHookListenerParameters)
     {
-        checkParameter(!StringUtils.isEmpty(webHookListenerParameters.getName()), "name");
-        checkParameter(!StringUtils.isEmpty(webHookListenerParameters.getUrl()), "url");
-        checkParameter(webHookListenerParameters.getEvents() != null, "events");
+        WebHookListenerActionValidator.ErrorMessageCollection messageCollection = new WebHookListenerActionValidator.ErrorMessageCollection();
+        if (StringUtils.isEmpty(webHookListenerParameters.getName()))
+        {
+            messageCollection.addMessage(createErrorMessageForRequiredParameter("name"));
+        }
+        if (StringUtils.isEmpty(webHookListenerParameters.getUrl()))
+        {
+            messageCollection.addMessage(createErrorMessageForRequiredParameter("url"));
+        }
+        if (webHookListenerParameters.getEvents() == null)
+        {
+            messageCollection.addMessage(createErrorMessageForRequiredParameter("events"));
+        }
+        return messageCollection;
     }
 
     /**
@@ -184,18 +198,11 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
     }
 
     /**
-     * Check if the parameter condition.
-     * @param condition - evaluated condition
-     * @param parameterName - name of the parameters.
-     * @throws WebHookRequiredParametersException if the condition was evaluated to false.
+     * @param parameterName for which error message is created.
+     * @return error message saying that required field is empty.
      */
-    private void checkParameter(boolean condition, String parameterName)
+    private Message createErrorMessageForRequiredParameter(String parameterName)
     {
-        if (!condition)
-        {
-            throw new WebHookRequiredParametersException(
-                    new WebHookListenerActionValidator.ErrorMessage(parameterName,
-                            new String[] {i18n.getText("webhooks.empty.field", parameterName)}));
-        }
+        return new WebHookListenerActionValidator.ErrorMessage(parameterName, new String[] {i18n.getText("webhooks.empty.field", parameterName)});
     }
 }

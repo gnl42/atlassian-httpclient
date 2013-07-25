@@ -87,9 +87,9 @@ public interface WebHookListenerActionValidator
         }
 
         @Override
-        public void addAll(List<Message> messages)
+        public void addAll(List<Message> errorMessages)
         {
-            messages.addAll(messages);
+            this.messages.addAll(errorMessages);
         }
 
         @Override
