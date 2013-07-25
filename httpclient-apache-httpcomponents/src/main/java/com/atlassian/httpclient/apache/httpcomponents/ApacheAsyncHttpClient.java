@@ -76,6 +76,15 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    private static final Supplier<String> httpClientVersion = Suppliers.memoize(new Supplier<String>()
+    {
+        @Override
+        public String get()
+        {
+            return MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api");
+        }
+    });
+
     private final Function<Object, Void> eventConsumer;
     private final Supplier<String> applicationName;
     private final ThreadLocalContextManager<C> threadLocalContextManager;
@@ -223,7 +232,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
 
         HttpParams params = client.getParams();
-        // @todo add plugin version to UA string
+
         HttpProtocolParams.setUserAgent(params, getUserAgent(options));
 
         HttpConnectionParams.setConnectionTimeout(params, (int) options.getConnectionTimeout());
@@ -253,7 +262,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private String getUserAgent(HttpClientOptions options)
     {
         return format("Atlassian HttpClient %s / %s / %s",
-                MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api"),
+                httpClientVersion.get(),
                 applicationName.get(),
                 options.getUserAgent());
     }
