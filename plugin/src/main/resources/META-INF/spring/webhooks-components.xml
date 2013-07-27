@@ -49,10 +49,8 @@
 
     <beans:bean id="moduleDescriptorWebHookRegistry" class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookListenerRegistryImpl" />
 
-    <beans:bean id="webHookListenerStore" class="com.atlassian.webhooks.plugin.store.WebHookListenerStore">
-        <beans:constructor-arg index="0" ref="ao" />
-        <beans:constructor-arg index="1" ref="userManager" />
-        <beans:constructor-arg index="2" ref="i18nResolver" />
+    <beans:bean id="webHookListenerStore" class="com.atlassian.webhooks.plugin.store.OsgiWebHookListenerStore">
+        <beans:constructor-arg index="0" ref="bundleContext" />
     </beans:bean>
 
     <beans:bean id="webHookListenerCachingStore" class="com.atlassian.webhooks.plugin.store.WebHookListenerCachingStore">

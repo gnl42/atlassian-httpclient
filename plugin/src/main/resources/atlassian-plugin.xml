@@ -20,11 +20,6 @@
                interface="com.atlassian.webhooks.api.provider.WebHookListenerService"
                public="true" />
 
-    <component key="webHookListenerUpgradeStore"
-               class="com.atlassian.webhooks.plugin.store.WebHookListenerUpgradeTaskStore"
-               interface="com.atlassian.webhooks.api.provider.WebHookUpgradeTaskStore"
-               public="true" />
-
     <component key="pluginLauncher" class="com.atlassian.webhooks.plugin.PluginLauncher" public="true">
         <interface>org.springframework.beans.factory.InitializingBean</interface>
         <interface>org.springframework.beans.factory.DisposableBean</interface>
@@ -49,13 +44,9 @@
     <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" />
     <component-import key="webResourceManager" interface="com.atlassian.plugin.webresource.WebResourceManager" />
     <component-import key="pluginEventManager" interface="com.atlassian.plugin.event.PluginEventManager" />
+    <component-import key="webSudoManager" interface="com.atlassian.sal.api.websudo.WebSudoManager" />
 
     <rest key="webhooksRest" path="/webhooks" version="1.0" description="Provides webhook registration services." />
-
-    <ao key="webhooks-ao-module" name="Active Objects Module">
-        <description>Datastore for persistent webhooks.</description>
-        <entity>com.atlassian.webhooks.plugin.ao.WebHookListenerAO</entity>
-    </ao>
 
     <resource type="i18n" name="i18n" location="i18n/i18n"/>
 

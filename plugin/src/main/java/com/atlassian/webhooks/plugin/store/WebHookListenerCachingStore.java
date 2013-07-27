@@ -5,9 +5,9 @@ import com.atlassian.plugin.event.PluginEventListener;
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.webhooks.api.provider.WebHookListenerService;
 import com.atlassian.webhooks.plugin.PluginProperties;
-import com.atlassian.webhooks.plugin.ao.WebHookListenerAO;
 import com.atlassian.webhooks.spi.provider.WebHookClearCacheEvent;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
+import com.atlassian.webhooks.spi.provider.store.WebHookListenerStore;
 import com.google.common.base.Optional;
 
 import java.util.Collections;
@@ -64,9 +64,8 @@ public class WebHookListenerCachingStore
     public WebHookListenerParameters registerWebHookListener(String name, String url, Iterable<String> events, String parameters,
             WebHookListenerService.RegistrationMethod registrationMethod)
     {
-        final WebHookListenerAO webHookListenerAO = webHookListenerStore.addWebHook(name, url, events, parameters, registrationMethod);
-        final WebHookListenerParameters listenerParameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookListenerAO);
-        cache.put(webHookListenerAO.getID(), listenerParameters);
+        final WebHookListenerParameters listenerParameters = webHookListenerStore.addWebHook(name, url, events, parameters, registrationMethod.name());
+        cache.put(listenerParameters.getId(), listenerParameters);
         return listenerParameters;
     }
 
@@ -85,9 +84,8 @@ public class WebHookListenerCachingStore
             String parameters, Boolean isEnabled) throws IllegalArgumentException
     {
         boolean enabled = isEnabled != null ? isEnabled : cache.get(id).isEnabled();
-        final WebHookListenerAO webHookListenerAO = webHookListenerStore.updateWebHook(id, name, url, events, parameters, enabled);
-        final WebHookListenerParameters listenerParameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookListenerAO);
-        cache.put(webHookListenerAO.getID(), listenerParameters);
+        final WebHookListenerParameters listenerParameters = webHookListenerStore.updateWebHook(id, name, url, events, parameters, enabled);
+        cache.put(listenerParameters.getId(), listenerParameters);
         return listenerParameters;
     }
 
@@ -112,14 +110,12 @@ public class WebHookListenerCachingStore
      */
     public Optional<WebHookListenerParameters> enableWebHook(final int id, final boolean flag)
     {
-        final Optional<WebHookListenerAO> webHookAOOption = webHookListenerStore.enableWebHook(id, flag);
-        if (webHookAOOption.isPresent())
+        final Optional<WebHookListenerParameters> webHookListenerParameters = webHookListenerStore.enableWebHook(id, flag);
+        if (webHookListenerParameters.isPresent())
         {
-            WebHookListenerParameters parameters = WebHookListenerParametersImpl.createWebHookListenerParameters(webHookAOOption.get());
-            cache.put(id, parameters);
-            return Optional.of(parameters);
+            cache.put(id, webHookListenerParameters.get());
         }
-        return Optional.absent();
+        return webHookListenerParameters;
     }
 
     @PluginEventListener @SuppressWarnings("unused")
@@ -169,11 +165,11 @@ public class WebHookListenerCachingStore
 
         private void fillCache()
         {
-            Iterable<WebHookListenerAO> allWebhooks = webHookListenerStore.getAllWebHooks();
+            Iterable<WebHookListenerParameters> allWebhooks = webHookListenerStore.getAllWebHooks();
             cache.clear();
-            for (WebHookListenerAO webHookListenerAO : allWebhooks)
+            for (WebHookListenerParameters listenerParams : allWebhooks)
             {
-                cache.put(webHookListenerAO.getID(), WebHookListenerParametersImpl.createWebHookListenerParameters(webHookListenerAO));
+                cache.put(listenerParams.getId(), listenerParams);
             }
             webHookRetrievalStrategy = CACHE_WEB_HOOK_RETRIEVAL_STRATEGY;
         }

@@ -3,6 +3,8 @@ package com.atlassian.webhooks.plugin.web;
 import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.sal.api.user.UserManager;
+import com.atlassian.sal.api.websudo.WebSudoManager;
+import com.atlassian.sal.api.websudo.WebSudoSessionException;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.atlassian.webhooks.plugin.web.util.HtmlSafeContent;
 import com.atlassian.webhooks.plugin.web.util.RendererContextBuilder;
@@ -27,14 +29,17 @@ public class WebHookAdminServlet extends HttpServlet
     private final I18nResolver i18nResolver;
     private final WebHookUIRegistry webHookUIRegistry;
     private final UserManager userManager;
+    private final WebSudoManager webSudoManager;
 
     public WebHookAdminServlet(
             TemplateRenderer templateRenderer,
             WebResourceManager webResourceManager,
             I18nResolver i18nResolver,
             WebHookUIRegistry webHookUIRegistry,
-            UserManager userManager)
+            UserManager userManager,
+            WebSudoManager webSudoManager)
     {
+        this.webSudoManager = webSudoManager;
         this.webHookUIRegistry = checkNotNull(webHookUIRegistry);
         this.userManager = checkNotNull(userManager);
         this.templateRenderer = checkNotNull(templateRenderer);
@@ -45,13 +50,22 @@ public class WebHookAdminServlet extends HttpServlet
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        if (userManager.isAdmin(userManager.getRemoteUsername()))
+        try
         {
-            render(resp);
+            // Enable web sudo protection if needed and if the app we are running in supports it
+            webSudoManager.willExecuteWebSudoRequest(req);
+            if (userManager.isAdmin(userManager.getRemoteUsername()) || userManager.isSystemAdmin(userManager.getRemoteUsername()))
+            {
+                render(resp);
+            }
+            else
+            {
+                renderNoAdminPrivileges(resp);
+            }
         }
-        else
+        catch (WebSudoSessionException wse)
         {
-            renderNoAdminPrivileges(resp);
+            webSudoManager.enforceWebSudoProtection(req, resp);
         }
     }
 

@@ -20,7 +20,6 @@ import static com.google.common.collect.Iterables.transform;
  */
 public class OsgiWebHookListenerProvider implements WebHookListenerProvider
 {
-
     private Set<WebHookListenerRegistry> registries = new HashSet<WebHookListenerRegistry>();
 
     public OsgiWebHookListenerProvider(WaitableServiceTrackerFactory factory)

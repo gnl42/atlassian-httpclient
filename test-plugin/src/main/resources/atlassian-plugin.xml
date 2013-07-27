@@ -31,7 +31,11 @@
     <component key="testWebHookUI" class="com.atlassian.webhooks.plugin.test.ui.TestWebHookUIItem"
                interface="com.atlassian.webhooks.spi.provider.WebHookUIItem" public="true" />
 
+    <component key="webHookListenerStore" class="com.atlassian.webhooks.plugin.management.TestWebHookListenerStoreImpl"
+               interface="com.atlassian.webhooks.spi.provider.store.WebHookListenerStore" public="true" />
+
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
+    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
     <component-import key="httpClient" interface="com.atlassian.httpclient.api.HttpClient"/>
     <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" />

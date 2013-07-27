@@ -1,6 +1,5 @@
 package com.atlassian.webhooks.plugin.rest;
 
-import com.atlassian.webhooks.plugin.store.WebHookListenerParametersImpl;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -60,7 +59,7 @@ public class RegistrationParametersAdapterTest
     public void testCrossProductWebHookMarshaling() throws Exception
     {
         final Date date = new Date();
-        final WebHookListenerParameters webHookListenerParameters = new WebHookListenerParametersImpl(0, true, date, "Rebel spy", "REBEL WEBHOOK",
+        final WebHookListenerParameters webHookListenerParameters = new WebHookListenerParameters.WebHookListenerParametersImpl(0, true, date, "Rebel spy", "REBEL WEBHOOK",
                 "http://rebel-base.gov.rebel", null, Lists.newArrayList("jira:issue_created", "jira:issue_updated"), "REST"
         );
 

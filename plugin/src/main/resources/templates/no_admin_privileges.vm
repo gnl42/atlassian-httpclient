@@ -10,7 +10,7 @@
     <div class="aui-message warning">
         <p class="title">
             <span class="aui-icon icon-warning"></span>
-            <strong>$i18n.getText('auth.config.applink.admin.privileges.required')</strong>
+            <strong>$i18n.getText('auth.config.webhooks.admin.privileges.required')</strong>
         </p>
     </div>
 </div>

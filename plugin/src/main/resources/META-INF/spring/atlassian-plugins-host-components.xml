@@ -11,6 +11,5 @@
     <osgi:reference id="pluginAccessor" interface="com.atlassian.plugin.PluginAccessor"/>
     <osgi:reference id="pluginEventManager" interface="com.atlassian.plugin.event.PluginEventManager"/>
     <osgi:reference id="moduleFactory" interface="com.atlassian.plugin.module.ModuleFactory"/>
-    <osgi:reference id="ao" interface="com.atlassian.activeobjects.external.ActiveObjects" />
     <osgi:reference id="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver" />
 </beans:beans>

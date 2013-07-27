@@ -21,7 +21,6 @@ public final class TestWebHookOnEvents
         final WebHookServlet.Hook hook = WebHookServlet.waitAndPopPluginEnabled();
         assertNotNull(hook);
         assertFalse(WebHookServlet.hasPluginEnabledHooks());
-//        assertTrue(hook.body.contains(eventValue));
     }
 
     @Test

@@ -1,7 +1,5 @@
 package com.atlassian.webhooks.plugin.service;
 
-import com.atlassian.activeobjects.external.ActiveObjects;
-import com.atlassian.activeobjects.test.TestActiveObjects;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
@@ -14,28 +12,25 @@ import com.atlassian.webhooks.api.provider.event.WebHookDeletedEvent;
 import com.atlassian.webhooks.api.provider.event.WebHookDisabledEvent;
 import com.atlassian.webhooks.api.provider.event.WebHookEnabledEvent;
 import com.atlassian.webhooks.plugin.PluginProperties;
-import com.atlassian.webhooks.plugin.ao.WebHookListenerAO;
 import com.atlassian.webhooks.plugin.api.WebHookListenerServiceImpl;
 import com.atlassian.webhooks.plugin.event.WebHookEventDispatcher;
 import com.atlassian.webhooks.plugin.rest.WebHookListenerRegistration;
+import com.atlassian.webhooks.plugin.store.MockWebHookListenerStore;
 import com.atlassian.webhooks.plugin.store.WebHookListenerCachingStore;
-import com.atlassian.webhooks.plugin.store.WebHookListenerStore;
 import com.atlassian.webhooks.spi.provider.WebHookListenerActionValidator;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
+import com.atlassian.webhooks.spi.provider.store.WebHookListenerStore;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import net.java.ao.EntityManager;
-import net.java.ao.test.junit.ActiveObjectsJUnitRunner;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.ImmutableSet.of;
@@ -52,7 +47,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(ActiveObjectsJUnitRunner.class)
 public class WebHookListenerServiceTest
 {
     public static final String LAST_UPDATED_USER = "Bobba Fett";
@@ -63,8 +57,6 @@ public class WebHookListenerServiceTest
     public static final Iterable<String> EVENTS = newArrayList("rebel_captured_event");
     public static final String PARAMETERS = "rebel = 'Han Solo'";
 
-    @SuppressWarnings ("UnusedDeclaration")
-    private EntityManager entityManager;
     private WebHookListenerServiceImpl webHookListenerService;
     private UserManager userManager;
     private EventPublisher eventPublisher;
@@ -75,15 +67,12 @@ public class WebHookListenerServiceTest
         this.userManager = mock(UserManager.class);
         when(userManager.getRemoteUsername()).thenReturn(LAST_UPDATED_USER);
         this.eventPublisher = mock(EventPublisher.class);
-        ActiveObjects ao = new TestActiveObjects(entityManager);
-        WebHookListenerStore webHookListenerStore = new WebHookListenerStore(ao, userManager, mock(I18nResolver.class));
-        WebHookListenerCachingStore webHookListenerCachingStore = new WebHookListenerCachingStore(webHookListenerStore);
+        WebHookListenerStore store = new MockWebHookListenerStore(userManager);
+        WebHookListenerCachingStore webHookListenerCachingStore = new WebHookListenerCachingStore(store);
         WebHookEventDispatcher webHookEventDispatcher = new WebHookEventDispatcher(eventPublisher);
 
         this.webHookListenerService = new WebHookListenerServiceImpl(
                 webHookListenerCachingStore, new Validator(), webHookEventDispatcher, mock(I18nResolver.class));
-        //noinspection unchecked
-        ao.migrate(WebHookListenerAO.class);
 
         Plugin plugin = mock(Plugin.class);
         when(plugin.getKey()).thenReturn(PluginProperties.PLUGIN_KEY);
@@ -283,7 +272,7 @@ public class WebHookListenerServiceTest
         }
     }
 
-    private class WebHookEventFiredMatcher extends TypeSafeMatcher<Object>
+    private static class WebHookEventFiredMatcher extends TypeSafeMatcher<Object>
     {
         private final Class<?> webHookCreatedEventClass;
 

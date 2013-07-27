@@ -1,7 +1,6 @@
 package com.atlassian.webhooks.api.provider;
 
 import com.atlassian.annotations.PublicApi;
-import com.atlassian.sal.api.message.Message;
 import com.atlassian.sal.api.message.MessageCollection;
 import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters;
