@@ -23,7 +23,7 @@ public class MockWebHookListenerStore implements WebHookListenerStore
     }
 
     @Override
-    public WebHookListenerParameters addWebHook(final String name, final String targetUrl, final Iterable<String> events, final String params, final String registrationMethod)
+    public WebHookListenerParameters addWebHook(final String name, final String targetUrl, final Iterable<String> events, final Map<String, Object> params, final String registrationMethod)
     {
         final WebHookListenerParameters.WebHookListenerParametersImpl webHookListenerParameters =
                 new WebHookListenerParameters.WebHookListenerParametersImpl(nextId++, true, new Date(), userManager.getRemoteUsername(), name, targetUrl, params, events, registrationMethod);
@@ -32,7 +32,7 @@ public class MockWebHookListenerStore implements WebHookListenerStore
     }
 
     @Override
-    public WebHookListenerParameters updateWebHook(final int id, final String name, final String targetUrl, final Iterable<String> events, final String params, final boolean enabled)
+    public WebHookListenerParameters updateWebHook(final int id, final String name, final String targetUrl, final Iterable<String> events, final Map<String, Object> params, final boolean enabled)
             throws IllegalArgumentException
     {
         final WebHookListenerParameters webHookListenerParameters = store.get(id);

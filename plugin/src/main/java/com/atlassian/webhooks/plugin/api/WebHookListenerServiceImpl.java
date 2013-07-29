@@ -13,7 +13,10 @@ import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
@@ -169,7 +172,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
         }
     }
 
-    private Optional<WebHookListenerParameters> findWebHookListener(final Integer id, final String url, final Iterable<String> events, final String parameters)
+    private Optional<WebHookListenerParameters> findWebHookListener(final Integer id, final String url, final Iterable<String> events, final Map<String, Object> parameters)
     {
         final WebHookListenerParameters webHookListenerParameters = Iterables.find(webHookListenerCachingStore.getAllWebHookListeners(), new Predicate<WebHookListenerParameters>()
         {
@@ -186,7 +189,7 @@ public class WebHookListenerServiceImpl implements WebHookListenerService
                 {
                     return false;
                 }
-                if (!StringUtils.equals(parameters, listenerParameters.getParameters()))
+                if (!Maps.difference(parameters, listenerParameters.getParameters()).areEqual())
                 {
                     return false;
                 }

@@ -3,6 +3,7 @@ package com.atlassian.webhooks.spi.provider;
 import com.atlassian.annotations.PublicSpi;
 
 import java.util.Date;
+import java.util.Map;
 
 @PublicSpi
 public interface WebHookListenerParameters extends WebHookListenerRegistrationParameters
@@ -31,12 +32,12 @@ public interface WebHookListenerParameters extends WebHookListenerRegistrationPa
         private final String lastUpdatedUser;
         private final String name;
         private final String url;
-        private final String parameters;
+        private final Map<String, Object> parameters;
         private final Iterable<String> events;
         private final String registrationMethod;
 
         public WebHookListenerParametersImpl(int id, Boolean enabled, Date lastUpdated, String lastUpdatedUser, String name,
-                String url, String parameters, Iterable<String> events, String registrationMethod)
+                String url, Map<String, Object> parameters, Iterable<String> events, String registrationMethod)
         {
             this.id = id;
             this.enabled = enabled;
@@ -92,7 +93,7 @@ public interface WebHookListenerParameters extends WebHookListenerRegistrationPa
         }
 
         @Override
-        public String getParameters()
+        public Map<String, Object> getParameters()
         {
             return parameters;
         }

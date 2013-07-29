@@ -23,6 +23,7 @@ import com.atlassian.webhooks.spi.provider.WebHookListenerRegistrationParameters
 import com.atlassian.webhooks.spi.provider.store.WebHookListenerStore;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;
@@ -31,6 +32,8 @@ import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.ImmutableSet.of;
@@ -55,7 +58,7 @@ public class WebHookListenerServiceTest
     private static final String PERMANENT_WEBHOOK_NAME = "Rebel victory webhook";
     public static final String TARGET_URL = "http://www.superstar-destroyer.com.empire";
     public static final Iterable<String> EVENTS = newArrayList("rebel_captured_event");
-    public static final String PARAMETERS = "rebel = 'Han Solo'";
+    public static final Map<String, Object> PARAMETERS = ImmutableMap.<String, Object>of("rebel", "Han Solo ");
 
     private WebHookListenerServiceImpl webHookListenerService;
     private UserManager userManager;

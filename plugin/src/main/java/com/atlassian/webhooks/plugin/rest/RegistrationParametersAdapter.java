@@ -1,16 +1,16 @@
 package com.atlassian.webhooks.plugin.rest;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
@@ -30,7 +30,7 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         }
         if (adaptedRegistrationParameters.filter != null || adaptedRegistrationParameters.excludeIssueDetails != null)
         {
-            final String parameters = createJiraParameters(adaptedRegistrationParameters);
+            final Map<String, Object> parameters = createJiraParameters(adaptedRegistrationParameters);
             return new WebHookListenerRegistration(adaptedRegistrationParameters.name, adaptedRegistrationParameters.url, parameters, Lists.newArrayList(adaptedRegistrationParameters.events), adaptedRegistrationParameters.enabled);
         }
         else
@@ -48,7 +48,8 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
             final AdaptedRegistrationResponse response = new AdaptedRegistrationResponse();
             // this is JIRA WebHook Response
             if (registration.getParameters() != null &&
-                    (registration.getParameters().contains("excludeIssueDetails") || registration.getParameters().contains("filter")))
+                    (registration.getParameters().get("excludeIssueDetails") != null ||
+                            registration.getParameters().get("filter") != null))
             {
                 Optional<String> filter = JiraParametersParser.getFilter(registration.getParameters());
                 boolean excludeIssueDetails = JiraParametersParser.getExcludeIssueDetails(registration.getParameters());
@@ -75,15 +76,15 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         }
     }
 
-    private String createJiraParameters(AdaptedRegistrationParameters registrationParameters)
+    private Map<String, Object> createJiraParameters(AdaptedRegistrationParameters registrationParameters)
     {
-        final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-        builder.put("excludeIssueDetails", registrationParameters.excludeIssueDetails.toString());
+        final ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        builder.put("excludeIssueDetails", registrationParameters.excludeIssueDetails);
         if (registrationParameters.filter != null)
         {
             builder.put("filter", registrationParameters.filter);
         }
-        return new JSONObject(builder.build()).toString();
+        return builder.build();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -94,7 +95,7 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
         @XmlAttribute
         public String[] events;
         @XmlAttribute
-        public String parameters;
+        public Map<String, Object> parameters;
         @XmlAttribute
         public String url;
         @XmlAttribute
@@ -120,34 +121,14 @@ public class RegistrationParametersAdapter extends XmlAdapter<RegistrationParame
 
     public static class JiraParametersParser
     {
-        private static final Logger logger = LoggerFactory.getLogger(JiraParametersParser.class);
-
-        public static boolean getExcludeIssueDetails(String parameters)
+        public static Boolean getExcludeIssueDetails(Map<String, Object> parameters)
         {
-            try
-            {
-                JSONObject jsonObject = new JSONObject(parameters);
-                return jsonObject.optBoolean("excludeIssueDetails");
-            }
-            catch (JSONException e)
-            {
-                logger.error("Couldn't parse WebHookListener parameters. Parameters are probably not in JSON format [{}]", parameters);
-                throw new IllegalArgumentException("Couldn't parse WebHookListener parameters", e);
-            }
+            return Objects.firstNonNull((Boolean) parameters.get("excludeIssueDetails"), false);
         }
 
-        public static Optional<String> getFilter(String parameters)
+        public static Optional<String> getFilter(Map<String, Object> parameters)
         {
-            try
-            {
-                JSONObject jsonObject = new JSONObject(parameters);
-                return Optional.fromNullable(jsonObject.optString("filter"));
-            }
-            catch (JSONException e)
-            {
-                logger.error("Couldn't parse WebHookListener parameters. Parameters are probably not in JSON format [{}]", parameters);
-                throw new RuntimeException(e);
-            }
+            return Optional.fromNullable((String) parameters.get("filter"));
         }
     }
 

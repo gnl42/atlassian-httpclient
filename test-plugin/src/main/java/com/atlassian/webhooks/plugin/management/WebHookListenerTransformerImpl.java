@@ -6,6 +6,7 @@ import com.atlassian.webhooks.spi.provider.WebHookListenerTransformer;
 import com.google.common.base.Optional;
 
 import java.net.URI;
+import java.util.Map;
 
 /**
  */
@@ -31,10 +32,13 @@ public class WebHookListenerTransformerImpl implements WebHookListenerTransforme
             @Override
             public Object getListenerParameters()
             {
-                final String parameters = webHookListenerParameters.getParameters();
-                if (parameters.contains(":"))
+                final Map<String, Object> parameters = webHookListenerParameters.getParameters();
+                final String qualificator = ((Boolean) parameters.get("qualification")).toString();
+                final String secondaryKey = (String) parameters.get("secondaryKey");
+
+                if (qualificator != null || secondaryKey != null)
                 {
-                    return new RefAppListenerParameters(parameters.substring(0, parameters.indexOf(':')), parameters.substring(parameters.indexOf(':') + 1));
+                    return new RefAppListenerParameters(qualificator, secondaryKey);
                 }
                 else
                 {

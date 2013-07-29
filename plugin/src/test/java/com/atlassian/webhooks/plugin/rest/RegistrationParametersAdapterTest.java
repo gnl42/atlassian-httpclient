@@ -51,7 +51,7 @@ public class RegistrationParametersAdapterTest
         assertEquals("Listening for Death Star JIRA expectedEvents", webHookListenerRegistration.getName());
         assertEquals("http://rebel-base.gov.rebel", webHookListenerRegistration.getUrl());
 
-        assertThat(webHookListenerRegistration.getParameters(), containsString("Project = DEATH_STAR"));
+        assertThat((String) webHookListenerRegistration.getParameters().get("filter"), containsString("Project = DEATH_STAR"));
         assertThat(webHookListenerRegistration.getEvents(), new ContainsEventMatcher(Sets.newHashSet("jira:issue_created", "jira:issue_updated")));
     }
 

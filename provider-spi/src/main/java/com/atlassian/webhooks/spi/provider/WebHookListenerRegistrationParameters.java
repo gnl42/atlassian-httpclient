@@ -2,6 +2,8 @@ package com.atlassian.webhooks.spi.provider;
 
 import com.atlassian.annotations.PublicSpi;
 
+import java.util.Map;
+
 /**
  * Parameters with which the WebHook Listener is registered.
  */
@@ -21,7 +23,7 @@ public interface WebHookListenerRegistrationParameters
     /**
      * Returns the parameters of the WebHook Listener.
      */
-    String getParameters();
+    Map<String, Object> getParameters();
 
     /**
      * Returns all events for which the listener is registered.

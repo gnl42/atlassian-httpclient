@@ -8,6 +8,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import java.util.Collection;
+import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,7 +30,7 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
             @NotNull final String name,
             @NotNull final String targetUrl,
             @NotNull final Iterable<String> events,
-            final String params,
+            final Map<String, Object> params,
             final String registrationMethod)
     {
         return executeStoreFunction(new Function<WebHookListenerStore, WebHookListenerParameters>()
@@ -48,7 +49,7 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
             final String name,
             final String targetUrl,
             final Iterable<String> events,
-            final String params,
+            final Map<String, Object> params,
             final boolean enabled) throws IllegalArgumentException
     {
         return executeStoreFunction(new Function<WebHookListenerStore, WebHookListenerParameters>()

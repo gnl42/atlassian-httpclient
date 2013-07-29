@@ -61,7 +61,7 @@ public class WebHookListenerCachingStore
      * @param parameters parameters of the listener.
      * @param registrationMethod REST, UI or SERVICE.
      */
-    public WebHookListenerParameters registerWebHookListener(String name, String url, Iterable<String> events, String parameters,
+    public WebHookListenerParameters registerWebHookListener(String name, String url, Iterable<String> events, Map<String, Object> parameters,
             WebHookListenerService.RegistrationMethod registrationMethod)
     {
         final WebHookListenerParameters listenerParameters = webHookListenerStore.addWebHook(name, url, events, parameters, registrationMethod.name());
@@ -81,7 +81,7 @@ public class WebHookListenerCachingStore
      * @throws IllegalArgumentException when listener with the specified id doesn't exist.
      */
     public WebHookListenerParameters updateWebHookListener(int id, String name, String url, Iterable<String> events,
-            String parameters, Boolean isEnabled) throws IllegalArgumentException
+            Map<String, Object> parameters, Boolean isEnabled) throws IllegalArgumentException
     {
         boolean enabled = isEnabled != null ? isEnabled : cache.get(id).isEnabled();
         final WebHookListenerParameters listenerParameters = webHookListenerStore.updateWebHook(id, name, url, events, parameters, enabled);

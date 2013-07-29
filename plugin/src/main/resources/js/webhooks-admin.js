@@ -231,9 +231,9 @@
             var wasNew = this.selectedModel.isNew();
             var parameters = WebHooks.getParameters();
 
-            if (!_.isString(parameters)) {
-                parameters = JSON.stringify(parameters);
-            }
+//            if (!_.isString(parameters)) {
+//                parameters = JSON.stringify(parameters);
+//            }
 
             this.selectedModel.save({
 				name: this.$name.val(),
@@ -272,7 +272,7 @@
 						var messages = errorObject.messages || "Resource conflict";
 						AJS.messages.error(that.$form.find("#webhook-global-message"), {
 							title: AJS.I18n.getText("webhooks.submit.duplicate.title"),
-							body: "<p>" + AJS.escapeHtml(messages[0]) + "</p>",
+							body: "<p>" + AJS.escapeHtml(messages[0].key) + "</p>",
 							closeable: false});
 						break;
 					case 404:
@@ -407,7 +407,7 @@
 					if (response.status == 409) {
 						var errorResponse = AJS.$.parseJSON(response.responseText);
                         var messages = errorResponse.messages;
-						displayErrorMessage(_.pluck(messages, 'arguments').join("<br />"));
+						displayErrorMessageNoEscape(_.pluck(messages, 'arguments').join("<br />"));
 					} else {
 						displayErrorMessage(AJS.I18n.getText("webhooks.delete.error", model.escape("name"), response.status, response.statusText));
 					}
@@ -433,4 +433,10 @@
             closeable: true
         });
 	}
+    function displayErrorMessageNoEscape(message) {
+        AJS.messages.error(AJS.$("#webhook-global-message"), {
+            body: message,
+            closeable: true
+        });
+    }
 })();

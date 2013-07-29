@@ -5,6 +5,7 @@ import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
 import com.google.common.base.Optional;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Store to be implemented by products.
@@ -25,7 +26,7 @@ public interface WebHookListenerStore
             String name,
             String targetUrl,
             Iterable<String> events,
-            String params,
+            Map<String, Object> params,
             String registrationMethod);
 
     /**
@@ -44,7 +45,7 @@ public interface WebHookListenerStore
             String name,
             String targetUrl,
             Iterable<String> events,
-            String params,
+            Map<String, Object> params,
             boolean enabled) throws IllegalArgumentException;
 
     /**

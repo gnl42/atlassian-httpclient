@@ -69,7 +69,7 @@ public final class TestWebHookOnEvents
     public void testPersistentWebHook() throws InterruptedException, IOException
     {
         assertFalse(WebHookServlet.hasHooks());
-        registerWebHook("/plugins/servlet/webhooks-test/persistent_event", "persitent_webhook_listener", "true:some_event_value");
+        registerWebHook("/plugins/servlet/webhooks-test/persistent_event", "persitent_webhook_listener", "{\"qualification\":true, \"secondaryKey\":\"some_event_value\"}");
 
         ServiceAccessor.eventPublisher.publish(new EventWithPersistentListener("true", "some_event_value"));
         final WebHookServlet.Hook hook = WebHookServlet.waitAndPopPersistentEventWebHooks();
@@ -80,7 +80,7 @@ public final class TestWebHookOnEvents
     private void registerWebHook(String url, String name, String parameters) throws IOException
     {
         HttpPost request = new HttpPost("http://localhost:5990/refapp/rest/webhooks/1.0/webhook/");
-        request.setEntity(new StringEntity("{ \"name\": \"" + name + "\", \"url\": \"" + url + "\", \"events\": [\"jira:issue_updated\"], \"parameters\": \"" + parameters + "\"}"));
+        request.setEntity(new StringEntity("{ \"name\": \"" + name + "\", \"url\": \"" + url + "\", \"events\": [\"jira:issue_updated\"], \"parameters\": " + parameters + "}"));
         request.setHeader("Content-type", "application/json");
         request.setHeader("Authorization", "Basic " + DatatypeConverter.printBase64Binary("admin:admin".getBytes()));
         HttpResponse response = new DefaultHttpClient().execute(request);

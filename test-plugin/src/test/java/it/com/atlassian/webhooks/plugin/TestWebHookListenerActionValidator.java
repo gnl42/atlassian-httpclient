@@ -100,7 +100,7 @@ public class TestWebHookListenerActionValidator
 
     private HttpResponse setEntityAndExecute(String name, String event, final HttpEntityEnclosingRequestBase request) throws IOException
     {
-        request.setEntity(new StringEntity("{ \"name\": \""+ name + "\", \"url\": \"http://localhost:1000/webhook\", \"events\": [\""+event+"\"], \"parameters\": \"Project = DEMO\"}"));
+        request.setEntity(new StringEntity("{ \"name\": \""+ name + "\", \"url\": \"http://localhost:1000/webhook\", \"events\": [\""+event+"\"], \"parameters\": {\"filter\": \"Project = DEMO\"} }"));
         request.setHeader("Content-type", "application/json");
         authorize(request);
         return client.execute(request);
