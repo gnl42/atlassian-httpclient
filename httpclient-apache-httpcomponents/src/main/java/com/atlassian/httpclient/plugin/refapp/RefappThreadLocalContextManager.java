@@ -1,4 +1,4 @@
-package com.atlassian.webhooks.plugin.refapp;
+package com.atlassian.httpclient.plugin.refapp;
 
 import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.seraph.auth.AuthenticationContext;

@@ -43,15 +43,16 @@
     </licenses>
 
     <modules>
+        <module>httpclient-api</module>
+        <module>httpclient-spi</module>
+        <module>httpclient-apache-httpcomponents</module>
+
         <module>provider-spi</module>
         <module>provider-api</module>
         <module>spi</module>
         <module>plugin</module>
         <module>plugin2-compatibility-plugin</module>
         <module>test-plugin</module>
-        <module>httpclient-api</module>
-        <module>httpclient-spi</module>
-        <module>httpclient-apache-httpcomponents</module>
     </modules>
 
     <properties>

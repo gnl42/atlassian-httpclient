@@ -1,4 +1,4 @@
-package com.atlassian.webhooks.plugin.confluence;
+package com.atlassian.httpclient.plugin.confluence;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.RequestCacheThreadLocal;

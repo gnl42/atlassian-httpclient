@@ -10,13 +10,14 @@
         <description>Registration for a web hook callback from an internal event</description>
     </described-module-type>
 
+    <!-- TODO this shouldn't be public -->
     <component key="moduleDescriptorWebHookRegistry"
                class="com.atlassian.webhooks.plugin.ModuleDescriptorWebHookListenerRegistryImpl"
                interface="com.atlassian.webhooks.spi.provider.ModuleDescriptorWebHookListenerRegistry"
                public="true" />
 
-    <component key="webHookListenerService"
-               class="com.atlassian.webhooks.plugin.api.WebHookListenerServiceImpl"
+    <!-- TODO create osgi:service for 0.17.0 -->
+    <component key="webHookListenerService" class="com.atlassian.webhooks.plugin.api.WebHookListenerServiceImpl"
                interface="com.atlassian.webhooks.api.provider.WebHookListenerService"
                public="true" />
 
@@ -25,26 +26,12 @@
         <interface>org.springframework.beans.factory.DisposableBean</interface>
     </component>
 
-    <!-- Refapp -->
-    <component key="refappThreadLocalContextManager" class="com.atlassian.webhooks.plugin.refapp.RefappThreadLocalContextManager"
-               interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="refapp"/>
-    <component-import key="refappAuthenticationContext" interface="com.atlassian.seraph.auth.AuthenticationContext" application="refapp"/>
-
-    <!-- Confluence -->
-    <component key="confluenceThreadContextManager" class="com.atlassian.webhooks.plugin.confluence.ConfluenceThreadLocalContextManager"
-               interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="confluence"/>
-
-    <!-- JIRA -->
-    <component key="jiraThreadContextManager" class="com.atlassian.webhooks.plugin.jira.JiraThreadLocalContextManager"
-               interface="com.atlassian.httpclient.spi.ThreadLocalContextManager" public="true" application="jira"/>
-
-    <component-import key="jiraAuthenticationContext" interface="com.atlassian.jira.security.JiraAuthenticationContext" application="jira" />
-    <component-import key="jiraVelocityRequestContextFactory" interface="com.atlassian.jira.util.velocity.VelocityRequestContextFactory" application="jira" />
     <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
     <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" />
     <component-import key="webResourceManager" interface="com.atlassian.plugin.webresource.WebResourceManager" />
     <component-import key="pluginEventManager" interface="com.atlassian.plugin.event.PluginEventManager" />
     <component-import key="webSudoManager" interface="com.atlassian.sal.api.websudo.WebSudoManager" />
+    <component-import key="httpClient" interface="com.atlassian.httpclient.api.HttpClient" />
 
     <rest key="webhooksRest" path="/webhooks" version="1.0" description="Provides webhook registration services." />
 
@@ -57,7 +44,7 @@
 
     <servlet name="Webhooks Admin Actions" key="WebHooksAdminActions"
              class="com.atlassian.webhooks.plugin.web.WebHookAdminServlet">
-        <description>List configured entity links for a specific entity</description>
+        <description>List configured WebHooks listeners.</description>
         <url-pattern>/webhooks</url-pattern>
     </servlet>
 

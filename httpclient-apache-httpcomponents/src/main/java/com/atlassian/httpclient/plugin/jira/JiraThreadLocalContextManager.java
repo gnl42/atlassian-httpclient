@@ -1,4 +1,4 @@
-package com.atlassian.webhooks.plugin.jira;
+package com.atlassian.httpclient.plugin.jira;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.httpclient.spi.ThreadLocalContextManager;

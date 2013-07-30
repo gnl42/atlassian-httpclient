@@ -39,6 +39,7 @@
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
     <component-import key="httpClient" interface="com.atlassian.httpclient.api.HttpClient"/>
     <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" />
+    <component-import key="webHookListenerService" interface="com.atlassian.webhooks.api.provider.WebHookListenerService" />
 
     <!-- Refapp -->
     <component key="checkThreadContextRefapp" class="com.atlassian.webhooks.plugin.test.refapp.CheckThreadContextRefapp"

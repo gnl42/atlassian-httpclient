@@ -44,7 +44,7 @@ public class RegistrationResource
     private final UserManager userManager;
     private final WebHookListenerService webHookListenerService;
 
-    public RegistrationResource(UserManager userManager, final WebHookListenerService webHookListenerService)
+    public RegistrationResource(UserManager userManager, WebHookListenerService webHookListenerService)
     {
         this.webHookListenerService = checkNotNull(webHookListenerService);
         this.userManager = checkNotNull(userManager);

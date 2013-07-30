@@ -16,7 +16,7 @@
     <description>Send expectedEvents over HTTP to registered listeners.</description>
 
     <properties>
-        <spi.version>0.16</spi.version>
+        <spi.version>0.17</spi.version>
         <ao.version>0.19.7</ao.version>
         <rest.version>2.7.1</rest.version>
         <template.renderer.version>1.4.0</template.renderer.version>
@@ -44,12 +44,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.httpclient</groupId>
-            <artifactId>atlassian-httpclient-apache-httpcomponents</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.util.concurrent</groupId>
             <artifactId>atlassian-util-concurrent</artifactId>
             <scope>provided</scope>
@@ -68,11 +62,6 @@
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.fugue</groupId>
-            <artifactId>fugue</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -139,8 +128,6 @@
             <version>10.0.1</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Active objects -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -165,15 +152,20 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence</artifactId>
-            <version>${confluence.version}</version>
+            <groupId>com.atlassian.analytics</groupId>
+            <artifactId>analytics-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>atlassian-jira</artifactId>
-            <version>${jira.version}</version>
+            <groupId>com.atlassian.velocity.htmlsafe</groupId>
+            <artifactId>velocity-htmlsafe</artifactId>
+            <version>1.2.1-m2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-webresource</artifactId>
+            <version>3.0.0-m20</version>
             <scope>provided</scope>
         </dependency>
 
@@ -245,8 +237,6 @@
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
-                            com.atlassian.httpclient.api*;version="${project.version}",
-                            com.atlassian.httpclient.spi*;version="${project.version}",
                             com.atlassian.webhooks.spi.plugin;version="${spi.version}",
                             com.atlassian.webhooks.spi.provider*;version="${spi.version}",
                             com.atlassian.webhooks.api.provider*;version="${spi.version}"

@@ -1,4 +1,4 @@
-package com.atlassian.webhooks.plugin.http;
+package com.atlassian.httpclient.plugin;
 
 import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.spi.ThreadLocalContextManager;
@@ -13,7 +13,7 @@ import org.springframework.beans.factory.DisposableBean;
 import javax.annotation.Nullable;
 
 import static com.atlassian.fugue.Option.option;
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Suppliers.memoize;
 
 public final class OsgiThreadLocalContextManager<C> implements ThreadLocalContextManager<C>, DisposableBean
@@ -25,7 +25,7 @@ public final class OsgiThreadLocalContextManager<C> implements ThreadLocalContex
         @Override
         public Option<ServiceReference> get()
         {
-            return option(bundleContext.getServiceReference(ThreadLocalContextManager.class.getName()));
+            return Option.option(bundleContext.getServiceReference(ThreadLocalContextManager.class.getName()));
         }
     });
 

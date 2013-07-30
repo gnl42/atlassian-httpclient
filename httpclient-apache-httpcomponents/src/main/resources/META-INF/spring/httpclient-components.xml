@@ -12,7 +12,7 @@
         <beans:constructor-arg ref="eventPublisher"/>
         <beans:constructor-arg ref="applicationProperties"/>
         <beans:constructor-arg>
-            <beans:bean class="com.atlassian.webhooks.plugin.http.OsgiThreadLocalContextManager">
+            <beans:bean class="com.atlassian.httpclient.plugin.OsgiThreadLocalContextManager">
                 <beans:constructor-arg ref="bundleContext"/>
             </beans:bean>
         </beans:constructor-arg>
@@ -22,7 +22,7 @@
         <beans:constructor-arg ref="eventPublisher"/>
         <beans:constructor-arg ref="applicationProperties"/>
         <beans:constructor-arg>
-            <beans:bean class="com.atlassian.webhooks.plugin.http.OsgiThreadLocalContextManager">
+            <beans:bean class="com.atlassian.httpclient.plugin.OsgiThreadLocalContextManager">
                 <beans:constructor-arg ref="bundleContext"/>
             </beans:bean>
         </beans:constructor-arg>

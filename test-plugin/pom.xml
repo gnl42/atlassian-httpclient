@@ -102,6 +102,11 @@
                             <version>${project.version}</version>
                         </pluginArtifact>
                         <pluginArtifact>
+                            <groupId>com.atlassian.httpclient</groupId>
+                            <artifactId>atlassian-httpclient-apache-httpcomponents-plugin</artifactId>
+                            <version>${project.version}</version>
+                        </pluginArtifact>
+                        <pluginArtifact>
                             <groupId>com.atlassian.util.concurrent</groupId>
                             <artifactId>atlassian-util-concurrent</artifactId>
                             <version>${atlassian-util-concurrent.version}</version>
@@ -110,12 +115,7 @@
                     <products>
                         <product>
                             <id>refapp</id>
-                            <version>2.19.0</version>
-                            <log4jProperties>src/test/aps/log4j-refapp.properties</log4jProperties>
-                        </product>
-                        <product>
-                            <id>refapp</id>
-                            <instanceId>refapp_3</instanceId>
+                            <instanceId>refapp</instanceId>
                             <version>3.0.0-m8</version>
                             <log4jProperties>src/test/aps/log4j-refapp.properties</log4jProperties>
                         </product>
@@ -131,21 +131,10 @@
                         </product>
                     </products>
                     <testGroups>
-                        <!--
                         <testGroup>
                             <id>refapp</id>
                             <productIds>
                                 <productId>refapp</productId>
-                            </productIds>
-                            <includes>
-                                <include>it/**</include>
-                            </includes>
-                        </testGroup>
-                        -->
-                        <testGroup>
-                            <id>refapp_3</id>
-                            <productIds>
-                                <productId>refapp_3</productId>
                             </productIds>
                             <includes>
                                 <include>it/**</include>

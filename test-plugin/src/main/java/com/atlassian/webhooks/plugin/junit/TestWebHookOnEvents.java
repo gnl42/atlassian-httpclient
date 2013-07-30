@@ -1,17 +1,25 @@
 package com.atlassian.webhooks.plugin.junit;
 
+import com.atlassian.webhooks.api.provider.WebHookListenerService;
+import com.atlassian.webhooks.api.provider.WebHookListenerServiceResponse;
 import com.atlassian.webhooks.plugin.AnnotatedEvent;
-import com.atlassian.webhooks.plugin.test.*;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import com.atlassian.webhooks.plugin.test.EventWithPersistentListener;
+import com.atlassian.webhooks.plugin.test.ParameterizedEvent;
+import com.atlassian.webhooks.plugin.test.ServiceAccessor;
+import com.atlassian.webhooks.plugin.test.TestEvent;
+import com.atlassian.webhooks.plugin.test.WebHookServlet;
+import com.atlassian.webhooks.spi.provider.WebHookListenerParameters;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
+import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public final class TestWebHookOnEvents
 {
@@ -69,7 +77,7 @@ public final class TestWebHookOnEvents
     public void testPersistentWebHook() throws InterruptedException, IOException
     {
         assertFalse(WebHookServlet.hasHooks());
-        registerWebHook("/plugins/servlet/webhooks-test/persistent_event", "persitent_webhook_listener", "{\"qualification\":true, \"secondaryKey\":\"some_event_value\"}");
+        registerWebHook("/plugins/servlet/webhooks-test/persistent_event", "persitent_webhook_listener");//, "{\"qualification\":true, \"secondaryKey\":\"some_event_value\"}");
 
         ServiceAccessor.eventPublisher.publish(new EventWithPersistentListener("true", "some_event_value"));
         final WebHookServlet.Hook hook = WebHookServlet.waitAndPopPersistentEventWebHooks();
@@ -77,13 +85,14 @@ public final class TestWebHookOnEvents
         assertTrue(hook.body.contains("some_event_value"));
     }
 
-    private void registerWebHook(String url, String name, String parameters) throws IOException
+    private void registerWebHook(String url, String name) throws IOException
     {
-        HttpPost request = new HttpPost("http://localhost:5990/refapp/rest/webhooks/1.0/webhook/");
-        request.setEntity(new StringEntity("{ \"name\": \"" + name + "\", \"url\": \"" + url + "\", \"events\": [\"jira:issue_updated\"], \"parameters\": " + parameters + "}"));
-        request.setHeader("Content-type", "application/json");
-        request.setHeader("Authorization", "Basic " + DatatypeConverter.printBase64Binary("admin:admin".getBytes()));
-        HttpResponse response = new DefaultHttpClient().execute(request);
-        assertEquals(201, response.getStatusLine().getStatusCode());
+        final WebHookListenerServiceResponse webHookListenerServiceResponse = ServiceAccessor.webHookListenerService.registerWebHookListener(
+                new WebHookListenerParameters.WebHookListenerParametersImpl(0, true, new Date(), "admin", name, url,
+                        ImmutableMap.<String, Object>of("qualification", true, "secondaryKey", "some_event_value"),
+                        Lists.newArrayList("jira:issue_updated"), WebHookListenerService.RegistrationMethod.SERVICE.name())
+        );
+        assertNotNull(webHookListenerServiceResponse);
+
     }
 }
