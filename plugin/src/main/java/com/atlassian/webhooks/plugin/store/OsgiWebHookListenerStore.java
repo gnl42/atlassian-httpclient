@@ -8,6 +8,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
 
@@ -40,7 +41,7 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
             {
                 return store.addWebHook(name, targetUrl, events, params, registrationMethod);
             }
-        });
+        }, null);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
             {
                 return store.updateWebHook(id, name, targetUrl, events, params, enabled);
             }
-        });
+        }, null);
     }
 
     @Override
@@ -72,7 +73,7 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
             {
                 return store.getWebHook(id);
             }
-        });
+        }, Optional.<WebHookListenerParameters>absent());
     }
 
     @Override
@@ -86,7 +87,7 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
                 store.removeWebHook(id);
                 return null;
             }
-        });
+        }, null);
     }
 
     @Override
@@ -99,7 +100,7 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
             {
                 return store.getAllWebHooks();
             }
-        });
+        }, Collections.<WebHookListenerParameters>emptyList());
     }
 
     public Optional<WebHookListenerParameters> enableWebHook(final int id, final boolean enabled)
@@ -111,10 +112,10 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
             {
                 return store.enableWebHook(id, enabled);
             }
-        });
+        }, Optional.<WebHookListenerParameters>absent());
     }
 
-    private <T> T executeStoreFunction(Function<WebHookListenerStore, T> storeFunction)
+    private <T> T executeStoreFunction(Function<WebHookListenerStore, T> storeFunction, final T defaultValue)
     {
         ServiceReference serviceReference = bundleContext.getServiceReference(WebHookListenerStore.class.getName());
         if (serviceReference != null)
@@ -131,7 +132,7 @@ public class OsgiWebHookListenerStore implements WebHookListenerStore
         }
         else
         {
-            throw new IllegalStateException("Couldn't find an implementation of WebHookListenerStore");
+            return defaultValue;
         }
     }
 }
