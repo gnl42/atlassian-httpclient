@@ -129,16 +129,29 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
             request.post().transform().clientError(new Function<Response, Object>() {
                 @Override
                 public Object apply(Response response) {
-                    if (logMessageRateLimiter.getToken()) {
-                        logger.error("Client error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                    if (logMessageRateLimiter.getToken())
+                    {
+                        logger.warn("Client error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
                     }
                     return null;
                 }
             }).serverError(new Function<Response, Object>() {
                 @Override
                 public Object apply(Response response) {
-                    if (logMessageRateLimiter.getToken()) {
-                        logger.error("Server error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                    if (logMessageRateLimiter.getToken())
+                    {
+                        logger.warn("Server error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                    }
+                    return null;
+                }
+            }).otherwise(new Function<Throwable, Object>()
+            {
+                @Override
+                public Object apply(Throwable throwable)
+                {
+                    if (logMessageRateLimiter.getToken())
+                    {
+                        logger.warn("Unable to post the information to {} due to {}\n", new Object[] {uri, throwable.getMessage()});
                     }
                     return null;
                 }
