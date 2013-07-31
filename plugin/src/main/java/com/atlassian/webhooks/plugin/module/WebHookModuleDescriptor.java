@@ -52,7 +52,7 @@ public final class WebHookModuleDescriptor extends AbstractModuleDescriptor<Void
         {
             for (Element param : elements)
             {
-                params.put(getRequiredAttribute(param, "key"), param.getText());
+                params.put(getRequiredAttribute(param, "name"), param.getText());
             }
         }
         moduleParams = params.build();
