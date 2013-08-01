@@ -33,11 +33,10 @@ public class WebHookListenerTransformerImpl implements WebHookListenerTransforme
             public Object getListenerParameters()
             {
                 final Map<String, Object> parameters = webHookListenerParameters.getParameters();
-                final String qualificator = ((Boolean) parameters.get("qualification")).toString();
-                final String secondaryKey = (String) parameters.get("secondaryKey");
-
-                if (qualificator != null || secondaryKey != null)
+                if (parameters.containsKey("qualification") && parameters.containsKey("secondaryKey"))
                 {
+                    final String qualificator = ((Boolean) parameters.get("qualification")).toString();
+                    final String secondaryKey = (String) parameters.get("secondaryKey");
                     return new RefAppListenerParameters(qualificator, secondaryKey);
                 }
                 else
