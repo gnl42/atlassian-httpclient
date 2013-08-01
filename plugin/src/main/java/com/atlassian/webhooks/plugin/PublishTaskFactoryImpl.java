@@ -149,7 +149,7 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
                 @Override
                 public Object apply(Throwable throwable)
                 {
-                    if (logMessageRateLimiter.getToken())
+                    if (logMessageRateLimiter.getToken() && throwable != null)
                     {
                         logger.warn("Unable to post the information to {} due to {}\n", new Object[] {uri, throwable.getMessage()});
                     }
