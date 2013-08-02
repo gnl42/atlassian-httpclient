@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.atlassian.webhooks</groupId>
         <artifactId>atlassian-webhooks-plugin-parent</artifactId>
-        <version>0.17.0-m01</version>
+        <version>0.17.0-m02-SNAPSHOT</version>
     </parent>
 
     <artifactId>atlassian-webhooks-provider-spi</artifactId>
