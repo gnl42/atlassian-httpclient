@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
+import javax.annotation.Nullable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class PublishTaskFactoryImpl implements PublishTaskFactory
@@ -126,32 +128,36 @@ public final class PublishTaskFactoryImpl implements PublishTaskFactory
                     .setAttribute("pluginKey", listener.getPluginKey());
 
             requestSigner.sign(listener.getPluginKey(), request);
-            request.post().transform().clientError(new Function<Response, Object>() {
+            request.post().transform().clientError(new Function<Response, Object>()
+            {
                 @Override
-                public Object apply(Response response) {
+                public Object apply(Response response)
+                {
                     if (logMessageRateLimiter.getToken())
                     {
-                        logger.warn("Client error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                        logger.warn("Client error - {} when posting to web hook at '{}', body is:\n{}", new Object[] { response.getStatusCode(), uri, body });
                     }
                     return null;
                 }
-            }).serverError(new Function<Response, Object>() {
+            }).serverError(new Function<Response, Object>()
+            {
                 @Override
-                public Object apply(Response response) {
+                public Object apply(Response response)
+                {
                     if (logMessageRateLimiter.getToken())
                     {
-                        logger.warn("Server error - {} when posting to web hook at '{}', body is:\n{}", new Object[]{response.getStatusCode(), uri, body});
+                        logger.warn("Server error - {} when posting to web hook at '{}', body is:\n{}", new Object[] { response.getStatusCode(), uri, body });
                     }
                     return null;
                 }
             }).otherwise(new Function<Throwable, Object>()
             {
                 @Override
-                public Object apply(Throwable throwable)
+                public Object apply(@Nullable Throwable throwable)
                 {
                     if (logMessageRateLimiter.getToken() && throwable != null)
                     {
-                        logger.warn("Unable to post the information to {} due to {}\n", new Object[] {uri, throwable.getMessage()});
+                        logger.warn("Unable to post the information to {} due to {}\n", new Object[] { uri, throwable.getMessage() });
                     }
                     return null;
                 }
