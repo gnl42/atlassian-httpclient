@@ -14,4 +14,13 @@
 
     <name>Atlassian HTTP Client SPI</name>
     <description>The SPI to the HTTP Client service</description>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
 </project>

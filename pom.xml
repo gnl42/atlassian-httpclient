@@ -23,7 +23,7 @@
         <developerConnection>scm:git:git@bitbucket.org:atlassian/atlassian-webhooks-plugin.git</developerConnection>
         <url>https://bitbucket.org/atlassian/atlassian-webhooks-plugin</url>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <issueManagement>
         <system>JIRA</system>

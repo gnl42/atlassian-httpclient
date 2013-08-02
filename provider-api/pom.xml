@@ -14,6 +14,14 @@
     <name>Atlassian WebHooks Plugin's Provider API</name>
     <description>This the library that should be used for those plugins/products that need to register webhooks.</description>
 
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <dependencies>
         <dependency>
             <groupId>com.atlassian.webhooks</groupId>

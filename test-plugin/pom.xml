@@ -14,6 +14,14 @@
     <name>Atlassian WebHooks Test Plugin</name>
     <description>Test Plugin for WebHooks.</description>
 
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <properties>
         <functest-plugin.version>0.6</functest-plugin.version>
     </properties>
