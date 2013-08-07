@@ -9,7 +9,6 @@
         <version>0.17.0-m02-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.atlassian.httpclient</groupId>
     <artifactId>atlassian-httpclient-plugin</artifactId>
     <packaging>atlassian-plugin</packaging>
 
@@ -29,7 +28,6 @@
     </properties>
 
     <dependencies>
-        <!-- API and SPI -->
         <dependency>
             <groupId>com.atlassian.httpclient</groupId>
             <artifactId>atlassian-httpclient-api</artifactId>
@@ -80,20 +78,6 @@
             <groupId>com.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
             <scope>compile</scope>
-        </dependency>
-
-        <!-- products for thread local context managers -->
-        <dependency>
-            <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence</artifactId>
-            <version>${confluence.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>atlassian-jira</artifactId>
-            <version>${jira.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Http client -->
@@ -200,8 +184,7 @@
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
-                            com.atlassian.httpclient.api*;version="${httpclient.api.version}",
-                            com.atlassian.httpclient.spi*;version="${httpclient.api.version}"
+                            com.atlassian.httpclient.api*;version="${httpclient.api.version}"
                         </Export-Package>
                         <Spring-Context>*;timeout:=60</Spring-Context>
                     </instructions>

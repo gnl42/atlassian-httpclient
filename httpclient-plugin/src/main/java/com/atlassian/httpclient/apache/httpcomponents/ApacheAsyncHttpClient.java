@@ -14,8 +14,8 @@ import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
-import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -451,7 +451,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
 
         @Override
-        public void resetThreadLocalContext()
+        public void clearThreadLocalContext()
         {
         }
     }

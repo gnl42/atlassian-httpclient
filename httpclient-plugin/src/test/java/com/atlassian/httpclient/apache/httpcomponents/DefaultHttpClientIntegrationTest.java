@@ -2,9 +2,9 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.httpclient.api.Response;
-import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.junit.http.jetty.JettyServer;
 import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 import com.google.common.base.Function;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -17,7 +17,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -63,7 +66,7 @@ public final class DefaultHttpClientIntegrationTest
             }
 
             @Override
-            public void resetThreadLocalContext()
+            public void clearThreadLocalContext()
             {
                 if (!NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.get())
                 {

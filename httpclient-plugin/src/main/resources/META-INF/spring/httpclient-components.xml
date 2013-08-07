@@ -11,20 +11,12 @@
     <beans:bean id="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.ApacheAsyncHttpClient">
         <beans:constructor-arg ref="eventPublisher"/>
         <beans:constructor-arg ref="applicationProperties"/>
-        <beans:constructor-arg>
-            <beans:bean class="com.atlassian.httpclient.plugin.OsgiThreadLocalContextManager">
-                <beans:constructor-arg ref="bundleContext"/>
-            </beans:bean>
-        </beans:constructor-arg>
+        <beans:constructor-arg ref="threadLocalContextManager" />
     </beans:bean>
 
     <beans:bean id="httpClientFactory" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClientFactory">
         <beans:constructor-arg ref="eventPublisher"/>
         <beans:constructor-arg ref="applicationProperties"/>
-        <beans:constructor-arg>
-            <beans:bean class="com.atlassian.httpclient.plugin.OsgiThreadLocalContextManager">
-                <beans:constructor-arg ref="bundleContext"/>
-            </beans:bean>
-        </beans:constructor-arg>
+        <beans:constructor-arg ref="threadLocalContextManager" />
     </beans:bean>
 </beans:beans>

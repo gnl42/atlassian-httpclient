@@ -1,7 +1,7 @@
 package com.atlassian.httpclient.api.factory;
 
 import com.atlassian.httpclient.api.HttpClient;
-import com.atlassian.httpclient.spi.ThreadLocalContextManager;
+import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 
 /**
  * Creates configured instances of {@link com.atlassian.httpclient.api.HttpClient}

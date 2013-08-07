@@ -1,6 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
-import com.atlassian.httpclient.spi.ThreadLocalContextManager;
+import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -55,6 +55,6 @@ public final class SettableFuturePromiseHttpPromiseAsyncClientTest
         inOrder.verify(threadLocalContextManager).setThreadLocalContext(currentThreadLocalContext);
 
         // never reset
-        verify(threadLocalContextManager, never()).resetThreadLocalContext();
+        verify(threadLocalContextManager, never()).clearThreadLocalContext();
     }
 }

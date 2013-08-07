@@ -1,6 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
-import com.atlassian.httpclient.spi.ThreadLocalContextManager;
+import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 import com.atlassian.util.concurrent.Promise;
 import com.atlassian.util.concurrent.Promises;
 import com.google.common.annotations.VisibleForTesting;

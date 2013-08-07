@@ -7,4 +7,5 @@
 
     <osgi:reference id="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
     <osgi:reference id="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
+    <osgi:reference id="threadLocalContextManager" interface="com.atlassian.sal.api.executor.ThreadLocalContextManager" />
 </beans:beans>
