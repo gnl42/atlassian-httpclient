@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>com.atlassian.httpclient</groupId>
-    <artifactId>atlassian-httpclient-apache-httpcomponents-plugin</artifactId>
+    <artifactId>atlassian-httpclient-plugin</artifactId>
     <packaging>atlassian-plugin</packaging>
 
     <name>Atlassian HTTP Client, Apache HTTP components impl</name>

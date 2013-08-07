@@ -45,7 +45,7 @@
     <modules>
         <module>httpclient-api</module>
         <module>httpclient-spi</module>
-        <module>httpclient-apache-httpcomponents</module>
+        <module>httpclient-plugin</module>
     </modules>
 
     <properties>
