@@ -1,29 +1,24 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.fugue.Effect;
+import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.Entity;
 import com.atlassian.httpclient.api.Headers;
 import com.atlassian.util.concurrent.Supplier;
-import com.google.common.io.ByteStreams;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.InputStreamEntity;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class DefaultEntity implements Entity
 {
-
+    private final int maxEntitySize;
     private final InputStream entityStream;
-    private final Supplier<String> body;
     private final Headers headers;
 
-    public DefaultEntity(Headers headers, int maxSize, InputStream entityStream)
+    public DefaultEntity(Headers headers, int maxEntitySize, InputStream entityStream)
     {
         this.headers = headers;
+        this.maxEntitySize = maxEntitySize;
         this.entityStream = entityStream;
-        body = LazyBody.body(inputStream(), headers, maxSize);
     }
 
     @Override
@@ -35,36 +30,18 @@ public class DefaultEntity implements Entity
     @Override
     public InputStream inputStream()
     {
-        return entityStream;
-    }
-
-    public String asString()
-    {
-        return body.get();
-    }
-
-    HttpEntity getHttpEntity()
-    {
-        if (entityStream instanceof ByteArrayInputStream)
+        Option<Integer> contentLength = headers.contentLength();
+        contentLength.foreach(new Effect<Integer>()
         {
-            byte[] bytes;
-            if (entityStream instanceof EntityByteArrayInputStream)
+            @Override
+            public void apply(final Integer contentLength)
             {
-                bytes = ((EntityByteArrayInputStream) entityStream).getBytes();
-            }
-            else
-            {
-                try
+                if (contentLength > maxEntitySize)
                 {
-                    bytes = ByteStreams.toByteArray(entityStream);
-                }
-                catch (IOException e)
-                {
-                    throw new RuntimeException(e);
+                    throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
                 }
             }
-            return new ByteArrayEntity(bytes);
-        }
-        return new InputStreamEntity(entityStream, -1);
+        });
+        return entityStream;
     }
 }

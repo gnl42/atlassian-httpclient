@@ -48,10 +48,10 @@ public interface RequestFactory
      * "&#42;/&#42;", and the content charset property to "UTF-8". This should only be used for sending textual content
      * types, typically via the POST or PUT HTTP methods.
      *
-     * @param uri The endpoint URI for this request
+     * @param url The endpoint URL for this request
      * @param contentType A textual IANA media type
      * @param entity A string entity to send as this request's message body
      * @return The new request object
      */
-    Request.Builder newRequest(String uri, String contentType, String entity);
+    Request.Builder newRequest(String url, String contentType, String entity);
 }

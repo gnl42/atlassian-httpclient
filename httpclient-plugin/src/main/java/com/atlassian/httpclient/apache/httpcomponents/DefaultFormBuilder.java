@@ -1,26 +1,24 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.Entity;
-import com.atlassian.httpclient.api.Entity.Builder;
 import com.atlassian.httpclient.api.FormBuilder;
 import com.atlassian.httpclient.api.Headers;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
-final class DefaultFormBuilder implements FormBuilder
+public final class DefaultFormBuilder implements FormBuilder
 {
-    private Map<String, Iterable<String>> parameters = newLinkedHashMap();
+    private Map<String, List<String>> parameters = newLinkedHashMap();
 
     public FormBuilder addParam(String name)
     {
@@ -29,17 +27,13 @@ final class DefaultFormBuilder implements FormBuilder
 
     public FormBuilder addParam(String name, String value)
     {
-        ImmutableList<String> newValue = ImmutableList.of(value);
-        Iterable<String> values = parameters.get(name);
+        List<String> values = parameters.get(name);
         if (values == null)
         {
-            values = newValue;
+            values = newLinkedList();
+            parameters.put(name, values);
         }
-        else
-        {
-            values = Iterables.concat(values, newValue);
-        }
-        parameters.put(name, values);
+        values.add(value);
         return this;
     }
 
@@ -53,10 +47,10 @@ final class DefaultFormBuilder implements FormBuilder
     {
         StringBuilder buf = new StringBuilder();
         boolean first = true;
-        for (Map.Entry<String, Iterable<String>> entry : parameters.entrySet())
+        for (Map.Entry<String, List<String>> entry : parameters.entrySet())
         {
             String name = encode(entry.getKey());
-            Iterable<String> values = entry.getValue();
+            List<String> values = entry.getValue();
             for (String value : values)
             {
                 if (first)
@@ -91,12 +85,6 @@ final class DefaultFormBuilder implements FormBuilder
             {
                 return new ByteArrayInputStream(bytes);
             }
-
-            @Override
-            public String asString()
-            {
-                return new String(bytes, Charset.forName("UTF-8"));
-            }
         };
     }
 
@@ -111,33 +99,5 @@ final class DefaultFormBuilder implements FormBuilder
             throw new RuntimeException(e);
         }
         return str;
-    }
-
-    @Override
-    public Builder setStream(InputStream entityStream)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Builder setStream(InputStream entityStream, String charset)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Builder setString(String entity)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Builder setMaxEntitySize(long maxEntitySize)
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

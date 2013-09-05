@@ -29,7 +29,7 @@ public final class HttpClientOptions
     private long maxCacheObjectSize = 100 * 1024L;
     private int maxCacheEntries = 100;
 
-    private long maxEntitySize = 1024 * 1024 * 100;
+    private int maxEntitySize = 1024 * 1024 * 100;
 
     private long leaseTimeout = 10 * 60 * 1000; // 10 mins
 
@@ -249,7 +249,7 @@ public final class HttpClientOptions
     /**
      * @return The maximum entity size in bytes.  Default is 100MB
      */
-    public long getMaxEntitySize()
+    public int getMaxEntitySize()
     {
         return maxEntitySize;
     }
@@ -271,7 +271,7 @@ public final class HttpClientOptions
     /**
      * param maxEntitySize The maximum entity size in bytes
      */
-    public void setMaxEntitySize(long maxEntitySize)
+    public void setMaxEntitySize(int maxEntitySize)
     {
         this.maxEntitySize = maxEntitySize;
     }

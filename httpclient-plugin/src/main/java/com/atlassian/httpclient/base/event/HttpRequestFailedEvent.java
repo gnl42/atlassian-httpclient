@@ -1,19 +1,21 @@
 package com.atlassian.httpclient.base.event;
 
 import com.atlassian.analytics.api.annotations.Analytics;
+import com.atlassian.httpclient.api.Request;
 
-import java.util.Map;
-
-@Analytics("httpclient.requestfailed")
+@Analytics ("httpclient.requestfailed")
 public final class HttpRequestFailedEvent extends AbstractHttpRequestEvent
 {
-    public HttpRequestFailedEvent(String url, String httpMethod, int statusCode, long elapsed, Map<String, String> properties)
+    private final Throwable t;
+
+    public HttpRequestFailedEvent(Request request, Throwable t)
     {
-        super(url, httpMethod, statusCode, elapsed, properties);
+        super(request);
+        this.t = t;
     }
 
-    public HttpRequestFailedEvent(String url, String httpMethod, String error, long elapsed, Map<String, String> properties)
+    public Throwable cause()
     {
-        super(url, httpMethod, error, elapsed, properties);
+        return t;
     }
 }

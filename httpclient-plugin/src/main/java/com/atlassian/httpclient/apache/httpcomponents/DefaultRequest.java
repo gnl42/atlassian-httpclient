@@ -10,7 +10,6 @@ import java.net.URI;
 
 public class DefaultRequest extends DefaultMessage implements Request
 {
-
     private final Method method;
     private final URI uri;
     private final Attributes attributes;
@@ -30,7 +29,7 @@ public class DefaultRequest extends DefaultMessage implements Request
     }
 
     @Override
-    public URI getUri()
+    public URI uri()
     {
         return uri;
     }

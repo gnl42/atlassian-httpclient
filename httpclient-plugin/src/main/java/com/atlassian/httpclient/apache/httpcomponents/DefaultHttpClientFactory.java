@@ -4,14 +4,14 @@ import com.atlassian.event.api.EventPublisher;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientFactory;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
-import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class DefaultHttpClientFactory implements HttpClientFactory, DisposableBean
 {

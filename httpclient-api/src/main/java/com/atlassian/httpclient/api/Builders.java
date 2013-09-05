@@ -6,7 +6,5 @@ public interface Builders
 
     Headers.Builder headers();
 
-    Entity.Builder entity();
-
     <A> ResponseTransformation.Builder<A> transform();
 }

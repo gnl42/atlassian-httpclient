@@ -463,7 +463,7 @@ public enum HttpStatus
         this.code = code;
     }
 
-    static HttpStatus fromCode(int code)
+    public static HttpStatus fromCode(int code)
     {
         for (HttpStatus status : values())
         {

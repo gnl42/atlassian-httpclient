@@ -55,7 +55,7 @@ final class DefaultAsyncHttpClient<C> implements AsyncHttpClient
     }
 
     @VisibleForTesting
-    private static <C> void runInContext(ThreadLocalContextManager<C> threadLocalContextManager, C threadLocalContext,
+    static <C> void runInContext(ThreadLocalContextManager<C> threadLocalContextManager, C threadLocalContext,
             ClassLoader contextClassLoader, Runnable runnable)
     {
         final C oldThreadLocalContext = threadLocalContextManager.getThreadLocalContext();

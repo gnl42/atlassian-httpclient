@@ -32,8 +32,8 @@ public class UnexpectedResponseException extends RuntimeException
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("Unexpected response '").append(response.getStatusCode()).append("' with message '");
-        sb.append(response.getStatusText()).append("'");
+        sb.append("Unexpected response '").append(response.statusCode()).append("' with message '");
+        sb.append(response.statusText()).append("'");
         return sb.toString();
     }
 }

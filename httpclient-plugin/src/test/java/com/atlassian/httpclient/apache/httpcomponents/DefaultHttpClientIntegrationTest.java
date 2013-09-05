@@ -1,6 +1,8 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.httpclient.api.HttpClient;
+import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.Response;
 import com.atlassian.junit.http.jetty.JettyServer;
 import com.atlassian.sal.api.ApplicationProperties;
@@ -23,7 +25,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith (MockitoJUnitRunner.class)
 public final class DefaultHttpClientIntegrationTest
 {
     private static final ThreadLocal<Object> TEST_THREAD_LOCAL = new ThreadLocal<Object>();
@@ -33,7 +35,7 @@ public final class DefaultHttpClientIntegrationTest
     @ClassRule
     public static final JettyServer SERVER = new JettyServer();
 
-    private ApacheAsyncHttpClient httpClient;
+    private HttpClient httpClient;
 
     @Mock
     private EventPublisher eventPublisher;
@@ -48,7 +50,7 @@ public final class DefaultHttpClientIntegrationTest
         when(applicationProperties.getVersion()).thenReturn("1");
         when(applicationProperties.getBuildNumber()).thenReturn("0001");
 
-        httpClient = new ApacheAsyncHttpClient<Object>(eventPublisher, applicationProperties, new ThreadLocalContextManager<Object>()
+        httpClient = new DefaultHttpClient<Object>(eventPublisher, applicationProperties, new ThreadLocalContextManager<Object>()
         {
             @Override
             public Object getThreadLocalContext()
@@ -85,7 +87,7 @@ public final class DefaultHttpClientIntegrationTest
         final Object objectInThreadLocal = new Object();
         TEST_THREAD_LOCAL.set(objectInThreadLocal);
 
-        final Object claimedObject = httpClient.newRequest(SERVER.newUri("/test")).get().transform().ok(new Function<Response, Object>()
+        final Object claimedObject = httpClient.builders().transform().ok(new Function<Response, Object>()
         {
             @Override
             public Object apply(Response response)
@@ -95,7 +97,7 @@ public final class DefaultHttpClientIntegrationTest
                 assertTrue(Thread.currentThread().getName().startsWith("httpclient-callbacks"));
                 return TEST_THREAD_LOCAL.get();
             }
-        }).claim();
+        }).build().transform(httpClient.execute(httpClient.newRequest().get().url(SERVER.newUri("/test")).build())).claim();
 
         assertTrue(okFunctionCalled.get());
         assertSame(objectInThreadLocal, claimedObject);
@@ -112,10 +114,11 @@ public final class DefaultHttpClientIntegrationTest
         final Object objectInThreadLocal = new Object();
         TEST_THREAD_LOCAL.set(objectInThreadLocal);
 
-        final Object claimedObject = httpClient.newRequest(SERVER.newUri("/test")).get().transform().ok(new Function<Response, Object>()
+        final Request request = httpClient.newRequest(SERVER.newUri("/test")).get().build();
+        final Object claimedObject = httpClient.execute(request).map(new Function<Response, Object>()
         {
             @Override
-            public Object apply(Response response)
+            public Object apply(final Response response)
             {
                 okFunctionCalled.set(true);
                 assertTrue("For this test to work the function should be executed in a separate thread!", testThreadId != Thread.currentThread().getId());
@@ -134,14 +137,16 @@ public final class DefaultHttpClientIntegrationTest
         ClassLoader tmpClassLoader = new URLClassLoader(new URL[0]);
         Thread.currentThread().setContextClassLoader(tmpClassLoader);
 
-        ClassLoader callbackClassLoader = httpClient.newRequest(SERVER.newUri("/test")).get().<ClassLoader>transform().ok(new Function<Response, ClassLoader>()
+        Request request = httpClient.newRequest(SERVER.newUri("/test")).get().build();
+        ClassLoader callbackClassLoader = httpClient.execute(request).map(new Function<Response, ClassLoader>()
         {
             @Override
-            public ClassLoader apply(Response response)
+            public ClassLoader apply(final Response response)
             {
                 return Thread.currentThread().getContextClassLoader();
             }
         }).claim();
+
         assertEquals(tmpClassLoader, callbackClassLoader);
     }
 }

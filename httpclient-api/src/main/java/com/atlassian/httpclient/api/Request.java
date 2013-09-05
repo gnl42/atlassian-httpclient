@@ -15,7 +15,7 @@ public interface Request extends Message
      *
      * @return The URI or null if not yet set
      */
-    URI getUri();
+    URI uri();
 
     /**
      * Returns this request's Accept header, if set.

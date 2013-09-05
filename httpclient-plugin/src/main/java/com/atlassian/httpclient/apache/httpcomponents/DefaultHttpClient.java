@@ -6,7 +6,9 @@ import com.atlassian.fugue.Pair;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorage;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorageImpl;
 import com.atlassian.httpclient.apache.httpcomponents.cache.LoggingHttpCacheStorage;
+import com.atlassian.httpclient.api.Builders;
 import com.atlassian.httpclient.api.Entity;
+import com.atlassian.httpclient.api.Headers;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.HttpStatus;
 import com.atlassian.httpclient.api.Request;
@@ -18,8 +20,12 @@ import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 import com.atlassian.util.concurrent.Promise;
 import com.atlassian.util.concurrent.ThreadFactories;
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -58,6 +64,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.util.concurrent.ExecutorService;
@@ -68,15 +75,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
 {
+    private static final Supplier<String> httpClientVersion = Suppliers.memoize(new Supplier<String>()
+    {
+        @Override
+        public String get()
+        {
+            return MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api");
+        }
+    });
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Builders httpClientBuilders = new HttpClientBuilders();
 
     private final EventPublisher eventPublisher;
     private final ApplicationProperties applicationProperties;
     private final ThreadLocalContextManager<C> threadLocalContextManager;
     private final ExecutorService callbackExecutor;
-    private final HttpClientOptions httpClientOptions;
 
+    private final HttpClientOptions httpClientOptions;
     private final HttpAsyncClient httpClient;
+    // TODO nonCachingHttpClient
     private final HttpAsyncClient nonCachingHttpClient;
     private final FlushableHttpCacheStorage httpCacheStorage;
 
@@ -203,7 +221,7 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
         }
 
         HttpParams params = client.getParams();
-        // @todo add plugin version to UA string
+
         HttpProtocolParams.setUserAgent(params, getUserAgent(options));
 
         HttpConnectionParams.setConnectionTimeout(params, (int) options.getConnectionTimeout());
@@ -231,7 +249,8 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
 
     private String getUserAgent(HttpClientOptions options)
     {
-        return String.format("Atlassian HttpClient %s / %s-%s (%s) / %s", MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api"),
+        return String.format("Atlassian HttpClient %s / %s-%s (%s) / %s",
+                httpClientVersion.get(),
                 applicationProperties.getDisplayName(), applicationProperties.getVersion(), applicationProperties.getBuildNumber(), options.getUserAgent());
     }
 
@@ -246,6 +265,12 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
         {
             return rejected(t, Response.class);
         }
+    }
+
+    @Override
+    public Builders builders()
+    {
+        return httpClientBuilders;
     }
 
     private Promise<Response> doExecute(final Request request)
@@ -264,32 +289,34 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
             op.setHeader(entry.left(), entry.right());
         }
 
-        return async().execute(op, new BasicHttpContext()).fold(new Function<Throwable, Response>()
+        return async().execute(op, new BasicHttpContext()).fold(
+            new Function<Throwable, Response>()
+            {
+                @Override
+                public Response apply(Throwable ex)
                 {
-                    @Override
-                    public Response apply(Throwable ex)
+                    final long requestDuration = System.currentTimeMillis() - start;
+                    publishEvent(request, requestDuration, ex);
+                    throw Throwables.propagate(ex);
+                }
+            },
+            new Function<HttpResponse, Response>()
+            {
+                @Override
+                public Response apply(HttpResponse httpResponse)
+                {
+                    final long requestDuration = System.currentTimeMillis() - start;
+                    publishEvent(request, requestDuration, HttpStatus.fromCode(httpResponse.getStatusLine().getStatusCode()));
+                    try
                     {
-                        final long requestDuration = System.currentTimeMillis() - start;
-                        publishEvent(request, requestDuration, ex);
-                        throw Throwables.propagate(ex);
+                        return translate(httpResponse);
                     }
-                }, new Function<HttpResponse, Response>()
-                {
-                    @Override
-                    public Response apply(HttpResponse httpResponse)
+                    catch (IOException e)
                     {
-                        final long requestDuration = System.currentTimeMillis() - start;
-                        publishEvent(request, requestDuration, HttpStatus.fromCode(httpResponse.getStatusLine().getStatusCode()));
-                        try
-                        {
-                            return translate(httpResponse);
-                        }
-                        catch (IOException e)
-                        {
-                            throw Throwables.propagate(e);
-                        }
+                        throw Throwables.propagate(e);
                     }
                 }
+            }
         );
     }
 
@@ -326,7 +353,9 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
         final HttpEntity entity = httpResponse.getEntity();
         if (entity != null)
         {
-            response.setEntity(EntityBuilder.builder().setMaxEntitySize(httpClientOptions.getMaxEntitySize()).setStream(entity.getContent()).build());
+            response.setEntity(new DefaultEntity(new DefaultHeaders(ImmutableMap.<String, String>of()),
+                httpClientOptions.getMaxEntitySize(), entity.getContent())
+            );
         }
         return response.build();
     }
@@ -382,8 +411,7 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
             {
                 if (op instanceof HttpEntityEnclosingRequestBase)
                 {
-                    throw new UnsupportedOperationException("TODO implement me!");
-                    // ((HttpEntityEnclosingRequestBase) op).setEntity(entity.asString());
+                    ((HttpEntityEnclosingRequestBase) op).setEntity(HttpEntityFactory.getHttpEntity(entity));
                 }
                 else
                 {
@@ -392,4 +420,61 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
             }
         };
     }
+
+    @Override
+    public Request.Builder newRequest()
+    {
+        return RequestBuilder.builder();
+    }
+
+    @Override
+    public Request.Builder newRequest(final URI uri)
+    {
+        return RequestBuilder.builder().uri(uri);
+    }
+
+    @Override
+    public Request.Builder newRequest(final String uri)
+    {
+        return RequestBuilder.builder().url(uri);
+    }
+
+    @Override
+    public Request.Builder newRequest(final URI uri, final String contentType, final String entity)
+    {
+        Headers.Builder headersBuilder = HeadersBuilder.builder().setContentType(contentType);
+        return RequestBuilder.builder().uri(uri).setEntity(new StringEntity(contentType, entity)).setHeaders(headersBuilder.build());
+    }
+
+    @Override
+    public Request.Builder newRequest(final String url, final String contentType, final String entity)
+    {
+        Headers.Builder headersBuilder = HeadersBuilder.builder().setContentType(contentType);
+        return RequestBuilder.builder().url(url).setEntity(new StringEntity(contentType, entity)).setHeaders(headersBuilder.build());
+    }
+
+    private static class StringEntity implements Entity
+    {
+        private final String contentType;
+        private final String entity;
+
+        private StringEntity(final String contentType, final String entity)
+        {
+            this.contentType = checkNotNull(contentType);
+            this.entity = checkNotNull(entity);
+        }
+
+        @Override
+        public Headers headers()
+        {
+            return new DefaultHeaders(ImmutableMap.of("Content-Type", contentType));
+        }
+
+        @Override
+        public InputStream inputStream()
+        {
+            return new EntityByteArrayInputStream(entity.getBytes(Charsets.UTF_8));
+        }
+    }
+
 }

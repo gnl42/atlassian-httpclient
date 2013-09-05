@@ -19,7 +19,6 @@ public class RequestBuilder implements Request.Builder
     }
 
     private URI uri;
-    // private String accept;
     private Method method;
     private Option<Entity> entity = Option.none();
     private final ImmutableMap.Builder<String, String> attributes = ImmutableMap.builder();
@@ -31,13 +30,6 @@ public class RequestBuilder implements Request.Builder
     public Request build()
     {
         return new DefaultRequest(headers.build(), entity, method, uri, new DefaultAttributes(attributes.build()));
-    }
-
-    @Override
-    public Request.Builder setUri(URI uri)
-    {
-        this.uri = uri;
-        return this;
     }
 
     @Override
@@ -64,7 +56,7 @@ public class RequestBuilder implements Request.Builder
     @Override
     public Request.Builder setEntity(Entity entity)
     {
-        // TODO Entity!
+        this.entity = Option.some(entity);
         return this;
     }
 
@@ -78,8 +70,21 @@ public class RequestBuilder implements Request.Builder
     @Override
     public Builder setMethod(Method method)
     {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        this.method = method;
+        return this;
+    }
+
+    @Override
+    public Builder uri(final URI uri)
+    {
+        this.uri = uri;
+        return this;
+    }
+
+    @Override
+    public Builder url(final String url)
+    {
+        return uri(URI.create(url));
     }
 
     @Override

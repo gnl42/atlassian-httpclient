@@ -7,8 +7,8 @@ import com.atlassian.httpclient.api.Response;
 
 public final class DefaultResponse extends DefaultMessage implements Response
 {
-    private int statusCode;
-    private String statusText;
+    private final int statusCode;
+    private final String statusText;
 
     DefaultResponse(Option<Entity> entity, Headers headers, int statusCode, String statusText)
     {
@@ -142,4 +142,5 @@ public final class DefaultResponse extends DefaultMessage implements Response
     {
         return isInformational() || isRedirection() || isError();
     }
+
 }

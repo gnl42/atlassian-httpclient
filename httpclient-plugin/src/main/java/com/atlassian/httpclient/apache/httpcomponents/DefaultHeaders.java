@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
 
 class DefaultHeaders implements Headers
 {
-
     static Headers empty()
     {
         return new DefaultHeaders(ImmutableMap.<String, String>of());

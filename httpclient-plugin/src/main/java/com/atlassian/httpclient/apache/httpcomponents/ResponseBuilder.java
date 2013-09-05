@@ -10,7 +10,6 @@ import static com.atlassian.fugue.Option.some;
 
 public class ResponseBuilder implements Response.Builder
 {
-
     static Response.Builder builder()
     {
         return new ResponseBuilder();
