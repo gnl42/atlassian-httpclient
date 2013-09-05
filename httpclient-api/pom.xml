@@ -39,5 +39,11 @@
             <artifactId>atlassian-util-concurrent</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.fugue</groupId>
+            <artifactId>fugue</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

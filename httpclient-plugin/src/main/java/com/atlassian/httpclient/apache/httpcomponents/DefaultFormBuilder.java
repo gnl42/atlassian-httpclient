@@ -1,13 +1,18 @@
-package com.atlassian.httpclient.api;
+package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.httpclient.api.Entity;
+import com.atlassian.httpclient.api.Entity.Builder;
+import com.atlassian.httpclient.api.FormBuilder;
+import com.atlassian.httpclient.api.Headers;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newLinkedList;
@@ -15,7 +20,7 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 
 final class DefaultFormBuilder implements FormBuilder
 {
-    private Map<String, List<String>> parameters = newLinkedHashMap();
+    private Map<String, Iterable<String>> parameters = newLinkedHashMap();
 
     public FormBuilder addParam(String name)
     {
@@ -24,17 +29,21 @@ final class DefaultFormBuilder implements FormBuilder
 
     public FormBuilder addParam(String name, String value)
     {
-        List<String> values = parameters.get(name);
+        ImmutableList<String> newValue = ImmutableList.of(value);
+        Iterable<String> values = parameters.get(name);
         if (values == null)
         {
-            values = newLinkedList();
-            parameters.put(name, values);
+            values = newValue;
         }
-        values.add(value);
+        else
+        {
+            values = Iterables.concat(values, newValue);
+        }
+        parameters.put(name, values);
         return this;
     }
 
-    public FormBuilder setParam(String name, List<String> values)
+    public FormBuilder setParam(String name, Iterable<String> values)
     {
         parameters.put(name, newLinkedList(values));
         return this;
@@ -44,10 +53,10 @@ final class DefaultFormBuilder implements FormBuilder
     {
         StringBuilder buf = new StringBuilder();
         boolean first = true;
-        for (Map.Entry<String, List<String>> entry : parameters.entrySet())
+        for (Map.Entry<String, Iterable<String>> entry : parameters.entrySet())
         {
             String name = encode(entry.getKey());
-            List<String> values = entry.getValue();
+            Iterable<String> values = entry.getValue();
             for (String value : values)
             {
                 if (first)
@@ -72,19 +81,19 @@ final class DefaultFormBuilder implements FormBuilder
         return new Entity()
         {
             @Override
-            public Map<String, String> getHeaders()
+            public Headers headers()
             {
-                return ImmutableMap.of("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                return new DefaultHeaders(ImmutableMap.of("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
             }
 
             @Override
-            public InputStream getInputStream()
+            public InputStream inputStream()
             {
                 return new ByteArrayInputStream(bytes);
             }
 
             @Override
-            public String toString()
+            public String asString()
             {
                 return new String(bytes, Charset.forName("UTF-8"));
             }
@@ -102,5 +111,33 @@ final class DefaultFormBuilder implements FormBuilder
             throw new RuntimeException(e);
         }
         return str;
+    }
+
+    @Override
+    public Builder setStream(InputStream entityStream)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Builder setStream(InputStream entityStream, String charset)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Builder setString(String entity)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Builder setMaxEntitySize(long maxEntitySize)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

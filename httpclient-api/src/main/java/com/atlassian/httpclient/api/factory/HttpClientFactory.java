@@ -25,5 +25,5 @@ public interface HttpClientFactory
      * @return The new instance.  Will never be null
      * @see #create(HttpClientOptions)
      */
-    HttpClient create(HttpClientOptions options, ThreadLocalContextManager threadLocalContextManager);
+    HttpClient create(HttpClientOptions options, ThreadLocalContextManager<?> threadLocalContextManager);
 }

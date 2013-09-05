@@ -1,6 +1,5 @@
 package com.atlassian.httpclient.api;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 
@@ -19,14 +18,6 @@ public interface Request extends Message
     URI getUri();
 
     /**
-     * Sets this request's URI.  Must not be null by the time the request is executed.
-     *
-     * @param uri The URI
-     * @return This object, for builder-style chaining
-     */
-    Request setUri(URI uri);
-
-    /**
      * Returns this request's Accept header, if set.
      *
      * @return The accept header value
@@ -34,148 +25,101 @@ public interface Request extends Message
     String getAccept();
 
     /**
-     * Sets the Accept header for the request.
-     *
-     * @param accept An accept header expression containing media types, ranges, and/or quality factors
-     * @return This object, for builder-style chaining
-     */
-    Request setAccept(String accept);
-
-    /**
-     * Bypasses the cache for this request
-     *
-     * @return This object, for builder-style chaining
-     */
-    Request setCacheDisabled();
-
-    /**
-     * Sets an attribute on the request.  Attributes are request metadata that are forwarded to the
-     * analytics plugin when enabled.
-     *
-     * @param name The attribute name
-     * @param value The attribute value
-     * @return This object, for builder-style chaining
-     */
-    Request setAttribute(String name, String value);
-
-    /**
-     * Sets attributes on the request.  Attributes are request metadata that are forwarded to the
-     * analytics plugin when enabled.
-     *
-     * @param properties A map of attributes
-     * @return This object, for builder-style chaining
-     */
-    Request setAttributes(Map<String, String> properties);
-
-    /**
-     * Gets an attribute from the request.  Attributes are request metadata that are forwarded to the
-     * analytics plugin when enabled.
-     *
-     * @param name The attribute name
-     * @return The attribute value, or null if not set
-     */
-    String getAttribute(String name);
-
-    /**
      * Gets all attributes for this request.  Attributes are request metadata that are forwarded to the
      * analytics plugin when enabled.
      *
      * @return All attributes
      */
-    Map<String, String> getAttributes();
+    Attributes attributes();
 
-    /**
-     * Sets the entity and any associated headers from an entity builder.
-     *
-     * @param entityBuilder An entity builder
-     * @return This object, for builder-style chaining
-     */
-    Request setEntity(EntityBuilder entityBuilder);
+    Method method();
 
-    /**
-     * Executes this request through the {@link HttpClient} service as a <code>GET</code> operation.
-     * The request SHOULD NOT contain an entity for the <code>GET</code> operation.
-     *
-     * @return A promise object that can be used to receive the response and handle exceptions
-     */
-    ResponsePromise get();
+    interface Builder extends Common<Builder>, Buildable<Request>
+    {
 
-    /**
-     * Executes this request through the {@link HttpClient} service as a <code>POST</code> operation.
-     * The request SHOULD contain an entity for the <code>POST</code> operation.
-     *
-     * @return A promise object that can be used to receive the response and handle exceptions
-     */
-    ResponsePromise post();
+        /**
+         * Sets this request's Method to GET
+         */
+        Builder get();
 
-    /**
-     * Executes this request through the {@link HttpClient} service as a <code>PUT</code> operation.
-     * The request SHOULD contain an entity for the <code>PUT</code> operation.
-     *
-     * @return A promise object that can be used to receive the response and handle exceptions
-     */
-    ResponsePromise put();
+        /**
+         * Sets this request's Method to POST
+         */
+        Builder post();
 
-    /**
-     * Executes this request through the {@link HttpClient} service as a <code>DELETE</code> operation.
-     * The request SHOULD NOT contain an entity for the <code>DELETE</code> operation.
-     *
-     * @return A promise object that can be used to receive the response and handle exceptions
-     */
-    ResponsePromise delete();
+        /**
+         * Sets this request's Method to PUT
+         */
+        Builder put();
 
-    /**
-     * Executes this request through the {@link HttpClient} service as a <code>OPTIONS</code> operation.
-     * The request MAY contain an entity for the <code>OPTIONS</code> operation.
-     *
-     * @return A promise object that can be used to receive the response and handle exceptions
-     */
-    ResponsePromise options();
+        /**
+         * Sets this request's Method to DELETE
+         */
+        Builder delete();
 
-    /**
-     * Executes this request through the {@link HttpClient} service as a <code>HEAD</code> operation.
-     * The request SHOULD NOT contain an entity for the <code>HEAD</code> operation.
-     *
-     * @return A promise object that can be used to receive the response and handle exceptions
-     */
-    ResponsePromise head();
+        /**
+         * Sets this request's Method to OPTIONS
+         */
+        Builder options();
 
-    /**
-     * Executes this request through the {@link HttpClient} service as a <code>TRACE</code> operation.
-     * The request SHOULD contain an entity for the <code>TRACE</code> operation.
-     *
-     * @return A promise object that can be used to receive the response and handle exceptions
-     */
-    ResponsePromise trace();
+        /**
+         * Sets this request's Method to HEAD
+         */
+        Builder head();
 
-    /**
-     * Executes this request through the {@link HttpClient} service using the given HTTP method.
-     *
-     * @param method the HTTP method to use.
-     * @return A promise object that can be used to receive the response and handle exceptions
-     */
-    ResponsePromise execute(Method method);
+        /**
+         * Sets this request's Method to TRACE
+         */
+        Builder trace();
 
-    Method getMethod();
+        /**
+         * Sets this request's Method
+         */
+        Builder setMethod(Method method);
 
-    @Override
-    Request setContentType(String contentType);
+        /**
+         * Sets this request's URI. Must not be null by the time the request is
+         * executed.
+         */
+        Builder uri(URI uri);
 
-    @Override
-    Request setContentCharset(String contentCharset);
+        /**
+         * Sets this request's URI. Must not be null by the time the request is
+         * executed.
+         */
+        Builder url(String url);
 
-    @Override
-    Request setHeaders(Map<String, String> headers);
+        /**
+         * Sets the Accept header for the request.
+         *
+         * @param accept An accept header expression containing media types, ranges,
+         * and/or quality factors
+         */
+        Builder setAccept(String accept);
 
-    @Override
-    Request setHeader(String name, String value);
+        /**
+         * Bypasses the cache for this request
+         */
+        // TODO is this a request attribute?
+        //Builder setCacheDisabled();
 
-    @Override
-    Request setEntity(String entity);
+        /**
+         * Sets an attribute on the request. Attributes are request metadata that
+         * are forwarded to the analytics plugin when enabled.
+         *
+         * @param name The attribute name
+         * @param value The attribute value
+         * @return This object, for builder-style chaining
+         */
+        Builder setAttribute(String name, String value);
 
-    @Override
-    Request setEntityStream(InputStream entityStream, String encoding);
-
-    @Override
-    Request setEntityStream(InputStream entityStream);
+        /**
+         * Sets attributes on the request. Attributes are request metadata that are
+         * forwarded to the analytics plugin when enabled.
+         *
+         * @param properties A map of attributes
+         * @return This object, for builder-style chaining
+         */
+        Builder setAttributes(Map<String, String> properties);
+    }
 }

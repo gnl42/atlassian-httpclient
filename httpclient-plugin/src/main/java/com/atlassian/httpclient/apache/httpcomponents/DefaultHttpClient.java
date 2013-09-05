@@ -1,28 +1,25 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.fugue.Effect;
+import com.atlassian.fugue.Pair;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorage;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorageImpl;
 import com.atlassian.httpclient.apache.httpcomponents.cache.LoggingHttpCacheStorage;
+import com.atlassian.httpclient.api.Entity;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.HttpStatus;
 import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.Response;
-import com.atlassian.httpclient.api.ResponsePromise;
-import com.atlassian.httpclient.api.ResponsePromises;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
-import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.executor.ThreadLocalContextManager;
+import com.atlassian.util.concurrent.Promise;
 import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -63,30 +60,18 @@ import org.springframework.beans.factory.DisposableBean;
 import java.io.IOException;
 import java.net.ProxySelector;
 import java.net.URI;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import static com.atlassian.util.concurrent.Promises.rejected;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.lang.String.format;
 
-public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean
+public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private static final Supplier<String> httpClientVersion = Suppliers.memoize(new Supplier<String>()
-    {
-        @Override
-        public String get()
-        {
-            return MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api");
-        }
-    });
-
-    private final Function<Object, Void> eventConsumer;
-    private final Supplier<String> applicationName;
+    private final EventPublisher eventPublisher;
+    private final ApplicationProperties applicationProperties;
     private final ThreadLocalContextManager<C> threadLocalContextManager;
     private final ExecutorService callbackExecutor;
     private final HttpClientOptions httpClientOptions;
@@ -95,33 +80,17 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private final HttpAsyncClient nonCachingHttpClient;
     private final FlushableHttpCacheStorage httpCacheStorage;
 
-    public ApacheAsyncHttpClient(EventPublisher eventConsumer, ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager)
+    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties,
+            ThreadLocalContextManager<C> threadLocalContextManager)
     {
-        this(eventConsumer, applicationProperties, threadLocalContextManager, new HttpClientOptions());
+        this(eventPublisher, applicationProperties, threadLocalContextManager, new HttpClientOptions());
     }
 
-    public ApacheAsyncHttpClient(final EventPublisher eventConsumer, final ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
+    public DefaultHttpClient(EventPublisher eventPublisher, ApplicationProperties applicationProperties,
+            ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
     {
-        this(new DefaultApplicationNameSupplier(applicationProperties),
-                new EventConsumerFunction(eventConsumer),
-                threadLocalContextManager,
-                options);
-    }
-
-    public ApacheAsyncHttpClient(String applicationName)
-    {
-        this(applicationName, new HttpClientOptions());
-    }
-
-    public ApacheAsyncHttpClient(String applicationName, final HttpClientOptions options)
-    {
-        this(Suppliers.ofInstance(applicationName), Functions.constant((Void) null), new NoOpThreadLocalContextManager<C>(), options);
-    }
-
-    public ApacheAsyncHttpClient(Supplier<String> applicationName, Function<Object, Void> eventConsumer, ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
-    {
-        this.eventConsumer = checkNotNull(eventConsumer);
-        this.applicationName = checkNotNull(applicationName);
+        this.eventPublisher = checkNotNull(eventPublisher);
+        this.applicationProperties = checkNotNull(applicationProperties);
         this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
         this.httpClientOptions = checkNotNull(options);
 
@@ -132,9 +101,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             ioReactorConfig.setIoThreadCount(options.getIoThreadCount());
             ioReactorConfig.setSelectInterval(options.getIoSelectInterval());
             ioReactorConfig.setInterestOpQueued(true);
-            DefaultConnectingIOReactor reactor = new DefaultConnectingIOReactor(
-                    ioReactorConfig,
-                    ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io", ThreadFactories.Type.DAEMON));
+            DefaultConnectingIOReactor reactor = new DefaultConnectingIOReactor(ioReactorConfig, ThreadFactories.namedThreadFactory(
+                    options.getThreadPrefix() + "-io", ThreadFactories.Type.DAEMON));
             reactor.setExceptionHandler(new IOReactorExceptionHandler()
             {
                 @Override
@@ -157,10 +125,11 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 @Override
                 protected void finalize() throws Throwable
                 {
-                    // prevent the PoolingClientAsyncConnectionManager from logging - this causes exceptions due to
-                    // the ClassLoader probably having been removed when the plugin shuts down.  Added a
-                    // PluginEventListener to make sure the shutdown method is called while the plugin classloader
-                    // is still active.
+                    // prevent the PoolingClientAsyncConnectionManager from logging
+                    // - this causes exceptions due to the ClassLoader probably having
+                    // been removed when the plugin shuts down. Added a
+                    // PluginEventListener to make sure the shutdown method is called
+                    // while the plugin classloader is still active.
                 }
             };
 
@@ -170,7 +139,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
             client.setRedirectStrategy(new DefaultRedirectStrategy()
             {
-                final String[] REDIRECT_METHODS = {HttpHead.METHOD_NAME, HttpGet.METHOD_NAME, HttpPost.METHOD_NAME, HttpPut.METHOD_NAME, HttpDelete.METHOD_NAME, HttpPatch.METHOD_NAME};
+                final String[] REDIRECT_METHODS = { HttpHead.METHOD_NAME, HttpGet.METHOD_NAME, HttpPost.METHOD_NAME, HttpPut.METHOD_NAME,
+                        HttpDelete.METHOD_NAME, HttpPatch.METHOD_NAME };
 
                 @Override
                 protected boolean isRedirectable(String method)
@@ -186,7 +156,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 }
 
                 @Override
-                public HttpUriRequest getRedirect(final HttpRequest request, final HttpResponse response, final HttpContext context) throws ProtocolException
+                public HttpUriRequest getRedirect(final HttpRequest request, final HttpResponse response, final HttpContext context)
+                        throws ProtocolException
                 {
                     URI uri = getLocationURI(request, response, context);
                     String method = request.getRequestLine().getMethod();
@@ -232,7 +203,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
 
         HttpParams params = client.getParams();
-
+        // @todo add plugin version to UA string
         HttpProtocolParams.setUserAgent(params, getUserAgent(options));
 
         HttpConnectionParams.setConnectionTimeout(params, (int) options.getConnectionTimeout());
@@ -240,8 +211,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         HttpConnectionParams.setSocketBufferSize(params, 8 * 1024);
         HttpConnectionParams.setTcpNoDelay(params, true);
 
-        ProxySelectorAsyncRoutePlanner routePlanner = new ProxySelectorAsyncRoutePlanner(
-                client.getConnectionManager().getSchemeRegistry(),
+        ProxySelectorAsyncRoutePlanner routePlanner = new ProxySelectorAsyncRoutePlanner(client.getConnectionManager().getSchemeRegistry(),
                 ProxySelector.getDefault());
         client.setRoutePlanner(routePlanner);
 
@@ -261,14 +231,12 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
     private String getUserAgent(HttpClientOptions options)
     {
-        return format("Atlassian HttpClient %s / %s / %s",
-                httpClientVersion.get(),
-                applicationName.get(),
-                options.getUserAgent());
+        return String.format("Atlassian HttpClient %s / %s-%s (%s) / %s", MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api"),
+                applicationProperties.getDisplayName(), applicationProperties.getVersion(), applicationProperties.getBuildNumber(), options.getUserAgent());
     }
 
-    @Override
-    public final ResponsePromise execute(final DefaultRequest request)
+    // @Override
+    public final Promise<Response> execute(final Request request)
     {
         try
         {
@@ -276,69 +244,27 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
         catch (Throwable t)
         {
-            return ResponsePromises.toResponsePromise(rejected(t, Response.class));
+            return rejected(t, Response.class);
         }
     }
 
-    private ResponsePromise doExecute(final DefaultRequest request)
+    private Promise<Response> doExecute(final Request request)
     {
         httpClientOptions.getRequestPreparer().apply(request);
 
         // validate the request state
-        request.validate();
-
-        // freeze the request state to prevent further mutability as we go to execute the request
-        request.freeze();
+        // request.validate();
 
         final long start = System.currentTimeMillis();
-        final HttpRequestBase op;
-        final String uri = request.getUri().toString();
-        final Request.Method method = request.getMethod();
-        switch (method)
+        final HttpRequestBase op = getMethod(request);
+        request.entity().foreach(setEntity(op));
+
+        for (Pair<String, String> entry : request.headers())
         {
-            case GET:
-                op = new HttpGet(uri);
-                break;
-            case POST:
-                op = new HttpPost(uri);
-                break;
-            case PUT:
-                op = new HttpPut(uri);
-                break;
-            case DELETE:
-                op = new HttpDelete(uri);
-                break;
-            case OPTIONS:
-                op = new HttpOptions(uri);
-                break;
-            case HEAD:
-                op = new HttpHead(uri);
-                break;
-            case TRACE:
-                op = new HttpTrace(uri);
-                break;
-            default:
-                throw new UnsupportedOperationException(method.toString());
-        }
-        if (request.hasEntity())
-        {
-            if (op instanceof HttpEntityEnclosingRequestBase)
-            {
-                ((HttpEntityEnclosingRequestBase) op).setEntity(request.getHttpEntity());
-            }
-            else
-            {
-                throw new UnsupportedOperationException("HTTP method " + method + " does not support sending an entity");
-            }
+            op.setHeader(entry.left(), entry.right());
         }
 
-        for (Map.Entry<String, String> entry : request.getHeaders().entrySet())
-        {
-            op.setHeader(entry.getKey(), entry.getValue());
-        }
-
-        return ResponsePromises.toResponsePromise(getPromiseHttpAsyncClient(request).execute(op, new BasicHttpContext()).fold(
-                new Function<Throwable, Response>()
+        return async().execute(op, new BasicHttpContext()).fold(new Function<Throwable, Response>()
                 {
                     @Override
                     public Response apply(Throwable ex)
@@ -347,17 +273,16 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                         publishEvent(request, requestDuration, ex);
                         throw Throwables.propagate(ex);
                     }
-                },
-                new Function<HttpResponse, Response>()
+                }, new Function<HttpResponse, Response>()
                 {
                     @Override
                     public Response apply(HttpResponse httpResponse)
                     {
                         final long requestDuration = System.currentTimeMillis() - start;
-                        publishEvent(request, requestDuration, httpResponse.getStatusLine().getStatusCode());
+                        publishEvent(request, requestDuration, HttpStatus.fromCode(httpResponse.getStatusLine().getStatusCode()));
                         try
                         {
-                            return translate(httpResponse).freeze();
+                            return translate(httpResponse);
                         }
                         catch (IOException e)
                         {
@@ -365,63 +290,45 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                         }
                     }
                 }
-        ));
+        );
     }
 
-    private void publishEvent(Request request, long requestDuration, int statusCode)
+    private void publishEvent(Request request, long duration, HttpStatus status)
     {
-        if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code)
+        if (HttpStatus.OK.code <= status.code && status.code < HttpStatus.MULTIPLE_CHOICES.code)
         {
-            eventConsumer.apply(new HttpRequestCompletedEvent(
-                    request.getUri().toString(),
-                    request.getMethod().name(),
-                    statusCode,
-                    requestDuration,
-                    request.getAttributes()));
+            eventPublisher.publish(new HttpRequestCompletedEvent(request, duration));
         }
         else
         {
-            eventConsumer.apply(new HttpRequestFailedEvent(
-                    request.getUri().toString(),
-                    request.getMethod().name(),
-                    statusCode,
-                    requestDuration,
-                    request.getAttributes()));
+            eventPublisher.publish(new HttpRequestFailedEvent(request, new RequestNotOk(status)));
         }
     }
 
     private void publishEvent(Request request, long requestDuration, Throwable ex)
     {
-        eventConsumer.apply(new HttpRequestFailedEvent(
-                request.getUri().toString(),
-                request.getMethod().name(),
-                ex.toString(),
-                requestDuration,
-                request.getAttributes()));
+        eventPublisher.publish(new HttpRequestFailedEvent(request, ex));
     }
 
-    private PromiseHttpAsyncClient getPromiseHttpAsyncClient(DefaultRequest request)
+    private AsyncHttpClient async()
     {
-        return new SettableFuturePromiseHttpPromiseAsyncClient<C>(request.isCacheDisabled() ? nonCachingHttpClient : httpClient, threadLocalContextManager, callbackExecutor);
+        // request.isCacheDisabled() ? nonCachingHttpClient
+        return new DefaultAsyncHttpClient<C>(httpClient, threadLocalContextManager);
     }
 
-    private DefaultResponse translate(HttpResponse httpResponse) throws IOException
+    private Response translate(HttpResponse httpResponse) throws IOException
     {
         StatusLine status = httpResponse.getStatusLine();
-        DefaultResponse response = new DefaultResponse(httpClientOptions.getMaxEntitySize());
+        Response.Builder response = ResponseBuilder.builder();
         response.setStatusCode(status.getStatusCode());
         response.setStatusText(status.getReasonPhrase());
-        Header[] httpHeaders = httpResponse.getAllHeaders();
-        for (Header httpHeader : httpHeaders)
-        {
-            response.setHeader(httpHeader.getName(), httpHeader.getValue());
-        }
+        response.setHeaders(DefaultHeaders.from(httpResponse.getAllHeaders()));
         final HttpEntity entity = httpResponse.getEntity();
         if (entity != null)
         {
-            response.setEntityStream(entity.getContent());
+            response.setEntity(EntityBuilder.builder().setMaxEntitySize(httpClientOptions.getMaxEntitySize()).setStream(entity.getContent()).build());
         }
-        return response;
+        return response.build();
     }
 
     @Override
@@ -431,64 +338,58 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         httpClient.shutdown();
     }
 
-    @Override
-    public void flushCacheByUriPattern(Pattern urlPattern)
+    // @Override
+    // public void flushCacheByUriPattern(Pattern urlPattern)
+    // {
+    // httpCacheStorage.flushByUriPattern(urlPattern);
+    // }
+
+    private HttpRequestBase getMethod(Request request)
     {
-        httpCacheStorage.flushByUriPattern(urlPattern);
-    }
+        final String uri = request.uri().toString();
 
-    private static final class NoOpThreadLocalContextManager<C> implements ThreadLocalContextManager<C>
-    {
-        @Override
-        public C getThreadLocalContext()
+        switch (request.method())
         {
-            return null;
-        }
+            case GET:
+                return new HttpGet(uri);
+            case POST:
+                return new HttpPost(uri);
+            case PUT:
+                return new HttpPut(uri);
 
-        @Override
-        public void setThreadLocalContext(C context)
-        {
-        }
+            case DELETE:
+                return new HttpDelete(uri);
 
-        @Override
-        public void clearThreadLocalContext()
-        {
-        }
-    }
+            case OPTIONS:
+                return new HttpOptions(uri);
 
-    private static final class DefaultApplicationNameSupplier implements Supplier<String>
-    {
-        private final ApplicationProperties applicationProperties;
+            case HEAD:
+                return new HttpHead(uri);
 
-        public DefaultApplicationNameSupplier(ApplicationProperties applicationProperties)
-        {
-            this.applicationProperties = checkNotNull(applicationProperties);
-        }
+            case TRACE:
+                return new HttpTrace(uri);
 
-        @Override
-        public String get()
-        {
-            return format("%s-%s (%s)",
-                    applicationProperties.getDisplayName(),
-                    applicationProperties.getVersion(),
-                    applicationProperties.getBuildNumber());
+            default:
+                throw new UnsupportedOperationException(request.method().toString());
         }
     }
 
-    private static class EventConsumerFunction implements Function<Object, Void>
+    private Effect<Entity> setEntity(final HttpRequestBase op)
     {
-        private final EventPublisher eventPublisher;
-
-        public EventConsumerFunction(EventPublisher eventPublisher)
+        return new Effect<Entity>()
         {
-            this.eventPublisher = eventPublisher;
-        }
-
-        @Override
-        public Void apply(Object event)
-        {
-            eventPublisher.publish(event);
-            return null;
-        }
+            public void apply(Entity entity)
+            {
+                if (op instanceof HttpEntityEnclosingRequestBase)
+                {
+                    throw new UnsupportedOperationException("TODO implement me!");
+                    // ((HttpEntityEnclosingRequestBase) op).setEntity(entity.asString());
+                }
+                else
+                {
+                    throw new UnsupportedOperationException("HTTP method " + op.getMethod() + " does not support sending an entity");
+                }
+            }
+        };
     }
 }

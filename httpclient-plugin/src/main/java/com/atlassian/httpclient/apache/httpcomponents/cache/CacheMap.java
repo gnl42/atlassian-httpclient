@@ -34,19 +34,22 @@ import java.util.Map;
 /**
  * Copied from {@link org.apache.http.impl.client.cache.CacheMap} v4.1.2
  */
-final class CacheMap extends LinkedHashMap<String, HttpCacheEntry> {
+final class CacheMap extends LinkedHashMap<String, HttpCacheEntry>
+{
 
     private static final long serialVersionUID = -7750025207539768511L;
 
     private final int maxEntries;
 
-    CacheMap(int maxEntries) {
+    CacheMap(int maxEntries)
+    {
         super(20, 0.75f, true);
         this.maxEntries = maxEntries;
     }
 
     @Override
-    protected boolean removeEldestEntry(final Map.Entry<String, HttpCacheEntry> eldest) {
+    protected boolean removeEldestEntry(final Map.Entry<String, HttpCacheEntry> eldest)
+    {
         return size() > this.maxEntries;
     }
 

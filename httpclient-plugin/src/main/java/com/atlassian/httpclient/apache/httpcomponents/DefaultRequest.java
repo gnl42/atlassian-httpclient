@@ -1,115 +1,32 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
-import com.atlassian.httpclient.api.EntityBuilder;
+import com.atlassian.fugue.Option;
+import com.atlassian.httpclient.api.Attributes;
+import com.atlassian.httpclient.api.Entity;
+import com.atlassian.httpclient.api.Headers;
 import com.atlassian.httpclient.api.Request;
-import com.atlassian.httpclient.api.ResponsePromise;
-import com.atlassian.httpclient.base.AbstractHttpClient;
 
-import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
-import java.util.Map;
-
-import static com.atlassian.httpclient.api.Request.Method.DELETE;
-import static com.atlassian.httpclient.api.Request.Method.GET;
-import static com.atlassian.httpclient.api.Request.Method.HEAD;
-import static com.atlassian.httpclient.api.Request.Method.OPTIONS;
-import static com.atlassian.httpclient.api.Request.Method.POST;
-import static com.atlassian.httpclient.api.Request.Method.PUT;
-import static com.atlassian.httpclient.api.Request.Method.TRACE;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Maps.newHashMap;
 
 public class DefaultRequest extends DefaultMessage implements Request
 {
-    private final AbstractHttpClient httpClient;
 
-    private Method method;
+    private final Method method;
+    private final URI uri;
+    private final Attributes attributes;
 
-    private URI uri;
-    private boolean cacheDisabled;
-
-    private Map<String, String> attributes;
-
-    public DefaultRequest(AbstractHttpClient httpClient)
+    DefaultRequest(Headers headers, Option<Entity> entity, Method method, URI uri, Attributes attributes)
     {
-        this.httpClient = checkNotNull(httpClient);
-        attributes = newHashMap();
-        setAccept("*/*");
-    }
-
-    public DefaultRequest(AbstractHttpClient httpClient, URI uri)
-    {
-        this(httpClient, uri, null, null);
-    }
-
-    public DefaultRequest(AbstractHttpClient httpClient, URI uri, String contentType, String entity)
-    {
-        this(httpClient);
-        setUri(uri).setContentType(contentType).setEntity(entity);
+        super(headers, entity);
+        this.method = method;
+        this.uri = uri;
+        this.attributes = attributes;
     }
 
     @Override
-    public ResponsePromise get()
-    {
-        return execute(GET);
-    }
-
-    @Override
-    public ResponsePromise post()
-    {
-        return execute(POST);
-    }
-
-    @Override
-    public ResponsePromise put()
-    {
-        return execute(PUT);
-    }
-
-    @Override
-    public ResponsePromise delete()
-    {
-        return execute(DELETE);
-    }
-
-    @Override
-    public ResponsePromise options()
-    {
-        return execute(OPTIONS);
-    }
-
-    @Override
-    public ResponsePromise head()
-    {
-        return execute(HEAD);
-    }
-
-    @Override
-    public ResponsePromise trace()
-    {
-        return execute(TRACE);
-    }
-
-    @Override
-    public ResponsePromise execute(Method method)
-    {
-        checkNotNull(method, "HTTP method must not be null");
-        setMethod(method);
-        return httpClient.execute(this);
-    }
-
-    @Override
-    public Method getMethod()
+    public Method method()
     {
         return method;
-    }
-
-    private Request setMethod(Method method)
-    {
-        checkMutable();
-        this.method = method;
-        return this;
     }
 
     @Override
@@ -119,154 +36,14 @@ public class DefaultRequest extends DefaultMessage implements Request
     }
 
     @Override
-    public Request setUri(URI uri)
-    {
-        checkMutable();
-        this.uri = uri;
-        return this;
-    }
-
-    @Override
     public String getAccept()
     {
-        return getHeader("Accept");
+        return headers().get("Accept").getOrElse("*/*");
     }
 
     @Override
-    public Request setAccept(String accept)
+    public Attributes attributes()
     {
-        checkMutable();
-        setHeader("Accept", accept);
-        return this;
-    }
-
-    @Override
-    public Request setCacheDisabled()
-    {
-        checkMutable();
-        this.cacheDisabled = true;
-        return this;
-    }
-
-    @Override
-    public Request setAttribute(String name, String value)
-    {
-        checkMutable();
-        attributes.put(name, value);
-        return this;
-    }
-
-    @Override
-    public Request setAttributes(Map<String, String> properties)
-    {
-        checkMutable();
-        attributes.putAll(properties);
-        return this;
-    }
-
-    @Override
-    public String getAttribute(String name)
-    {
-        return attributes.get(name);
-    }
-
-    @Override
-    public Map<String, String> getAttributes()
-    {
-        return Collections.unmodifiableMap(attributes);
-    }
-
-    @Override
-    public Request setEntity(EntityBuilder entityBuilder)
-    {
-        EntityBuilder.Entity entity = entityBuilder.build();
-        return setHeaders(entity.getHeaders()).setEntityStream(entity.getInputStream());
-    }
-
-    public Request validate()
-    {
-        super.validate();
-        checkNotNull(uri);
-        checkNotNull(method);
-
-        switch (method)
-        {
-            case GET:
-            case DELETE:
-            case HEAD:
-                if (hasEntity())
-                {
-                    throw new IllegalStateException("Request method " + method + " does not support an entity");
-                }
-                break;
-            case POST:
-            case PUT:
-            case TRACE:
-                // no-op
-                break;
-        }
-
-        return this;
-    }
-
-    @Override
-    public Request setContentType(String contentType)
-    {
-        super.setContentType(contentType);
-        return this;
-    }
-
-    @Override
-    public Request setContentCharset(String contentCharset)
-    {
-        super.setContentCharset(contentCharset);
-        return this;
-    }
-
-    @Override
-    public Request setHeaders(Map<String, String> headers)
-    {
-        super.setHeaders(headers);
-        return this;
-    }
-
-    @Override
-    public Request setHeader(String name, String value)
-    {
-        super.setHeader(name, value);
-        return this;
-    }
-
-    @Override
-    public Request setEntity(String entity)
-    {
-        super.setEntity(entity);
-        return this;
-    }
-
-    @Override
-    public Request setEntityStream(InputStream entityStream, String encoding)
-    {
-        super.setEntityStream(entityStream, encoding);
-        return this;
-    }
-
-    @Override
-    public Request setEntityStream(InputStream entityStream)
-    {
-        super.setEntityStream(entityStream);
-        return this;
-    }
-
-    public boolean isCacheDisabled()
-    {
-        return cacheDisabled;
-    }
-
-    @Override
-    protected Request freeze()
-    {
-        super.freeze();
-        return this;
+        return attributes;
     }
 }

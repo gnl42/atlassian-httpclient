@@ -4,8 +4,8 @@ import com.atlassian.event.api.EventPublisher;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientFactory;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
+import com.atlassian.httpclient.spi.ThreadLocalContextManager;
 import com.atlassian.sal.api.ApplicationProperties;
-import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Set;
@@ -18,7 +18,7 @@ public final class DefaultHttpClientFactory implements HttpClientFactory, Dispos
     private final EventPublisher eventPublisher;
     private final ApplicationProperties applicationProperties;
     private final ThreadLocalContextManager threadLocalContextManager;
-    private final Set<ApacheAsyncHttpClient> httpClients = new CopyOnWriteArraySet<ApacheAsyncHttpClient>();
+    private final Set<DefaultHttpClient> httpClients = new CopyOnWriteArraySet<DefaultHttpClient>();
 
     public DefaultHttpClientFactory(EventPublisher eventPublisher, ApplicationProperties applicationProperties, ThreadLocalContextManager threadLocalContextManager)
     {
@@ -42,7 +42,7 @@ public final class DefaultHttpClientFactory implements HttpClientFactory, Dispos
     private HttpClient doCreate(HttpClientOptions options, ThreadLocalContextManager threadLocalContextManager)
     {
         checkNotNull(options);
-        final ApacheAsyncHttpClient httpClient = new ApacheAsyncHttpClient(eventPublisher, applicationProperties, threadLocalContextManager, options);
+        final DefaultHttpClient httpClient = new DefaultHttpClient(eventPublisher, applicationProperties, threadLocalContextManager, options);
         httpClients.add(httpClient);
         return httpClient;
     }
@@ -50,7 +50,7 @@ public final class DefaultHttpClientFactory implements HttpClientFactory, Dispos
     @Override
     public void destroy() throws Exception
     {
-        for (ApacheAsyncHttpClient httpClient : httpClients)
+        for (DefaultHttpClient httpClient : httpClients)
         {
             httpClient.destroy();
         }

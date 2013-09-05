@@ -1,46 +1,32 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.fugue.Option;
+import com.atlassian.httpclient.api.Entity;
+import com.atlassian.httpclient.api.Headers;
 import com.atlassian.httpclient.api.Response;
-
-import java.io.InputStream;
-import java.util.Map;
 
 public final class DefaultResponse extends DefaultMessage implements Response
 {
     private int statusCode;
     private String statusText;
 
-    public DefaultResponse(long maxEntitySize)
+    DefaultResponse(Option<Entity> entity, Headers headers, int statusCode, String statusText)
     {
-        super(maxEntitySize);
+        super(headers, entity);
+        this.statusCode = statusCode;
+        this.statusText = statusText;
     }
 
     @Override
-    public int getStatusCode()
+    public int statusCode()
     {
         return statusCode;
     }
 
     @Override
-    public Response setStatusCode(int statusCode)
-    {
-        checkMutable();
-        this.statusCode = statusCode;
-        return this;
-    }
-
-    @Override
-    public String getStatusText()
+    public String statusText()
     {
         return statusText;
-    }
-
-    @Override
-    public Response setStatusText(String statusText)
-    {
-        checkMutable();
-        this.statusText = statusText;
-        return this;
     }
 
     @Override
@@ -155,68 +141,5 @@ public final class DefaultResponse extends DefaultMessage implements Response
     public boolean isNotSuccessful()
     {
         return isInformational() || isRedirection() || isError();
-    }
-
-    @Override
-    public Response setContentType(String contentType)
-    {
-        checkMutable();
-        super.setContentType(contentType);
-        return this;
-    }
-
-    @Override
-    public Response setContentCharset(String contentCharset)
-    {
-        checkMutable();
-        super.setContentCharset(contentCharset);
-        return this;
-    }
-
-    @Override
-    public Response setHeaders(Map<String, String> headers)
-    {
-        checkMutable();
-        super.setHeaders(headers);
-        return this;
-    }
-
-    @Override
-    public Response setHeader(String name, String value)
-    {
-        checkMutable();
-        super.setHeader(name, value);
-        return this;
-    }
-
-    @Override
-    public Response setEntity(String entity)
-    {
-        checkMutable();
-        super.setEntity(entity);
-        return this;
-    }
-
-    @Override
-    public Response setEntityStream(InputStream entityStream, String encoding)
-    {
-        checkMutable();
-        super.setEntityStream(entityStream, encoding);
-        return this;
-    }
-
-    @Override
-    public Response setEntityStream(InputStream entityStream)
-    {
-        checkMutable();
-        super.setEntityStream(entityStream);
-        return this;
-    }
-
-    @Override
-    protected Response freeze()
-    {
-        super.freeze();
-        return this;
     }
 }

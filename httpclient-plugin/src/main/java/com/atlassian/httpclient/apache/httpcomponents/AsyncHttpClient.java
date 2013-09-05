@@ -5,7 +5,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.protocol.HttpContext;
 
-interface PromiseHttpAsyncClient
+interface AsyncHttpClient
 {
     Promise<HttpResponse> execute(HttpUriRequest request, HttpContext context);
 }
