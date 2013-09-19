@@ -54,6 +54,12 @@ public class RequestBuilder implements Request.Builder
     }
 
     @Override
+    public Builder setEntity(final String entity)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
     public Request.Builder setEntity(Entity entity)
     {
         this.entity = Option.some(entity);

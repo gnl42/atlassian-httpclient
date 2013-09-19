@@ -1,8 +1,10 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.Entity;
 import com.atlassian.httpclient.api.FormBuilder;
 import com.atlassian.httpclient.api.Headers;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 
 import java.io.ByteArrayInputStream;
@@ -77,7 +79,7 @@ public final class DefaultFormBuilder implements FormBuilder
             @Override
             public Headers headers()
             {
-                return new DefaultHeaders(ImmutableMap.of("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+                return new DefaultHeaders(ImmutableMap.of("Content-Type", "application/x-www-form-urlencoded"), Option.some(Charsets.UTF_8));
             }
 
             @Override

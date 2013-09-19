@@ -2,6 +2,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.Entity;
 import com.atlassian.httpclient.api.FormBuilder;
+import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
 import org.junit.Test;
@@ -82,7 +83,8 @@ public class DefaultFormBuilderTest
     {
         FormBuilder form = new DefaultFormBuilder();
         Entity entity = form.build();
-        assertEquals("application/x-www-form-urlencoded; charset=UTF-8", entity.headers().get("Content-Type").get());
+        assertEquals("application/x-www-form-urlencoded", entity.headers().get("Content-Type").get());
+        assertEquals(Charsets.UTF_8, entity.headers().contentCharset().get());
     }
 
     private static String toString(final FormBuilder form)

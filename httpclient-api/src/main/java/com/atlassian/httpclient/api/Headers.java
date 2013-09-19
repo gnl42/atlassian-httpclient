@@ -5,6 +5,7 @@ import com.atlassian.fugue.Pair;
 import com.atlassian.util.concurrent.NotNull;
 
 import java.nio.charset.Charset;
+import java.util.Map;
 
 public interface Headers extends Iterable<Pair<String, String>>
 {
@@ -40,6 +41,8 @@ public interface Headers extends Iterable<Pair<String, String>>
         Builder add(String name, String value);
 
         Builder addAll(Iterable<Pair<String, String>> headers);
+
+        Builder addAll(Map<String, String> headers);
 
         /**
          * Sets the IANA media type, for the current entity, if any. If the <code>contentType</code> argument also

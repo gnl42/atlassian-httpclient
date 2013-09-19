@@ -121,5 +121,7 @@ public interface Request extends Message
          * @return This object, for builder-style chaining
          */
         Builder setAttributes(Map<String, String> properties);
+
+        Builder setEntity(String entity);
     }
 }

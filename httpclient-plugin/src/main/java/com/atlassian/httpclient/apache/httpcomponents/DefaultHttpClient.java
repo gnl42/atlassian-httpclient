@@ -2,6 +2,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.fugue.Effect;
+import com.atlassian.fugue.Option;
 import com.atlassian.fugue.Pair;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorage;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorageImpl;
@@ -67,6 +68,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -340,7 +342,7 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
     private AsyncHttpClient async()
     {
         // request.isCacheDisabled() ? nonCachingHttpClient
-        return new DefaultAsyncHttpClient<C>(httpClient, threadLocalContextManager);
+        return new DefaultAsyncHttpClient<C>(httpClient, threadLocalContextManager, callbackExecutor);
     }
 
     private Response translate(HttpResponse httpResponse) throws IOException
@@ -353,7 +355,7 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
         final HttpEntity entity = httpResponse.getEntity();
         if (entity != null)
         {
-            response.setEntity(new DefaultEntity(new DefaultHeaders(ImmutableMap.<String, String>of()),
+            response.setEntity(new DefaultEntity(new DefaultHeaders(ImmutableMap.<String, String>of(), Option.<Charset>none()),
                 httpClientOptions.getMaxEntitySize(), entity.getContent())
             );
         }
@@ -467,7 +469,7 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
         @Override
         public Headers headers()
         {
-            return new DefaultHeaders(ImmutableMap.of("Content-Type", contentType));
+            return new DefaultHeaders(ImmutableMap.of("Content-Type", contentType), Option.<Charset>some(Charsets.UTF_8));
         }
 
         @Override

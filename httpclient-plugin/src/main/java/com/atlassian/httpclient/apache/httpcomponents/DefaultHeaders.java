@@ -22,7 +22,7 @@ class DefaultHeaders implements Headers
 {
     static Headers empty()
     {
-        return new DefaultHeaders(ImmutableMap.<String, String>of());
+        return new DefaultHeaders(ImmutableMap.<String, String>of(), Option.<Charset>none());
     }
 
     static Headers from(Header... headers)
@@ -38,9 +38,11 @@ class DefaultHeaders implements Headers
     }
 
     private final Map<String, String> map;
+    private final Option<Charset> charset;
 
-    DefaultHeaders(Map<String, String> map)
+    DefaultHeaders(Map<String, String> map, Option<Charset> charset)
     {
+        this.charset = charset;
         this.map = checkNotNull(map);
     }
 
@@ -65,8 +67,7 @@ class DefaultHeaders implements Headers
     @Override
     public Option<Charset> contentCharset()
     {
-        // TODO parse the charset from the contentType
-        return Option.none();// get("Content-Type");//.getOrElse("text/plain");
+        return charset;
     }
 
     @Override

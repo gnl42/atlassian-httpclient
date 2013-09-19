@@ -1,5 +1,7 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.fugue.Effect;
+import com.atlassian.fugue.Option;
 import com.atlassian.fugue.Pair;
 import com.atlassian.httpclient.api.Headers;
 import com.atlassian.httpclient.api.Headers.Builder;
@@ -7,9 +9,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 import java.nio.charset.Charset;
+import java.util.Map;
 
 class HeadersBuilder implements Headers.Builder
 {
+    private Charset contentCharset;
+
     public static Builder builder()
     {
         return new HeadersBuilder();
@@ -22,7 +27,7 @@ class HeadersBuilder implements Headers.Builder
     @Override
     public Headers build()
     {
-        return new DefaultHeaders(headers.build());
+        return new DefaultHeaders(headers.build(), Option.option(contentCharset));
     }
 
     @Override
@@ -43,9 +48,24 @@ class HeadersBuilder implements Headers.Builder
     }
 
     @Override
+    public Builder addAll(final Map<String, String> headers)
+    {
+        headers.putAll(headers);
+        return this;
+    }
+
+    @Override
     public Builder setContentType(String contentType)
     {
         add(Headers.Name.CONTENT_TYPE, contentType);
+        parseCharset(contentType).foreach(new Effect<String>()
+        {
+            @Override
+            public void apply(final String contentCharset)
+            {
+                setContentCharset(contentCharset);
+            }
+        });
         return this;
     }
 
@@ -56,42 +76,27 @@ class HeadersBuilder implements Headers.Builder
         return this;
     }
 
-    // TODO work out what to do with charset stuff
-    private String parseCharset(String value)
+    private Option<String> parseCharset(String contentType)
     {
-        String contentType = "";
-        if (value != null)
+        if (contentType != null)
         {
-            String[] parts = value.split(";");
-            if (parts.length >= 1)
-            {
-                contentType = parts[0].trim();
-            }
+            String[] parts = contentType.split(";");
             if (parts.length >= 2)
             {
                 String subtype = parts[1].trim();
                 if (subtype.startsWith("charset="))
                 {
-                    setContentCharset(subtype.substring(8));
-                }
-                else if (subtype.startsWith("boundary="))
-                {
-                    contentType = contentType.concat(';' + subtype);
+                    return Option.some(subtype.substring(8));
                 }
             }
         }
-        else
-        {
-            contentType = "";
-        }
-        return contentType;
+        return Option.none();
     }
 
     public Builder setContentCharset(String contentCharset)
     {
-        // TODO parse charset and build content-type header appropriately
         Preconditions.checkNotNull(contentCharset);
-        contentCharset = Charset.forName(contentCharset).name();
+        this.contentCharset = Charset.forName(contentCharset);
         return this;
     }
 }

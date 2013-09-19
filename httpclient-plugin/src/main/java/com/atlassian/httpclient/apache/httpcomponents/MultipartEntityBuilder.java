@@ -1,5 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.Entity;
 import com.atlassian.httpclient.api.Headers;
 import com.google.common.base.Supplier;
@@ -12,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 public class MultipartEntityBuilder implements Entity.Builder
@@ -60,7 +62,7 @@ public class MultipartEntityBuilder implements Entity.Builder
             @Override
             public Headers headers()
             {
-                return new DefaultHeaders(headers);
+                return new DefaultHeaders(headers, Option.<Charset>none());
             }
 
             @Override

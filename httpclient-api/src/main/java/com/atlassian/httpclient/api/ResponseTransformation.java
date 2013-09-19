@@ -12,7 +12,7 @@ import com.google.common.base.Function;
  *
  * @param <O> The target type for the transformation.
  */
-public interface ResponseTransformation<O> extends Function<Response, O>
+public interface ResponseTransformation<O>
 {
     Promise<O> transform(Promise<Response> promise);
 

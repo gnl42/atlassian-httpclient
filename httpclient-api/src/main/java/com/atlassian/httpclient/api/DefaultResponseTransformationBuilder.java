@@ -212,13 +212,6 @@ final class DefaultResponseTransformationBuilder<O> extends Builder<O>
             {
                 return promise.fold(failFunction, success);
             }
-
-            @Override
-            public O apply(@Nullable final Response input)
-            {
-                // todo implement
-                throw new UnsupportedOperationException("Not implemented");
-            }
         };
     }
 
