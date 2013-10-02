@@ -8,6 +8,8 @@ public interface Entity
 
     InputStream inputStream();
 
+    String asString();
+
     interface Builder extends Buildable<Entity>
     {
     }

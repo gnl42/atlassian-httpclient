@@ -4,7 +4,6 @@ import com.atlassian.fugue.Effect;
 import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.Entity;
 import com.atlassian.httpclient.api.Headers;
-import com.atlassian.util.concurrent.Supplier;
 
 import java.io.InputStream;
 
@@ -43,5 +42,11 @@ public class DefaultEntity implements Entity
             }
         });
         return entityStream;
+    }
+
+    @Override
+    public String asString()
+    {
+        throw new UnsupportedOperationException("Not implemented");
     }
 }

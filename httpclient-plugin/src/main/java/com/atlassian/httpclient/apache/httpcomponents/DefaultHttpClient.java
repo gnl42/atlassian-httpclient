@@ -477,6 +477,12 @@ public final class DefaultHttpClient<C> implements HttpClient, DisposableBean
         {
             return new EntityByteArrayInputStream(entity.getBytes(Charsets.UTF_8));
         }
+
+        @Override
+        public String asString()
+        {
+            return LazyBody.body(inputStream(), headers(), ).get();
+        }
     }
 
 }
