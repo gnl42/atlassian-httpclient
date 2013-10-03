@@ -30,7 +30,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpOptions;
@@ -268,7 +267,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     }
 
     @Override
-    public final ResponsePromise execute(final DefaultRequest request)
+    public final ResponsePromise execute(final Request request)
     {
         try
         {
@@ -280,15 +279,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
     }
 
-    private ResponsePromise doExecute(final DefaultRequest request)
+    private ResponsePromise doExecute(final Request request)
     {
         httpClientOptions.getRequestPreparer().apply(request);
-
-        // validate the request state
-        request.validate();
-
-        // freeze the request state to prevent further mutability as we go to execute the request
-        request.freeze();
 
         final long start = System.currentTimeMillis();
         final HttpRequestBase op;
@@ -322,14 +315,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
         if (request.hasEntity())
         {
-            if (op instanceof HttpEntityEnclosingRequestBase)
-            {
-                ((HttpEntityEnclosingRequestBase) op).setEntity(request.getHttpEntity());
-            }
-            else
-            {
-                throw new UnsupportedOperationException("HTTP method " + method + " does not support sending an entity");
-            }
+            new RequestEntityEffect(request).apply(op);
         }
 
         for (Map.Entry<String, String> entry : request.getHeaders().entrySet())
@@ -357,7 +343,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                         publishEvent(request, requestDuration, httpResponse.getStatusLine().getStatusCode());
                         try
                         {
-                            return translate(httpResponse).freeze();
+                            return translate(httpResponse);
                         }
                         catch (IOException e)
                         {
@@ -400,7 +386,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 request.getAttributes()));
     }
 
-    private PromiseHttpAsyncClient getPromiseHttpAsyncClient(DefaultRequest request)
+    private PromiseHttpAsyncClient getPromiseHttpAsyncClient(Request request)
     {
         return new SettableFuturePromiseHttpPromiseAsyncClient<C>(request.isCacheDisabled() ? nonCachingHttpClient : httpClient, threadLocalContextManager, callbackExecutor);
     }
@@ -408,20 +394,22 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private DefaultResponse translate(HttpResponse httpResponse) throws IOException
     {
         StatusLine status = httpResponse.getStatusLine();
-        DefaultResponse response = new DefaultResponse(httpClientOptions.getMaxEntitySize());
-        response.setStatusCode(status.getStatusCode());
-        response.setStatusText(status.getReasonPhrase());
+        Response.Builder<DefaultResponse> responseBuilder = DefaultResponse.builder()
+                .setMaxEntitySize(httpClientOptions.getMaxEntitySize())
+                .setStatusCode(status.getStatusCode())
+                .setStatusText(status.getReasonPhrase());
+
         Header[] httpHeaders = httpResponse.getAllHeaders();
         for (Header httpHeader : httpHeaders)
         {
-            response.setHeader(httpHeader.getName(), httpHeader.getValue());
+            responseBuilder.setHeader(httpHeader.getName(), httpHeader.getValue());
         }
         final HttpEntity entity = httpResponse.getEntity();
         if (entity != null)
         {
-            response.setEntityStream(entity.getContent());
+            responseBuilder.setEntityStream(entity.getContent());
         }
-        return response;
+        return responseBuilder.build();
     }
 
     @Override
