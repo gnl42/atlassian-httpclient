@@ -16,5 +16,5 @@ public interface ResponsePromise extends Promise<Response>
      * @param <T> the type of the expected object once transformed.
      * @return a {@link com.atlassian.util.concurrent.Promise<T>}
      */
-    public <T> ResponseTransformation<T> transform();
+    public <T> Promise<T> transform(ResponseTransformation<T> transformation);
 }

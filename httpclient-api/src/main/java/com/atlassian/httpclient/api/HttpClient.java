@@ -71,5 +71,8 @@ public interface HttpClient
      */
     void flushCacheByUriPattern(Pattern uriPattern);
 
+    <A> ResponseTransformation.Builder<A> transformation();
+
     abstract ResponsePromise execute(Request request);
+
 }

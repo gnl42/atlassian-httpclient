@@ -1,5 +1,6 @@
-package com.atlassian.httpclient.api;
+package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.httpclient.api.Response;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

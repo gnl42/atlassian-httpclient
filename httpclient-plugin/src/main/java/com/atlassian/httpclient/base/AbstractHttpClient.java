@@ -1,8 +1,10 @@
 package com.atlassian.httpclient.base;
 
 import com.atlassian.httpclient.apache.httpcomponents.DefaultRequest;
+import com.atlassian.httpclient.apache.httpcomponents.DefaultResponseTransformation;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.Request;
+import com.atlassian.httpclient.api.ResponseTransformation;
 
 import java.net.URI;
 
@@ -39,5 +41,11 @@ public abstract class AbstractHttpClient implements HttpClient
     public Request.Builder newRequest(String uri, String contentType, String entity)
     {
         return newRequest(URI.create(uri), contentType, entity);
+    }
+
+    @Override
+    public <A> ResponseTransformation.Builder<A> transformation()
+    {
+        return DefaultResponseTransformation.builder();
     }
 }

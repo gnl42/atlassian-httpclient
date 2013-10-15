@@ -323,7 +323,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             op.setHeader(entry.getKey(), entry.getValue());
         }
 
-        return ResponsePromises.toResponsePromise(getPromiseHttpAsyncClient(request).execute(op, new BasicHttpContext()).fold(
+        final PromiseHttpAsyncClient asyncClient = getPromiseHttpAsyncClient(request);
+        return ResponsePromises.toResponsePromise(asyncClient.execute(op, new BasicHttpContext()).fold(
                 new Function<Throwable, Response>()
                 {
                     @Override
