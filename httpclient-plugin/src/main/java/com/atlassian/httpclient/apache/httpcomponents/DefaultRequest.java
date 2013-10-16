@@ -104,7 +104,7 @@ public class DefaultRequest extends DefaultMessage implements Request
         return this;
     }
 
-    public static class DefaultRequestBuilder implements Request.Builder<DefaultRequest>
+    public static class DefaultRequestBuilder implements Request.Builder
     {
         private final HttpClient httpClient;
         private final Map<String, String> attributes;

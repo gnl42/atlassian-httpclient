@@ -157,28 +157,28 @@ public interface Response extends Message
      */
     boolean isNotSuccessful();
 
-    interface Builder<T extends Response> extends Common<Builder<T>>, Buildable<T>
+    interface Builder extends Common<Builder>, Buildable<Response>
     {
         @Override
-        Builder<T> setContentType(String contentType);
+        Builder setContentType(String contentType);
 
         @Override
-        Builder<T> setContentCharset(String contentCharset);
+        Builder setContentCharset(String contentCharset);
 
         @Override
-        Builder<T> setHeaders(Map<String, String> headers);
+        Builder setHeaders(Map<String, String> headers);
 
         @Override
-        Builder<T> setHeader(String name, String value);
+        Builder setHeader(String name, String value);
 
         @Override
-        Builder<T> setEntity(String entity);
+        Builder setEntity(String entity);
 
         @Override
-        Builder<T> setEntityStream(InputStream entityStream, String encoding);
+        Builder setEntityStream(InputStream entityStream, String encoding);
 
         @Override
-        Builder<T> setEntityStream(InputStream entityStream);
+        Builder setEntityStream(InputStream entityStream);
 
         /**
          * Sets the status text of the response.
@@ -186,7 +186,7 @@ public interface Response extends Message
          * @param statusText The status text
          * @return This object, for builder-style chaining
          */
-        Builder<T> setStatusText(String statusText);
+        Builder setStatusText(String statusText);
 
         /**
          * Sets the status code of the response.
@@ -194,6 +194,6 @@ public interface Response extends Message
          * @param statusCode The status code
          * @return This object, for builder-stye chaining
          */
-        Builder<T> setStatusCode(int statusCode);
+        Builder setStatusCode(int statusCode);
     }
 }

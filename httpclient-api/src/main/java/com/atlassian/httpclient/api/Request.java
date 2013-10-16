@@ -45,7 +45,7 @@ public interface Request extends Message
 
     Method getMethod();
 
-    interface Builder<T extends Request> extends Common<Builder<T>>, Buildable<T>
+    interface Builder extends Common<Builder>, Buildable<Request>
     {
         /**
          * Sets this request's URI.  Must not be null by the time the request is executed.
@@ -53,7 +53,7 @@ public interface Request extends Message
          * @param uri The URI
          * @return This object, for builder-style chaining
          */
-        Builder<T> setUri(URI uri);
+        Builder setUri(URI uri);
 
         /**
          * Sets the Accept header for the request.
@@ -61,14 +61,14 @@ public interface Request extends Message
          * @param accept An accept header expression containing media types, ranges, and/or quality factors
          * @return This object, for builder-style chaining
          */
-        Builder<T> setAccept(String accept);
+        Builder setAccept(String accept);
 
         /**
          * Bypasses the cache for this request
          *
          * @return This object, for builder-style chaining
          */
-        Builder<T> setCacheDisabled();
+        Builder setCacheDisabled();
 
         /**
          * Sets an attribute on the request.  Attributes are request metadata that are forwarded to the
@@ -78,7 +78,7 @@ public interface Request extends Message
          * @param value The attribute value
          * @return This object, for builder-style chaining
          */
-        Builder<T> setAttribute(String name, String value);
+        Builder setAttribute(String name, String value);
 
         /**
          * Sets attributes on the request.  Attributes are request metadata that are forwarded to the
@@ -87,7 +87,7 @@ public interface Request extends Message
          * @param properties A map of attributes
          * @return This object, for builder-style chaining
          */
-        Builder<T> setAttributes(Map<String, String> properties);
+        Builder setAttributes(Map<String, String> properties);
 
         /**
          * Sets the entity and any associated headers from an entity builder.
@@ -95,9 +95,9 @@ public interface Request extends Message
          * @param entityBuilder An entity builder
          * @return This object, for builder-style chaining
          */
-        Builder<T> setEntity(EntityBuilder entityBuilder);
+        Builder setEntity(EntityBuilder entityBuilder);
 
-        Builder<T> setHeader(String name, String value);
+        Builder setHeader(String name, String value);
 
         /**
          * Executes this request through the {@link HttpClient} service as a <code>GET</code> operation.

@@ -149,7 +149,7 @@ public final class DefaultResponse extends DefaultMessage implements Response
         return isInformational() || isRedirection() || isError();
     }
 
-    public static class DefaultResponseBuilder implements Builder<DefaultResponse>
+    public static class DefaultResponseBuilder implements Builder
     {
         private final CommonBuilder<DefaultResponse> commonBuilder;
 
@@ -163,42 +163,42 @@ public final class DefaultResponse extends DefaultMessage implements Response
         }
 
         @Override
-        public Builder<DefaultResponse> setContentType(final String contentType)
+        public DefaultResponseBuilder setContentType(final String contentType)
         {
             commonBuilder.setContentType(contentType);
             return this;
         }
 
         @Override
-        public Builder<DefaultResponse> setContentCharset(final String contentCharset)
+        public DefaultResponseBuilder setContentCharset(final String contentCharset)
         {
             commonBuilder.setContentCharset(contentCharset);
             return this;
         }
 
         @Override
-        public Builder<DefaultResponse> setHeaders(final Map<String, String> headers)
+        public DefaultResponseBuilder setHeaders(final Map<String, String> headers)
         {
             commonBuilder.setHeaders(headers);
             return this;
         }
 
         @Override
-        public Builder<DefaultResponse> setHeader(final String name, final String value)
+        public DefaultResponseBuilder setHeader(final String name, final String value)
         {
             commonBuilder.setHeader(name, value);
             return this;
         }
 
         @Override
-        public Builder<DefaultResponse> setEntity(final String entity)
+        public DefaultResponseBuilder setEntity(final String entity)
         {
             commonBuilder.setEntity(entity);
             return this;
         }
 
         @Override
-        public Builder<DefaultResponse> setEntityStream(final InputStream entityStream, final String encoding)
+        public DefaultResponseBuilder setEntityStream(final InputStream entityStream, final String encoding)
         {
             commonBuilder.setEntityStream(entityStream);
             commonBuilder.setContentCharset(encoding);
@@ -206,27 +206,27 @@ public final class DefaultResponse extends DefaultMessage implements Response
         }
 
         @Override
-        public Builder<DefaultResponse> setEntityStream(final InputStream entityStream)
+        public DefaultResponseBuilder setEntityStream(final InputStream entityStream)
         {
             commonBuilder.setEntityStream(entityStream);
             return this;
         }
 
         @Override
-        public Builder<DefaultResponse> setStatusText(final String statusText)
+        public DefaultResponseBuilder setStatusText(final String statusText)
         {
             this.statusText = statusText;
             return this;
         }
 
         @Override
-        public Builder<DefaultResponse> setStatusCode(final int statusCode)
+        public DefaultResponseBuilder setStatusCode(final int statusCode)
         {
             this.statusCode = statusCode;
             return this;
         }
 
-        public Builder<DefaultResponse> setMaxEntitySize(long maxEntitySize)
+        public DefaultResponseBuilder setMaxEntitySize(long maxEntitySize)
         {
             this.maxEntitySize = maxEntitySize;
             return this;

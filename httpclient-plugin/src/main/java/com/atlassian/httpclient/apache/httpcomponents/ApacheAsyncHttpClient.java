@@ -392,10 +392,10 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         return new SettableFuturePromiseHttpPromiseAsyncClient<C>(request.isCacheDisabled() ? nonCachingHttpClient : httpClient, threadLocalContextManager, callbackExecutor);
     }
 
-    private DefaultResponse translate(HttpResponse httpResponse) throws IOException
+    private Response translate(HttpResponse httpResponse) throws IOException
     {
         StatusLine status = httpResponse.getStatusLine();
-        Response.Builder<DefaultResponse> responseBuilder = DefaultResponse.builder()
+        Response.Builder responseBuilder = DefaultResponse.builder()
                 .setMaxEntitySize(httpClientOptions.getMaxEntitySize())
                 .setStatusCode(status.getStatusCode())
                 .setStatusText(status.getReasonPhrase());
