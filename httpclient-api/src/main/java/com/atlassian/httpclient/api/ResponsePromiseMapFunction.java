@@ -1,4 +1,4 @@
-package com.atlassian.httpclient.apache.httpcomponents;
+package com.atlassian.httpclient.api;
 
 import com.atlassian.httpclient.api.Response;
 import com.google.common.base.Function;

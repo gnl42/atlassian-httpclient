@@ -1,7 +1,7 @@
 package com.atlassian.httpclient.base;
 
 import com.atlassian.httpclient.apache.httpcomponents.DefaultRequest;
-import com.atlassian.httpclient.apache.httpcomponents.DefaultResponseTransformation;
+import com.atlassian.httpclient.api.DefaultResponseTransformation;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.ResponseTransformation;

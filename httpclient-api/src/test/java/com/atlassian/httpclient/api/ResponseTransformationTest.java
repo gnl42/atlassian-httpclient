@@ -1,13 +1,10 @@
-package com.atlassian.httpclient.apache.httpcomponents;
+package com.atlassian.httpclient.api;
 
-import com.atlassian.httpclient.api.HttpStatus;
-import com.atlassian.httpclient.api.Response;
-import com.atlassian.httpclient.api.ResponsePromise;
-import com.atlassian.httpclient.api.ResponseTransformation;
 import com.atlassian.util.concurrent.Promise;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.SettableFuture;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +20,6 @@ import static com.atlassian.httpclient.api.ResponsePromises.toResponsePromise;
 import static com.atlassian.util.concurrent.Promises.forFuture;
 import static com.atlassian.util.concurrent.Promises.forListenableFuture;
 import static com.google.common.collect.Iterables.toArray;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -276,7 +272,7 @@ public final class ResponseTransformationTest
                 }).build();
         Promise<String> promise = responsePromise.transform(responseTransformation);
         responseSettableFuture.set(this.response);
-        assertEquals("foo0", promise.claim());
+        Assert.assertEquals("foo0", promise.claim());
     }
 
     @Test
@@ -312,7 +308,7 @@ public final class ResponseTransformationTest
         }
         catch (IllegalArgumentException ex)
         {
-            assertEquals("foo0", ex.getMessage());
+            Assert.assertEquals("foo0", ex.getMessage());
         }
     }
 
@@ -342,7 +338,7 @@ public final class ResponseTransformationTest
                 .build();
         responseSettableFuture.set(this.response);
         Promise<String> promise = toResponsePromise(forListenableFuture(responseSettableFuture)).transform(responseTransformation);
-        assertEquals("foo0", promise.claim());
+        Assert.assertEquals("foo0", promise.claim());
     }
 
     @Test

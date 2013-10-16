@@ -1,17 +1,11 @@
-package com.atlassian.httpclient.apache.httpcomponents;
+package com.atlassian.httpclient.api;
 
-import com.atlassian.httpclient.api.HttpStatus;
-import com.atlassian.httpclient.api.Response;
-import com.atlassian.httpclient.api.ResponsePromise;
-import com.atlassian.httpclient.api.ResponseTransformation;
-import com.atlassian.httpclient.api.ResponseTransformationException;
-import com.atlassian.httpclient.api.UnexpectedResponseException;
 import com.atlassian.util.concurrent.Promise;
 import com.google.common.base.Function;
 
 import javax.annotation.Nullable;
 
-import static com.atlassian.httpclient.apache.httpcomponents.ResponsePromiseMapFunction.StatusRange;
+import static com.atlassian.httpclient.api.ResponsePromiseMapFunction.StatusRange;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class DefaultResponseTransformation<T> implements ResponseTransformation<T>
