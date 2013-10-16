@@ -11,7 +11,7 @@
 
     <groupId>com.atlassian.httpclient</groupId>
     <artifactId>atlassian-httpclient-parent</artifactId>
-    <version>0.17.0-m04-ACDEV-250</version>
+    <version>0.17.0-m05-ACDEV-250-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Atlassian HttpClientProject</name>
