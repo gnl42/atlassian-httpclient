@@ -9,7 +9,6 @@
         <version>0.17.0-m07-ACDEV-250-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.atlassian.httpclient</groupId>
     <artifactId>atlassian-httpclient-api</artifactId>
 
     <name>Atlassian HTTP Client API</name>
@@ -32,11 +31,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.fugue</groupId>
-            <artifactId>fugue</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
