@@ -44,7 +44,7 @@ public final class DefaultResponseTransformation<T> implements ResponseTransform
 
     private static class DefaultResponseTransformationBuilder<T> implements Builder<T>
     {
-        private final ResponsePromiseMapFunction<T> mapFunctions = new ResponsePromiseMapFunction<T>();
+        private final ResponsePromiseMapFunction.ResponsePromiseMapFunctionBuilder<T> builder = ResponsePromiseMapFunction.builder();
         private Function<Throwable, ? extends T> failFunction = defaultThrowableHandler();
 
         @Override
@@ -169,7 +169,7 @@ public final class DefaultResponseTransformation<T> implements ResponseTransform
         @Override
         public Builder<T> error(Function<Response, ? extends T> f)
         {
-            mapFunctions.addStatusRangeFunction(
+            builder.addStatusRangeFunction(
                     new OrStatusRange(new HundredsStatusRange(HttpStatus.BAD_REQUEST),
                             new HundredsStatusRange(HttpStatus.INTERNAL_SERVER_ERROR)), f);
 
@@ -180,14 +180,14 @@ public final class DefaultResponseTransformation<T> implements ResponseTransform
         @Override
         public Builder<T> notSuccessful(Function<Response, ? extends T> f)
         {
-            mapFunctions.addStatusRangeFunction(new NotInStatusRange(new HundredsStatusRange(HttpStatus.OK)), f);
+            builder.addStatusRangeFunction(new NotInStatusRange(new HundredsStatusRange(HttpStatus.OK)), f);
             return this;
         }
 
         @Override
         public Builder<T> others(Function<Response, ? extends T> f)
         {
-            mapFunctions.setOthersFunction(f);
+            builder.setOthersFunction(f);
             return this;
         }
 
@@ -234,13 +234,13 @@ public final class DefaultResponseTransformation<T> implements ResponseTransform
 
         private DefaultResponseTransformationBuilder<T> addSingle(int statusCode, Function<Response, ? extends T> f)
         {
-            mapFunctions.addStatusRangeFunction(new SingleStatusRange(statusCode), f);
+            builder.addStatusRangeFunction(new SingleStatusRange(statusCode), f);
             return this;
         }
 
         private DefaultResponseTransformationBuilder<T> addRange(HttpStatus status, Function<Response, ? extends T> f)
         {
-            mapFunctions.addStatusRangeFunction(new HundredsStatusRange(status), f);
+            builder.addStatusRangeFunction(new HundredsStatusRange(status), f);
             return this;
         }
 
@@ -264,7 +264,7 @@ public final class DefaultResponseTransformation<T> implements ResponseTransform
         @Override
         public ResponseTransformation<T> build()
         {
-            return new DefaultResponseTransformation<T>(mapFunctions, failFunction);
+            return new DefaultResponseTransformation<T>(builder.build(), failFunction);
         }
     }
 
