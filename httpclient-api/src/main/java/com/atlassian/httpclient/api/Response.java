@@ -16,27 +16,11 @@ public interface Response extends Message
     int getStatusCode();
 
     /**
-     * Sets the status code of the response.
-     *
-     * @param statusCode The status code
-     * @return This object, for builder-stye chaining
-     */
-    Response setStatusCode(int statusCode);
-
-    /**
      * Gets the status text of the response.
      *
      * @return The status text
      */
     String getStatusText();
-
-    /**
-     * Sets the status text of the response.
-     *
-     * @param statusText The status text
-     * @return This object, for builder-style chaining
-     */
-    Response setStatusText(String statusText);
 
     /**
      * Indicates whether or not this response's status code is categorized as "Informational" (1xx).
@@ -165,7 +149,6 @@ public interface Response extends Message
      */
     boolean isError();
 
-
     /**
      * Indicates whether or not this response's status code is categorized as one of "Informational",
      * "Redirection", "Client Error" or "Server Error".
@@ -174,24 +157,43 @@ public interface Response extends Message
      */
     boolean isNotSuccessful();
 
-    @Override
-    Response setContentType(String contentType);
+    interface Builder extends Common<Builder>, Buildable<Response>
+    {
+        @Override
+        Builder setContentType(String contentType);
 
-    @Override
-    Response setContentCharset(String contentCharset);
+        @Override
+        Builder setContentCharset(String contentCharset);
 
-    @Override
-    Response setHeaders(Map<String, String> headers);
+        @Override
+        Builder setHeaders(Map<String, String> headers);
 
-    @Override
-    Response setHeader(String name, String value);
+        @Override
+        Builder setHeader(String name, String value);
 
-    @Override
-    Response setEntity(String entity);
+        @Override
+        Builder setEntity(String entity);
 
-    @Override
-    Response setEntityStream(InputStream entityStream, String encoding);
+        @Override
+        Builder setEntityStream(InputStream entityStream, String encoding);
 
-    @Override
-    Response setEntityStream(InputStream entityStream);
+        @Override
+        Builder setEntityStream(InputStream entityStream);
+
+        /**
+         * Sets the status text of the response.
+         *
+         * @param statusText The status text
+         * @return This object, for builder-style chaining
+         */
+        Builder setStatusText(String statusText);
+
+        /**
+         * Sets the status code of the response.
+         *
+         * @param statusCode The status code
+         * @return This object, for builder-stye chaining
+         */
+        Builder setStatusCode(int statusCode);
+    }
 }

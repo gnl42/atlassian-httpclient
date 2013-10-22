@@ -20,9 +20,8 @@ final class WrappingResponsePromise extends ForwardingPromise<Response> implemen
         return delegate;
     }
 
-    @Override
-    public <T> ResponseTransformation<T> transform()
+    public <T> Promise<T> transform(ResponseTransformation<T> transformation)
     {
-        return new DefaultResponseTransformation<T>(this);
+        return delegate.fold(transformation.getFailFunction(), transformation.getSuccessFunctions());
     }
 }

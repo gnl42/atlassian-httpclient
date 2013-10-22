@@ -1,9 +1,5 @@
 # Atlassian HttpClient
 
-## Description
-
-TBD.
-
 ## Atlassian Developer?
 
 ### Committing Guidelines
@@ -12,14 +8,10 @@ Please see [the following guide](https://extranet.atlassian.com/x/Uouvdg) for co
 
 ### Builds
 
-The Bamboo builds for this project are on [BEAC](https://extranet-bamboo.internal.atlassian.com/browse/WEBHOOKS-AH)
+The Bamboo builds for this project are on [BEAC](https://extranet-bamboo.internal.atlassian.com/browse/AHCP)
 
 ## External User?
 
 ### Issues
 
-Please raise any issues you find with this module in [JIRA](https://ecosystem.atlassian.net/browse/HTTPCLIENT)
-
-### Documentation
-
-TBD.
+Please raise any issues you find with this module in [JIRA](https://ecosystem.atlassian.net/browse/HC)

@@ -6,10 +6,9 @@
     <parent>
         <groupId>com.atlassian.httpclient</groupId>
         <artifactId>atlassian-httpclient-parent</artifactId>
-        <version>0.17.0-m03-SNAPSHOT</version>
+        <version>0.17.0-m07-ACDEV-250-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.atlassian.httpclient</groupId>
     <artifactId>atlassian-httpclient-api</artifactId>
 
     <name>Atlassian HTTP Client API</name>

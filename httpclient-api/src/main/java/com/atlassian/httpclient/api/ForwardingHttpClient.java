@@ -24,31 +24,31 @@ public abstract class ForwardingHttpClient extends ForwardingObject implements H
     protected abstract HttpClient delegate();
 
     @Override
-    public Request newRequest()
+    public Request.Builder newRequest()
     {
         return delegate().newRequest();
     }
 
     @Override
-    public Request newRequest(URI uri)
+    public Request.Builder newRequest(URI uri)
     {
         return delegate().newRequest(uri);
     }
 
     @Override
-    public Request newRequest(String uri)
+    public Request.Builder newRequest(String uri)
     {
         return delegate().newRequest(uri);
     }
 
     @Override
-    public Request newRequest(URI uri, String contentType, String entity)
+    public Request.Builder newRequest(URI uri, String contentType, String entity)
     {
         return delegate().newRequest(uri, contentType, entity);
     }
 
     @Override
-    public Request newRequest(String uri, String contentType, String entity)
+    public Request.Builder newRequest(String uri, String contentType, String entity)
     {
         return delegate().newRequest(uri, contentType, entity);
     }

@@ -1,43 +1,51 @@
 package com.atlassian.httpclient.base;
 
 import com.atlassian.httpclient.apache.httpcomponents.DefaultRequest;
+import com.atlassian.httpclient.api.DefaultResponseTransformation;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.Request;
-import com.atlassian.httpclient.api.ResponsePromise;
+import com.atlassian.httpclient.api.ResponseTransformation;
 
 import java.net.URI;
 
 public abstract class AbstractHttpClient implements HttpClient
 {
     @Override
-    public Request newRequest()
+    public Request.Builder newRequest()
     {
-        return new DefaultRequest(this);
+        return DefaultRequest.builder(this);
     }
 
     @Override
-    public Request newRequest(URI uri)
+    public Request.Builder newRequest(URI uri)
     {
-        return new DefaultRequest(this, uri);
+        return DefaultRequest.builder(this).setUri(uri);
     }
 
     @Override
-    public Request newRequest(URI uri, String contentType, String entity)
+    public Request.Builder newRequest(URI uri, String contentType, String entity)
     {
-        return new DefaultRequest(this, uri, contentType, entity);
+        return DefaultRequest.builder(this)
+                .setContentType(contentType)
+                .setEntity(entity)
+                .setUri(uri);
     }
 
     @Override
-    public Request newRequest(String uri)
+    public Request.Builder newRequest(String uri)
     {
         return newRequest(URI.create(uri));
     }
 
     @Override
-    public Request newRequest(String uri, String contentType, String entity)
+    public Request.Builder newRequest(String uri, String contentType, String entity)
     {
         return newRequest(URI.create(uri), contentType, entity);
     }
 
-    public abstract ResponsePromise execute(DefaultRequest request);
+    @Override
+    public <A> ResponseTransformation.Builder<A> transformation()
+    {
+        return DefaultResponseTransformation.builder();
+    }
 }

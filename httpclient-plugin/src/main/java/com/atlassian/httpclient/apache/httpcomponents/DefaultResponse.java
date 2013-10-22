@@ -1,5 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.Response;
 
 import java.io.InputStream;
@@ -10,9 +11,16 @@ public final class DefaultResponse extends DefaultMessage implements Response
     private int statusCode;
     private String statusText;
 
-    public DefaultResponse(long maxEntitySize)
+    public DefaultResponse(Headers headers, InputStream entityStream, Option<Long> maxEntitySize, int statusCode, String statusText)
     {
-        super(maxEntitySize);
+        super(headers, entityStream, maxEntitySize);
+        this.statusCode = statusCode;
+        this.statusText = statusText;
+    }
+
+    public static DefaultResponseBuilder builder()
+    {
+        return new DefaultResponseBuilder();
     }
 
     @Override
@@ -22,25 +30,9 @@ public final class DefaultResponse extends DefaultMessage implements Response
     }
 
     @Override
-    public Response setStatusCode(int statusCode)
-    {
-        checkMutable();
-        this.statusCode = statusCode;
-        return this;
-    }
-
-    @Override
     public String getStatusText()
     {
         return statusText;
-    }
-
-    @Override
-    public Response setStatusText(String statusText)
-    {
-        checkMutable();
-        this.statusText = statusText;
-        return this;
     }
 
     @Override
@@ -157,66 +149,94 @@ public final class DefaultResponse extends DefaultMessage implements Response
         return isInformational() || isRedirection() || isError();
     }
 
-    @Override
-    public Response setContentType(String contentType)
+    public static class DefaultResponseBuilder implements Builder
     {
-        checkMutable();
-        super.setContentType(contentType);
-        return this;
-    }
+        private final CommonBuilder<DefaultResponse> commonBuilder;
 
-    @Override
-    public Response setContentCharset(String contentCharset)
-    {
-        checkMutable();
-        super.setContentCharset(contentCharset);
-        return this;
-    }
+        private String statusText;
+        private int statusCode;
+        private long maxEntitySize;
 
-    @Override
-    public Response setHeaders(Map<String, String> headers)
-    {
-        checkMutable();
-        super.setHeaders(headers);
-        return this;
-    }
+        private DefaultResponseBuilder()
+        {
+            this.commonBuilder = new CommonBuilder<DefaultResponse>();
+        }
 
-    @Override
-    public Response setHeader(String name, String value)
-    {
-        checkMutable();
-        super.setHeader(name, value);
-        return this;
-    }
+        @Override
+        public DefaultResponseBuilder setContentType(final String contentType)
+        {
+            commonBuilder.setContentType(contentType);
+            return this;
+        }
 
-    @Override
-    public Response setEntity(String entity)
-    {
-        checkMutable();
-        super.setEntity(entity);
-        return this;
-    }
+        @Override
+        public DefaultResponseBuilder setContentCharset(final String contentCharset)
+        {
+            commonBuilder.setContentCharset(contentCharset);
+            return this;
+        }
 
-    @Override
-    public Response setEntityStream(InputStream entityStream, String encoding)
-    {
-        checkMutable();
-        super.setEntityStream(entityStream, encoding);
-        return this;
-    }
+        @Override
+        public DefaultResponseBuilder setHeaders(final Map<String, String> headers)
+        {
+            commonBuilder.setHeaders(headers);
+            return this;
+        }
 
-    @Override
-    public Response setEntityStream(InputStream entityStream)
-    {
-        checkMutable();
-        super.setEntityStream(entityStream);
-        return this;
-    }
+        @Override
+        public DefaultResponseBuilder setHeader(final String name, final String value)
+        {
+            commonBuilder.setHeader(name, value);
+            return this;
+        }
 
-    @Override
-    protected Response freeze()
-    {
-        super.freeze();
-        return this;
+        @Override
+        public DefaultResponseBuilder setEntity(final String entity)
+        {
+            commonBuilder.setEntity(entity);
+            return this;
+        }
+
+        @Override
+        public DefaultResponseBuilder setEntityStream(final InputStream entityStream, final String encoding)
+        {
+            commonBuilder.setEntityStream(entityStream);
+            commonBuilder.setContentCharset(encoding);
+            return this;
+        }
+
+        @Override
+        public DefaultResponseBuilder setEntityStream(final InputStream entityStream)
+        {
+            commonBuilder.setEntityStream(entityStream);
+            return this;
+        }
+
+        @Override
+        public DefaultResponseBuilder setStatusText(final String statusText)
+        {
+            this.statusText = statusText;
+            return this;
+        }
+
+        @Override
+        public DefaultResponseBuilder setStatusCode(final int statusCode)
+        {
+            this.statusCode = statusCode;
+            return this;
+        }
+
+        public DefaultResponseBuilder setMaxEntitySize(long maxEntitySize)
+        {
+            this.maxEntitySize = maxEntitySize;
+            return this;
+        }
+
+        @Override
+        public DefaultResponse build()
+        {
+            return new DefaultResponse(commonBuilder.getHeaders(), commonBuilder.getEntityStream(),
+                    Option.option(maxEntitySize), statusCode, statusText);
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.httpclient.api.Response;
+import com.atlassian.httpclient.api.ResponsePromise;
 import com.atlassian.junit.http.jetty.JettyServer;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.executor.ThreadLocalContextManager;
@@ -85,7 +86,8 @@ public final class DefaultHttpClientIntegrationTest
         final Object objectInThreadLocal = new Object();
         TEST_THREAD_LOCAL.set(objectInThreadLocal);
 
-        final Object claimedObject = httpClient.newRequest(SERVER.newUri("/test")).get().transform().ok(new Function<Response, Object>()
+        ResponsePromise responsePromise = httpClient.newRequest(SERVER.newUri("/test")).get();
+        final Object claimedObject = httpClient.transformation().ok(new Function<Response, Object>()
         {
             @Override
             public Object apply(Response response)
@@ -95,7 +97,7 @@ public final class DefaultHttpClientIntegrationTest
                 assertTrue(Thread.currentThread().getName().startsWith("httpclient-callbacks"));
                 return TEST_THREAD_LOCAL.get();
             }
-        }).claim();
+        }).build().apply(responsePromise).claim();
 
         assertTrue(okFunctionCalled.get());
         assertSame(objectInThreadLocal, claimedObject);
@@ -112,7 +114,8 @@ public final class DefaultHttpClientIntegrationTest
         final Object objectInThreadLocal = new Object();
         TEST_THREAD_LOCAL.set(objectInThreadLocal);
 
-        final Object claimedObject = httpClient.newRequest(SERVER.newUri("/test")).get().transform().ok(new Function<Response, Object>()
+        ResponsePromise responsePromise = httpClient.newRequest(SERVER.newUri("/test")).get();
+        final Object claimedObject = httpClient.transformation().ok(new Function<Response, Object>()
         {
             @Override
             public Object apply(Response response)
@@ -122,7 +125,7 @@ public final class DefaultHttpClientIntegrationTest
                 assertTrue(Thread.currentThread().getName().startsWith("httpclient-callbacks"));
                 return TEST_THREAD_LOCAL.get();
             }
-        }).claim();
+        }).build().apply(responsePromise).claim();
 
         assertTrue(okFunctionCalled.get());
         assertNull(claimedObject);
@@ -134,14 +137,15 @@ public final class DefaultHttpClientIntegrationTest
         ClassLoader tmpClassLoader = new URLClassLoader(new URL[0]);
         Thread.currentThread().setContextClassLoader(tmpClassLoader);
 
-        ClassLoader callbackClassLoader = httpClient.newRequest(SERVER.newUri("/test")).get().<ClassLoader>transform().ok(new Function<Response, ClassLoader>()
+        ResponsePromise responsePromise = httpClient.newRequest(SERVER.newUri("/test")).get();
+        ClassLoader callbackClassLoader = httpClient.<ClassLoader>transformation().ok(new Function<Response, ClassLoader>()
         {
             @Override
             public ClassLoader apply(Response response)
             {
                 return Thread.currentThread().getContextClassLoader();
             }
-        }).claim();
+        }).build().apply(responsePromise).claim();
         assertEquals(tmpClassLoader, callbackClassLoader);
     }
 }

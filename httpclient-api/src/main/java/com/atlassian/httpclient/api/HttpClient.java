@@ -18,7 +18,7 @@ public interface HttpClient
      *
      * @return The new request object
      */
-    Request newRequest();
+    Request.Builder newRequest();
 
     /**
      * Constructs a new Request with the specified URI.  Sets the accept property to a
@@ -27,7 +27,7 @@ public interface HttpClient
      * @param uri The endpoint URI for this request
      * @return The new request object
      */
-    Request newRequest(URI uri);
+    Request.Builder newRequest(URI uri);
 
     /**
      * Constructs a new Request with the specified URI.  Sets the accept property to a
@@ -36,7 +36,7 @@ public interface HttpClient
      * @param uri The endpoint URI for this request
      * @return The new request object
      */
-    Request newRequest(String uri);
+    Request.Builder newRequest(String uri);
 
     /**
      * Constructs a new Request with the specified URI, contentType, and entity.  Sets the
@@ -49,7 +49,7 @@ public interface HttpClient
      * @param entity A string entity to send as this request's message body
      * @return The new request object
      */
-    Request newRequest(URI uri, String contentType, String entity);
+    Request.Builder newRequest(URI uri, String contentType, String entity);
 
     /**
      * Constructs a new Request with the specified URI, contentType, and entity.  Sets the
@@ -62,7 +62,7 @@ public interface HttpClient
      * @param entity A string entity to send as this request's message body
      * @return The new request object
      */
-    Request newRequest(String uri, String contentType, String entity);
+    Request.Builder newRequest(String uri, String contentType, String entity);
 
     /**
      * Flush the cache entries by matching the URI using a regular expression
@@ -70,4 +70,9 @@ public interface HttpClient
      * @param uriPattern The regular expression to match
      */
     void flushCacheByUriPattern(Pattern uriPattern);
+
+    <A> ResponseTransformation.Builder<A> transformation();
+
+    abstract ResponsePromise execute(Request request);
+
 }

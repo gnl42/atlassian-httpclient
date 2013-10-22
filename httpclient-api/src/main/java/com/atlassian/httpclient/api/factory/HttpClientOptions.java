@@ -6,7 +6,9 @@ import com.atlassian.util.concurrent.Effects;
 import com.atlassian.util.concurrent.ThreadFactories;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,6 +34,7 @@ public final class HttpClientOptions
     private long maxEntitySize = 1024 * 1024 * 100;
 
     private long leaseTimeout = 10 * 60 * 1000; // 10 mins
+    private int maxCallbackThreadPoolSize = 16;
 
     private Effect<Request> requestPreparer = Effects.noop();
 
@@ -264,7 +267,8 @@ public final class HttpClientOptions
     /**
      * @param leaseTimeout The maximum time request to be kept in queue before execution, after timeout - request will be removed
      */
-    public void setLeaseTimeout(long leaseTimeout) {
+    public void setLeaseTimeout(long leaseTimeout)
+    {
         this.leaseTimeout = leaseTimeout;
     }
 
@@ -274,6 +278,22 @@ public final class HttpClientOptions
     public void setMaxEntitySize(long maxEntitySize)
     {
         this.maxEntitySize = maxEntitySize;
+    }
+
+    /**
+     * @return The maximum number of threads that can be used for executing callbacks
+     */
+    public int getMaxCallbackThreadPoolSize()
+    {
+        return maxCallbackThreadPoolSize;
+    }
+
+    /**
+     * @param maxCallbackThreadPoolSize The maximum number of threads that can be used for executing callbacks
+     */
+    public void setMaxCallbackThreadPoolSize(final int maxCallbackThreadPoolSize)
+    {
+        this.maxCallbackThreadPoolSize = maxCallbackThreadPoolSize;
     }
 
     public void setCallbackExecutor(ExecutorService callbackExecutor)
@@ -288,6 +308,7 @@ public final class HttpClientOptions
 
     private ExecutorService defaultCallbackExecutor()
     {
-        return Executors.newCachedThreadPool(ThreadFactories.namedThreadFactory(getThreadPrefix() + "-callbacks", ThreadFactories.Type.DAEMON));
+        ThreadFactory threadFactory = ThreadFactories.namedThreadFactory(getThreadPrefix() + "-callbacks", ThreadFactories.Type.DAEMON);
+        return new ThreadPoolExecutor(0, getMaxCallbackThreadPoolSize(), 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
     }
 }
