@@ -6,6 +6,8 @@ import com.atlassian.httpclient.api.factory.HttpClientFactory;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.executor.ThreadLocalContextManager;
+import com.atlassian.util.concurrent.NotNull;
+import com.google.common.annotations.VisibleForTesting;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Set;
@@ -39,6 +41,27 @@ public final class DefaultHttpClientFactory implements HttpClientFactory, Dispos
         return doCreate(options, threadLocalContextManager);
     }
 
+    @Override
+    public void dispose(@NotNull final HttpClient httpClient) throws Exception
+    {
+        if (httpClient instanceof ApacheAsyncHttpClient)
+        {
+            final ApacheAsyncHttpClient client = (ApacheAsyncHttpClient) httpClient;
+            if (httpClients.remove(client))
+            {
+                client.destroy();
+            }
+            else
+            {
+                throw new IllegalStateException("Client is already disposed");
+            }
+        }
+        else
+        {
+            throw new IllegalArgumentException("Given client is not disposable");
+        }
+    }
+
     private HttpClient doCreate(HttpClientOptions options, ThreadLocalContextManager threadLocalContextManager)
     {
         checkNotNull(options);
@@ -54,5 +77,11 @@ public final class DefaultHttpClientFactory implements HttpClientFactory, Dispos
         {
             httpClient.destroy();
         }
+    }
+
+    @VisibleForTesting
+    Iterable<ApacheAsyncHttpClient> getHttpClients()
+    {
+        return httpClients;
     }
 }
