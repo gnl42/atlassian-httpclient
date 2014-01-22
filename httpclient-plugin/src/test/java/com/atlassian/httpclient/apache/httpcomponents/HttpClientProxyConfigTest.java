@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Properties;
 
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -84,9 +85,9 @@ public class HttpClientProxyConfigTest
 
         assertThat(scopeCaptor.getValue().getHost(), is("localhost"));
         assertThat(scopeCaptor.getValue().getPort(), is(3128));
-        assertThat(scopeCaptor.getValue().getScheme(), is("HTTP"));
         assertThat(credentialsCaptor.getValue().getPassword(), is("password"));
         assertThat(credentialsCaptor.getValue().getUserPrincipal().getName(), is("user"));
+        assertThat(scopeCaptor.getValue().getScheme(), equalToIgnoringCase("basic"));
     }
 
     @Test
@@ -109,7 +110,7 @@ public class HttpClientProxyConfigTest
 
         assertThat(scopeCaptor.getValue().getHost(), is("localhost"));
         assertThat(scopeCaptor.getValue().getPort(), is(3128));
-        assertThat(scopeCaptor.getValue().getScheme(), is("HTTPS"));
+        assertThat(scopeCaptor.getValue().getScheme(), equalToIgnoringCase("basic"));
         assertThat(credentialsCaptor.getValue().getPassword(), is("password"));
         assertThat(credentialsCaptor.getValue().getUserPrincipal().getName(), is("user"));
     }

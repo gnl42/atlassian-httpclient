@@ -113,13 +113,13 @@ public class HttpClientProxyConfig
                 final String proxyAuth = System.getProperty(schemeName + ".proxyAuth");
                 if (proxyAuth == null || proxyAuth.equalsIgnoreCase("basic"))
                 {
-                    return Option.some(new ProxyAuthentication(proxyAuth, new UsernamePasswordCredentials(username, proxyPassword)));
+                    return Option.some(new ProxyAuthentication("basic", new UsernamePasswordCredentials(username, proxyPassword)));
                 }
                 else if (proxyAuth.equalsIgnoreCase("digest") || proxyAuth.equalsIgnoreCase("ntlm"))
                 {
                     String ntlmDomain = System.getProperty(schemeName + ".proxyNtlmDomain");
                     String ntlmWorkstation = System.getProperty(schemeName + ".proxyNtlmWorkstation");
-                    return Option.some(new ProxyAuthentication(proxyAuth, new NTCredentials(username, proxyPassword,
+                    return Option.some(new ProxyAuthentication(proxyAuth.toLowerCase(), new NTCredentials(username, proxyPassword,
                             StringUtils.defaultString(ntlmWorkstation), StringUtils.defaultString(ntlmDomain))));
                 }
                 else
