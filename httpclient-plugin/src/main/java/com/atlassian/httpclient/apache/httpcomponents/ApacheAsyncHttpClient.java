@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -167,6 +166,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
             client = new DefaultHttpAsyncClient(connmgr);
 
+            client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry()));
+            HttpClientProxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
+
             client.setRedirectStrategy(new DefaultRedirectStrategy()
             {
                 final String[] REDIRECT_METHODS = {HttpHead.METHOD_NAME, HttpGet.METHOD_NAME, HttpPost.METHOD_NAME, HttpPut.METHOD_NAME, HttpDelete.METHOD_NAME, HttpPatch.METHOD_NAME};
@@ -238,11 +240,6 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         HttpConnectionParams.setSoTimeout(params, (int) options.getSocketTimeout());
         HttpConnectionParams.setSocketBufferSize(params, 8 * 1024);
         HttpConnectionParams.setTcpNoDelay(params, true);
-
-        ProxySelectorAsyncRoutePlanner routePlanner = new ProxySelectorAsyncRoutePlanner(
-                client.getConnectionManager().getSchemeRegistry(),
-                ProxySelector.getDefault());
-        client.setRoutePlanner(routePlanner);
 
         CacheConfig cacheConfig = new CacheConfig();
         cacheConfig.setMaxCacheEntries(options.getMaxCacheEntries());
