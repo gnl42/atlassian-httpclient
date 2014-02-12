@@ -27,12 +27,12 @@
 
     <issueManagement>
         <system>JIRA</system>
-        <url>https://ecosystem.atlassian.net/browse/HTTPCLIENT</url>
+        <url>https://ecosystem.atlassian.net/browse/HC</url>
     </issueManagement>
 
     <ciManagement>
         <system>Bamboo</system>
-        <url>https://bamboo.extranet.atlassian.com/browse/HTTPCLIENT</url>
+        <url>https://bamboo.extranet.atlassian.com/browse/AHCP</url>
     </ciManagement>
 
     <licenses>
