@@ -36,6 +36,8 @@ public final class HttpClientOptions
     private long leaseTimeout = 10 * 60 * 1000; // 10 mins
     private int maxCallbackThreadPoolSize = 16;
 
+    private boolean trustSelfSignedCertificates = false;
+
     private Effect<Request> requestPreparer = Effects.noop();
 
     private String userAgent = "Default";
@@ -169,7 +171,7 @@ public final class HttpClientOptions
 
     /**
      * @return How long, in milliseconds, to allow connections to live in the pool.  Defaults
-     *         to 30 seconds.
+     * to 30 seconds.
      */
     public long getConnectionPoolTimeToLive()
     {
@@ -260,7 +262,8 @@ public final class HttpClientOptions
     /**
      * @return The maximum time request to be kept in queue before execution, after timeout - request will be removed
      */
-    public long getLeaseTimeout() {
+    public long getLeaseTimeout()
+    {
         return leaseTimeout;
     }
 
@@ -310,5 +313,18 @@ public final class HttpClientOptions
     {
         ThreadFactory threadFactory = ThreadFactories.namedThreadFactory(getThreadPrefix() + "-callbacks", ThreadFactories.Type.DAEMON);
         return new ThreadPoolExecutor(0, getMaxCallbackThreadPoolSize(), 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
+    }
+
+    public void setTrustSelfSignedCertificates(boolean trustSelfSignedCertificates)
+    {
+        this.trustSelfSignedCertificates = trustSelfSignedCertificates;
+    }
+
+    /**
+     * @return whether self signed certificates are trusted.
+     */
+    public boolean trustSelfSignedCertificates()
+    {
+        return trustSelfSignedCertificates;
     }
 }

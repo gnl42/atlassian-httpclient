@@ -39,15 +39,18 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
 import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
-import org.apache.http.impl.nio.conn.AsyncSchemeRegistryFactory;
 import org.apache.http.impl.nio.conn.PoolingClientAsyncConnectionManager;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.http.nio.conn.scheme.AsyncScheme;
+import org.apache.http.nio.conn.scheme.AsyncSchemeRegistry;
+import org.apache.http.nio.conn.ssl.SSLLayeringStrategy;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.params.HttpConnectionParams;
@@ -61,6 +64,7 @@ import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -150,7 +154,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 }
             });
             final PoolingClientAsyncConnectionManager connmgr = new PoolingClientAsyncConnectionManager(reactor,
-                    AsyncSchemeRegistryFactory.createDefault(), options.getConnectionPoolTimeToLive(), options.getLeaseTimeout(), TimeUnit.MILLISECONDS)
+                    getAsyncSchemeRegistryFactory(options.trustSelfSignedCertificates()), options.getConnectionPoolTimeToLive(), options.getLeaseTimeout(), TimeUnit.MILLISECONDS)
             {
                 @Override
                 protected void finalize() throws Throwable
@@ -163,7 +167,6 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             };
 
             connmgr.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
-
             client = new DefaultHttpAsyncClient(connmgr);
 
             client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry()));
@@ -253,6 +256,26 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
         callbackExecutor = httpClientOptions.getCallbackExecutor();
         httpClient.start();
+    }
+
+    private AsyncSchemeRegistry getAsyncSchemeRegistryFactory(boolean trustSelfSignedCertificates)
+    {
+        AsyncSchemeRegistry registry = new AsyncSchemeRegistry();
+        registry.register(new AsyncScheme("http", 80, null));
+        registry.register(new AsyncScheme("https", 443, getSslLayeringStrategy(trustSelfSignedCertificates)));
+        return registry;
+    }
+
+    private SSLLayeringStrategy getSslLayeringStrategy(boolean trustSelfSignedCertificates)
+    {
+        try
+        {
+            return new SSLLayeringStrategy(trustSelfSignedCertificates ? new TrustSelfSignedStrategy() : null);
+        }
+        catch (GeneralSecurityException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getUserAgent(HttpClientOptions options)
