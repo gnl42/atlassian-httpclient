@@ -33,6 +33,7 @@ public final class ApacheAsyncHttpClientTest
     @Before
     public void setUp() throws Exception
     {
+        System.out.println("JAVA_HOME:" + System.getProperty("java.home"));
         server = HttpsServer.create(new InetSocketAddress(8000), 0);
         server.setHttpsConfigurator(new HttpsConfigurator(getSslContext()));
         server.createContext("/", new NoOpHandler());
