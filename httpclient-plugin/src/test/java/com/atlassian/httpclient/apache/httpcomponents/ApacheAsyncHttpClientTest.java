@@ -39,7 +39,6 @@ public final class ApacheAsyncHttpClientTest
     {
         final int requestedPort = Integer.valueOf(System.getProperty("http.port", String.valueOf(DEFAULT_PORT)));
         port = HttpUtils.pickFreePort(requestedPort);
-        System.out.println("************************** : " + port);
         server = HttpsServer.create(new InetSocketAddress(port), 0);
         server.setHttpsConfigurator(new HttpsConfigurator(getSslContext()));
         server.createContext("/", new NoOpHandler());
