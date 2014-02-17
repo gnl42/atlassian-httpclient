@@ -2,6 +2,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
+import com.atlassian.junit.http.HttpUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpsConfigurator;
@@ -24,16 +25,22 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
+import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 
 public final class ApacheAsyncHttpClientTest
 {
+    private static final int DEFAULT_PORT = 8000;
     private HttpsServer server;
+    private int port;
 
     @Before
     public void setUp() throws Exception
     {
-        server = HttpsServer.create(new InetSocketAddress(8000), 0);
+        final int requestedPort = Integer.valueOf(System.getProperty("http.port", String.valueOf(DEFAULT_PORT)));
+        port = HttpUtils.pickFreePort(requestedPort);
+        System.out.println("************************** : " + port);
+        server = HttpsServer.create(new InetSocketAddress(port), 0);
         server.setHttpsConfigurator(new HttpsConfigurator(getSslContext()));
         server.createContext("/", new NoOpHandler());
         server.setExecutor(null); // creates a default executor
@@ -57,7 +64,7 @@ public final class ApacheAsyncHttpClientTest
         final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("not-trusty-client", options);
         try
         {
-            httpClient.newRequest("https://localhost:8000/").get().claim();
+            httpClient.newRequest(getServerUrl()).get().claim();
         }
         catch (RuntimeException expected)
         {
@@ -71,7 +78,12 @@ public final class ApacheAsyncHttpClientTest
         HttpClientOptions options = new HttpClientOptions();
         options.setTrustSelfSignedCertificates(true);
         final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("trusty-client", options);
-        httpClient.newRequest("https://localhost:8000/").get().claim();
+        httpClient.newRequest(getServerUrl()).get().claim();
+    }
+
+    private String getServerUrl()
+    {
+        return format("https://localhost:%s/", port);
     }
 
     private SSLContext getSslContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, KeyManagementException
