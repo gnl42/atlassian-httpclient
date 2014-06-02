@@ -57,4 +57,15 @@ public class TestDefaultResponse
                 .build();
         response.getEntity();
     }
+
+    @Test
+    public void testRetrievingContentLengthFromHeader()
+    {
+        Response response = DefaultResponse.builder()
+                .setMaxEntitySize(100)
+                .setEntityStream(new GeneratingInputStream('x', 150L))
+                .setHeader(Headers.Names.CONTENT_LENGTH, "150")
+                .build();
+        assertEquals(Long.valueOf(150), response.getContentLength().get());
+    }
 }

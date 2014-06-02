@@ -149,6 +149,27 @@ public final class DefaultResponse extends DefaultMessage implements Response
         return isInformational() || isRedirection() || isError();
     }
 
+    @Override
+    public Option<Long> getContentLength()
+    {
+        String lengthString = getHeader("Content-Length");
+        if (lengthString != null)
+        {
+            try
+            {
+                return Option.some(Long.parseLong(lengthString));
+            }
+            catch (Exception e)
+            {
+                return Option.none();
+            }
+        }
+        else
+        {
+            return Option.none();
+        }
+    }
+
     public static class DefaultResponseBuilder implements Builder
     {
         private final CommonBuilder<DefaultResponse> commonBuilder;
