@@ -169,8 +169,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             connmgr.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
             client = new DefaultHttpAsyncClient(connmgr);
 
-            client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry()));
-            HttpClientProxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
+            HttpClientProxyConfig proxyConfig = new SystemPropertiesHttpClientProxyConfig();
+            proxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
+            client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry(), proxyConfig));
 
             client.setRedirectStrategy(new DefaultRedirectStrategy()
             {

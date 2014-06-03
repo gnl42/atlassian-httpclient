@@ -24,7 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class HttpClientProxyConfigTest
+public class SystemPropertiesHttpClientProxyConfigTest
 {
     @Test
     public void httpsProxyConfigured()
@@ -33,7 +33,8 @@ public class HttpClientProxyConfigTest
 
         System.setProperty("https.proxyHost", "localhost");
         System.setProperty("https.proxyPort", "3128");
-        Option<HttpHost> proxy = HttpClientProxyConfig.getProxy(scheme);
+        HttpClientProxyConfig config = new SystemPropertiesHttpClientProxyConfig();
+        Option<HttpHost> proxy = config.getProxy(scheme);
 
         assertThat(proxy.isDefined(), is(true));
         assertThat(proxy.get().getHostName(), is("localhost"));
@@ -47,8 +48,8 @@ public class HttpClientProxyConfigTest
 
         System.setProperty("http.proxyHost", "localhost");
         System.setProperty("http.proxyPort", "3128");
-
-        Option<HttpHost> proxy = HttpClientProxyConfig.getProxy(scheme);
+        HttpClientProxyConfig config = new SystemPropertiesHttpClientProxyConfig();
+        Option<HttpHost> proxy = config.getProxy(scheme);
 
         assertThat(proxy.isDefined(), is(true));
         assertThat(proxy.get().getHostName(), is("localhost"));
@@ -59,8 +60,8 @@ public class HttpClientProxyConfigTest
     public void httpProxyNotConfigured()
     {
         AsyncScheme scheme = new AsyncScheme("http", 80, mock(LayeringStrategy.class));
-
-        Option<HttpHost> proxy = HttpClientProxyConfig.getProxy(scheme);
+        HttpClientProxyConfig config = new SystemPropertiesHttpClientProxyConfig();
+        Option<HttpHost> proxy = config.getProxy(scheme);
 
         assertThat(proxy.isEmpty(), is(true));
     }
@@ -79,7 +80,8 @@ public class HttpClientProxyConfigTest
         ArgumentCaptor<Credentials> credentialsCaptor = ArgumentCaptor.forClass(Credentials.class);
         ArgumentCaptor<AuthScope> scopeCaptor = ArgumentCaptor.forClass(AuthScope.class);
 
-        HttpClientProxyConfig.applyProxyCredentials(client, AsyncSchemeRegistryFactory.createDefault());
+        HttpClientProxyConfig config = new SystemPropertiesHttpClientProxyConfig();
+        config.applyProxyCredentials(client, AsyncSchemeRegistryFactory.createDefault());
 
         verify(credentialsProvider).setCredentials(scopeCaptor.capture(), credentialsCaptor.capture());
 
@@ -104,7 +106,8 @@ public class HttpClientProxyConfigTest
         ArgumentCaptor<Credentials> credentialsCaptor = ArgumentCaptor.forClass(Credentials.class);
         ArgumentCaptor<AuthScope> scopeCaptor = ArgumentCaptor.forClass(AuthScope.class);
 
-        HttpClientProxyConfig.applyProxyCredentials(client, AsyncSchemeRegistryFactory.createDefault());
+        HttpClientProxyConfig config = new SystemPropertiesHttpClientProxyConfig();
+        config.applyProxyCredentials(client, AsyncSchemeRegistryFactory.createDefault());
 
         verify(credentialsProvider).setCredentials(scopeCaptor.capture(), credentialsCaptor.capture());
 
@@ -122,7 +125,8 @@ public class HttpClientProxyConfigTest
         CredentialsProvider credentialsProvider = mock(CredentialsProvider.class);
         when(client.getCredentialsProvider()).thenReturn(credentialsProvider);
 
-        HttpClientProxyConfig.applyProxyCredentials(client, AsyncSchemeRegistryFactory.createDefault());
+        HttpClientProxyConfig config = new SystemPropertiesHttpClientProxyConfig();
+        config.applyProxyCredentials(client, AsyncSchemeRegistryFactory.createDefault());
         verify(credentialsProvider, times(0)).setCredentials(any(AuthScope.class), any(Credentials.class));
     }
 
