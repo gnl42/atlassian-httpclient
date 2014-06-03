@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 
 public class ProxyRoutePlannerTest
 {
-    private final ProxyRoutePlanner proxyRoutePlanner = new ProxyRoutePlanner(AsyncSchemeRegistryFactory.createDefault());
+    private final ProxyRoutePlanner proxyRoutePlanner = new ProxyRoutePlanner(AsyncSchemeRegistryFactory.createDefault(), new SystemPropertiesHttpClientProxyConfig());
 
     @Test
     public void proxyConfiguredForHttpRequest() throws HttpException

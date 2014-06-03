@@ -10,7 +10,9 @@ import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.Response;
 import com.atlassian.httpclient.api.ResponsePromise;
 import com.atlassian.httpclient.api.ResponsePromises;
+import com.atlassian.httpclient.api.factory.Host;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
+import com.atlassian.httpclient.api.factory.Scheme;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
@@ -169,7 +171,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             connmgr.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
             client = new DefaultHttpAsyncClient(connmgr);
 
-            HttpClientProxyConfig proxyConfig = new SystemPropertiesHttpClientProxyConfig();
+            HttpClientProxyConfig proxyConfig = getProxyConfig(options);
             proxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
             client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry(), proxyConfig));
 
@@ -257,6 +259,19 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
         callbackExecutor = httpClientOptions.getCallbackExecutor();
         httpClient.start();
+    }
+
+    private HttpClientProxyConfig getProxyConfig(HttpClientOptions options)
+    {
+        Map<Scheme, Host> proxies = options.getProxyHosts();
+        if (proxies.isEmpty())
+        {
+            return new SystemPropertiesHttpClientProxyConfig();
+        }
+        else
+        {
+            return new ProvidedHttpClientProxyConfig(proxies, options.getNonProxyHosts());
+        }
     }
 
     private AsyncSchemeRegistry getAsyncSchemeRegistryFactory(boolean trustSelfSignedCertificates)
