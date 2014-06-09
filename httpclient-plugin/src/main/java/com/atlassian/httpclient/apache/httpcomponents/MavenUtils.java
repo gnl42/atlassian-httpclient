@@ -37,9 +37,11 @@ final class MavenUtils
         }
         finally
         {
-            try {
+            try
+            {
                 Closeables.close(is, true);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 logger.error("IOException should not have been thrown.", e);
             }
         }

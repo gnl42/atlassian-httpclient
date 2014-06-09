@@ -2,6 +2,8 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -10,6 +12,7 @@ public final class DefaultResponse extends DefaultMessage implements Response
 {
     private int statusCode;
     private String statusText;
+    private Logger log = LoggerFactory.getLogger(DefaultResponse.class);
 
     public DefaultResponse(Headers headers, InputStream entityStream, Option<Long> maxEntitySize, int statusCode, String statusText)
     {
@@ -152,15 +155,16 @@ public final class DefaultResponse extends DefaultMessage implements Response
     @Override
     public Option<Long> getContentLength()
     {
-        String lengthString = getHeader("Content-Length");
+        String lengthString = getHeader(Headers.Names.CONTENT_LENGTH);
         if (lengthString != null)
         {
             try
             {
                 return Option.some(Long.parseLong(lengthString));
             }
-            catch (Exception e)
+            catch (NumberFormatException e)
             {
+                log.warn("Unable to parse content length {}", lengthString);
                 return Option.none();
             }
         }

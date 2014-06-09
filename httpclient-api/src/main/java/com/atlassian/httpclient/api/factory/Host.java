@@ -14,8 +14,8 @@ public class Host
     {
         if (host == null || host.trim().length() == 0)
             throw new IllegalArgumentException("Host must not be null or empty");
-        else if (port <= 0)
-            throw new IllegalArgumentException("Port must be greater than 0");
+        else if (port <= 0 || port > 65535)
+            throw new IllegalArgumentException("Port must be greater than 0 and less than 65535");
 
         this.host = host;
         this.port = port;

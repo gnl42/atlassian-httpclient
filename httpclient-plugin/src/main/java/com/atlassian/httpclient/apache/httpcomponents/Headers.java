@@ -95,9 +95,6 @@ public class Headers
             return this;
         }
 
-        // What are the options for content length? - Set value -> use it as the header
-        // no value set -> automatic? Need to review this
-        //
         public Builder setContentLength(long contentLength)
         {
             Preconditions.checkArgument(contentLength > 0, "Content-Length must be greater than 0");

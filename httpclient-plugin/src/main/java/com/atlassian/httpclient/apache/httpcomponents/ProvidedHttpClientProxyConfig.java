@@ -9,6 +9,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.impl.nio.client.AbstractHttpAsyncClient;
 import org.apache.http.nio.conn.scheme.AsyncScheme;
 import org.apache.http.nio.conn.scheme.AsyncSchemeRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -23,6 +25,8 @@ import java.util.Map;
  */
 public class ProvidedHttpClientProxyConfig implements HttpClientProxyConfig
 {
+    private static final Logger log = LoggerFactory.getLogger(ProvidedHttpClientProxyConfig.class);
+
     private final Map<String, HttpHost> proxyHostMap;
 
     private final Map<String, List<String>> nonProxyHosts;
@@ -72,7 +76,7 @@ public class ProvidedHttpClientProxyConfig implements HttpClientProxyConfig
     @Override
     public void applyProxyCredentials(@Nonnull AbstractHttpAsyncClient client, @Nonnull AsyncSchemeRegistry schemeRegistry)
     {
-        // TODO Currently we aren't supporting authenticated access to custom proxies.
+        log.debug("Not configuring credentials for proxy (authentication not supported for programmatically configured proxies).");
     }
 
 }

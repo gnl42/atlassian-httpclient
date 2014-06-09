@@ -4,6 +4,7 @@ import com.atlassian.httpclient.api.Request;
 import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Effects;
 import com.atlassian.util.concurrent.ThreadFactories;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -343,10 +344,8 @@ public final class HttpClientOptions
      */
     public void addProxyHost(final @Nonnull Scheme scheme, final @Nonnull Host proxyHost)
     {
-        if (proxyHost == null)
-            throw new IllegalArgumentException("Proxy host cannot be null");
-        if (scheme == null)
-            throw new IllegalArgumentException("Scheme must not be null");
+        Preconditions.checkNotNull(proxyHost, "Proxy host cannot be null");
+        Preconditions.checkNotNull(scheme, "Scheme must not be null");
 
         this.proxyHostMap.put(scheme, proxyHost);
     }
