@@ -30,4 +30,47 @@ public class Host
     {
         return port;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Host{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        Host host1 = (Host) o;
+
+        if (port != host1.port)
+        {
+            return false;
+        }
+        if (!host.equals(host1.host))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = host.hashCode();
+        result = 31 * result + port;
+        return result;
+    }
 }

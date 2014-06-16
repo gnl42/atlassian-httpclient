@@ -1,6 +1,8 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.fugue.Effect;
+import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorage;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorageImpl;
 import com.atlassian.httpclient.apache.httpcomponents.cache.LoggingHttpCacheStorage;
@@ -10,9 +12,7 @@ import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.Response;
 import com.atlassian.httpclient.api.ResponsePromise;
 import com.atlassian.httpclient.api.ResponsePromises;
-import com.atlassian.httpclient.api.factory.Host;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
-import com.atlassian.httpclient.api.factory.Scheme;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
@@ -171,9 +171,16 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             connmgr.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
             client = new DefaultHttpAsyncClient(connmgr);
 
-            HttpClientProxyConfig proxyConfig = getProxyConfig(options);
-            proxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
-            client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry(), proxyConfig));
+            Option<HttpClientProxyConfig> optProxyConfig = getProxyConfig(options);
+            optProxyConfig.foreach(
+                    new Effect<HttpClientProxyConfig>()
+                    {
+                        @Override
+                        public void apply(HttpClientProxyConfig httpClientProxyConfig) {
+                            httpClientProxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
+                            client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry(), httpClientProxyConfig));
+                        }
+                    });
 
             client.setRedirectStrategy(new DefaultRedirectStrategy()
             {
@@ -261,17 +268,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         httpClient.start();
     }
 
-    private HttpClientProxyConfig getProxyConfig(HttpClientOptions options)
+    private Option<HttpClientProxyConfig> getProxyConfig(HttpClientOptions options)
     {
-        Map<Scheme, Host> proxies = options.getProxyHosts();
-        if (proxies.isEmpty())
-        {
-            return new SystemPropertiesHttpClientProxyConfig();
-        }
-        else
-        {
-            return new ProvidedHttpClientProxyConfig(proxies, options.getNonProxyHosts());
-        }
+        return ProxyConfigFactory.from(options.getProxyOptions());
     }
 
     private AsyncSchemeRegistry getAsyncSchemeRegistryFactory(boolean trustSelfSignedCertificates)

@@ -7,10 +7,6 @@ import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -50,9 +46,7 @@ public final class HttpClientOptions
 
     private ExecutorService callbackExecutor;
 
-    private Map<Scheme, Host> proxyHostMap = new HashMap<Scheme, Host>();
-
-    private Map<Scheme, List<String>> nonProxyHosts = new HashMap<Scheme, List<String>>();
+    private ProxyOptions proxyOptions = ProxyOptions.ProxyOptionsBuilder.create().build();
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
@@ -338,47 +332,20 @@ public final class HttpClientOptions
     }
 
     /**
-     * Add a proxy host for the given scheme.
-     * @param scheme the scheme
-     * @param proxyHost the proxy host
+     * Set proxy options for the client
+     * @param proxyOptions Proxy options created using {@link com.atlassian.httpclient.api.factory.ProxyOptions.ProxyOptionsBuilder}.
      */
-    public void addProxyHost(final @Nonnull Scheme scheme, final @Nonnull Host proxyHost)
+    public void setProxyOptions(final @Nonnull ProxyOptions proxyOptions)
     {
-        Preconditions.checkNotNull(proxyHost, "Proxy host cannot be null");
-        Preconditions.checkNotNull(scheme, "Scheme must not be null");
-
-        this.proxyHostMap.put(scheme, proxyHost);
+        Preconditions.checkNotNull(proxyOptions, "Proxy options cannot be null");
+        this.proxyOptions = proxyOptions;
     }
 
     /**
-     * Get the mapping of schemes and their proxy hosts.
-     * @return the mapping of schemes and their proxy hosts.
+     * @return The proxy options to use for the client.
      */
-    public Map<Scheme, Host> getProxyHosts()
+    public ProxyOptions getProxyOptions()
     {
-        return Collections.unmodifiableMap(proxyHostMap);
-    }
-
-    /**
-     * Add a list of non-proxy hosts for the given scheme
-     * @param scheme The scheme
-     * @param nonProxyHosts The list of non-proxy hosts
-     */
-    public void addNonProxyHost(final @Nonnull Scheme scheme, final @Nonnull List<String> nonProxyHosts)
-    {
-        if (nonProxyHosts == null)
-            throw new IllegalArgumentException("Non proxy hosts cannot be null");
-        if (scheme == null)
-            throw new IllegalArgumentException("Scheme must not be null");
-
-        this.nonProxyHosts.put(scheme, nonProxyHosts);
-    }
-
-    /**
-     * @return the list of configured non-proxy hosts.
-     */
-    public Map<Scheme, List<String>> getNonProxyHosts()
-    {
-        return Collections.unmodifiableMap(nonProxyHosts);
+        return this.proxyOptions;
     }
 }

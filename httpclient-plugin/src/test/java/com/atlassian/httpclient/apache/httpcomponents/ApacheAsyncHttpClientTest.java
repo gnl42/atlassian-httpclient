@@ -2,6 +2,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
+import com.atlassian.httpclient.api.factory.ProxyOptions;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpsConfigurator;
@@ -69,6 +70,16 @@ public final class ApacheAsyncHttpClientTest
     public void testGetWhenTrustingSelfSignedCertificates()
     {
         HttpClientOptions options = new HttpClientOptions();
+        options.setTrustSelfSignedCertificates(true);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("trusty-client", options);
+        httpClient.newRequest("https://localhost:8000/").get().claim();
+    }
+
+    @Test
+    public void testGetWithoutAProxy()
+    {
+        HttpClientOptions options = new HttpClientOptions();
+        options.setProxyOptions(ProxyOptions.ProxyOptionsBuilder.create().withNoProxy().build());
         options.setTrustSelfSignedCertificates(true);
         final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("trusty-client", options);
         httpClient.newRequest("https://localhost:8000/").get().claim();
