@@ -1,5 +1,7 @@
 package com.atlassian.httpclient.api;
 
+import com.atlassian.fugue.Option;
+
 import java.net.URI;
 import java.util.Map;
 
@@ -88,6 +90,15 @@ public interface Request extends Message
          * @return This object, for builder-style chaining
          */
         Builder setAttributes(Map<String, String> properties);
+
+        /**
+         * Set the content length for the message. Use this to explicitly override the content length determined from
+         * the entity in the message (e.g. if you want to stream the entity without chunking).
+         *
+         * @param contentLength The content length. This must be valid (greater than 0).
+         * @return This object, for builder-style chaining
+         */
+        Builder setContentLength(long contentLength);
 
         /**
          * Sets the entity and any associated headers from an entity builder.

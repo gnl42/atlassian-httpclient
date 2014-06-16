@@ -1,6 +1,8 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.fugue.Effect;
+import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorage;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorageImpl;
 import com.atlassian.httpclient.apache.httpcomponents.cache.LoggingHttpCacheStorage;
@@ -169,8 +171,16 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             connmgr.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
             client = new DefaultHttpAsyncClient(connmgr);
 
-            client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry()));
-            HttpClientProxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
+            Option<HttpClientProxyConfig> optProxyConfig = getProxyConfig(options);
+            optProxyConfig.foreach(
+                    new Effect<HttpClientProxyConfig>()
+                    {
+                        @Override
+                        public void apply(HttpClientProxyConfig httpClientProxyConfig) {
+                            httpClientProxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
+                            client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry(), httpClientProxyConfig));
+                        }
+                    });
 
             client.setRedirectStrategy(new DefaultRedirectStrategy()
             {
@@ -256,6 +266,11 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
         callbackExecutor = httpClientOptions.getCallbackExecutor();
         httpClient.start();
+    }
+
+    private Option<HttpClientProxyConfig> getProxyConfig(HttpClientOptions options)
+    {
+        return ProxyConfigFactory.from(options.getProxyOptions());
     }
 
     private AsyncSchemeRegistry getAsyncSchemeRegistryFactory(boolean trustSelfSignedCertificates)

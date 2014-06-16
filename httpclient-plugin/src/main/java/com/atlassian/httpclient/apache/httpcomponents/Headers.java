@@ -1,6 +1,8 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.Buildable;
+import com.google.common.base.Preconditions;
+import org.apache.http.protocol.HTTP;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -36,7 +38,7 @@ public class Headers
         Map<String, String> headers = newHashMap(this.headers);
         if (contentType != null)
         {
-            headers.put("Content-Type", buildContentType());
+            headers.put(Names.CONTENT_TYPE, buildContentType());
         }
         return Collections.unmodifiableMap(headers);
     }
@@ -44,7 +46,7 @@ public class Headers
     public String getHeader(final String name)
     {
         String value;
-        if (name.equalsIgnoreCase("Content-Type"))
+        if (name.equalsIgnoreCase(Names.CONTENT_TYPE))
         {
             value = buildContentType();
         }
@@ -94,6 +96,12 @@ public class Headers
             return this;
         }
 
+        public Builder setContentLength(long contentLength)
+        {
+            Preconditions.checkArgument(contentLength >= 0, "Content-Length must be greater than or equal to 0");
+            setHeader(Names.CONTENT_LENGTH, Long.toString(contentLength));
+            return this;
+        }
 
         public Builder setContentCharset(String contentCharset)
         {
@@ -140,5 +148,13 @@ public class Headers
         {
             return new Headers(headers, contentCharset, contentType);
         }
+    }
+
+    public static class Names
+    {
+        public static final String CONTENT_LENGTH = HTTP.CONTENT_LEN;
+        public static final String CONTENT_TYPE = HTTP.CONTENT_TYPE;
+
+        private Names() {}
     }
 }

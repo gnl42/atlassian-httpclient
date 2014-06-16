@@ -4,7 +4,9 @@ import com.atlassian.httpclient.api.Request;
 import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Effects;
 import com.atlassian.util.concurrent.ThreadFactories;
+import com.google.common.base.Preconditions;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -44,6 +46,7 @@ public final class HttpClientOptions
 
     private ExecutorService callbackExecutor;
 
+    private ProxyOptions proxyOptions = ProxyOptions.ProxyOptionsBuilder.create().build();
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
@@ -326,5 +329,23 @@ public final class HttpClientOptions
     public boolean trustSelfSignedCertificates()
     {
         return trustSelfSignedCertificates;
+    }
+
+    /**
+     * Set proxy options for the client
+     * @param proxyOptions Proxy options created using {@link com.atlassian.httpclient.api.factory.ProxyOptions.ProxyOptionsBuilder}.
+     */
+    public void setProxyOptions(final @Nonnull ProxyOptions proxyOptions)
+    {
+        Preconditions.checkNotNull(proxyOptions, "Proxy options cannot be null");
+        this.proxyOptions = proxyOptions;
+    }
+
+    /**
+     * @return The proxy options to use for the client.
+     */
+    public ProxyOptions getProxyOptions()
+    {
+        return this.proxyOptions;
     }
 }

@@ -63,7 +63,8 @@ public class RequestEntityEffect implements Effect<HttpRequestBase>
             }
             else
             {
-                entity = new InputStreamEntity(entityStream, -1);
+                long contentLength = request.getContentLength().getOrElse(-1L);
+                entity = new InputStreamEntity(entityStream, contentLength);
             }
         }
         return entity;

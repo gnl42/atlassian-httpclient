@@ -47,7 +47,6 @@ abstract class DefaultMessage implements Message
     public InputStream getEntityStream() throws IllegalStateException
     {
         checkRead();
-        checkValidSize();
         return entityStream;
     }
 
@@ -56,6 +55,7 @@ abstract class DefaultMessage implements Message
         String entity = null;
         if (hasEntity())
         {
+            checkValidSize();
             final String charsetAsString = getContentCharset();
             final Charset charset = charsetAsString != null ? Charset.forName(charsetAsString) : Charset.forName(
                     "UTF-8");

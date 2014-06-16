@@ -1,13 +1,14 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static com.google.common.io.Closeables.closeQuietly;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.newInputStreamSupplier;
 import static java.lang.String.format;
@@ -36,7 +37,15 @@ final class MavenUtils
         }
         finally
         {
-            closeQuietly(is);
+            try
+            {
+                Closeables.close(is, true);
+            }
+            catch (IOException e)
+            {
+                logger.debug("Could not find version for maven artifact {}:{}", groupId, artifactId);
+                logger.debug("IOException should not have been thrown.", e);
+            }
         }
     }
 

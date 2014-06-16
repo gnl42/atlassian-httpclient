@@ -18,10 +18,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ProxyRoutePlanner implements HttpRoutePlanner
 {
     private final AsyncSchemeRegistry schemeRegistry;
+    private final HttpClientProxyConfig proxyConfig;
 
-    public ProxyRoutePlanner(final AsyncSchemeRegistry schemeRegistry)
+    public ProxyRoutePlanner(final AsyncSchemeRegistry schemeRegistry, final HttpClientProxyConfig proxyConfig)
     {
         this.schemeRegistry = schemeRegistry;
+        this.proxyConfig = proxyConfig;
     }
 
     @Override
@@ -64,13 +66,13 @@ public class ProxyRoutePlanner implements HttpRoutePlanner
         }
         else
         {
-            return HttpClientProxyConfig.getProxy(scheme);
+            return proxyConfig.getProxy(scheme);
         }
     }
 
     private boolean isNonProxyHost(final HttpHost targetHost)
     {
-        return HttpClientProxyConfig.getNonProxyHosts(schemeRegistry.getScheme(targetHost)).contains(targetHost.getHostName());
+        return proxyConfig.getNonProxyHosts(schemeRegistry.getScheme(targetHost)).contains(targetHost.getHostName());
     }
 
     private boolean isSecure(final HttpHost target)

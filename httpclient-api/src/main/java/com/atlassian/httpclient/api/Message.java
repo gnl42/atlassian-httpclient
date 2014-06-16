@@ -1,5 +1,7 @@
 package com.atlassian.httpclient.api;
 
+import com.atlassian.fugue.Option;
+
 import java.io.InputStream;
 import java.util.Map;
 
@@ -83,4 +85,12 @@ public interface Message
      * @return The value of the named header, or null if not set
      */
     String getHeader(String name);
+
+    /**
+     * Returns the content length for the entity in the message. For requests, this would be the content length of the
+     * entity that you set, or the content length that you can set manually (e.g. for streamed entities). For responses,
+     * this would be the content length from the header.
+     * @return The content length as an option. None is returned if no content length has been set or not present.
+     */
+    Option<Long> getContentLength();
 }

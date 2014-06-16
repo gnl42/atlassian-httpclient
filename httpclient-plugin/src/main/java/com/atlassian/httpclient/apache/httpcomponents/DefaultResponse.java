@@ -2,7 +2,11 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.Response;
+import com.google.common.base.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -10,6 +14,7 @@ public final class DefaultResponse extends DefaultMessage implements Response
 {
     private int statusCode;
     private String statusText;
+    private Logger log = LoggerFactory.getLogger(DefaultResponse.class);
 
     public DefaultResponse(Headers headers, InputStream entityStream, Option<Long> maxEntitySize, int statusCode, String statusText)
     {
@@ -147,6 +152,45 @@ public final class DefaultResponse extends DefaultMessage implements Response
     public boolean isNotSuccessful()
     {
         return isInformational() || isRedirection() || isError();
+    }
+
+    @Override
+    public Option<Long> getContentLength()
+    {
+        String lengthString = getHeader(Headers.Names.CONTENT_LENGTH);
+        if (lengthString != null)
+        {
+            try
+            {
+                Option<Long> parsedLength = Option.some(Long.parseLong(lengthString));
+                return parsedLength.flatMap(
+                        new Function<Long, Option<Long>>()
+                        {
+                            @Override
+                            public Option<Long> apply(Long aLong)
+                            {
+                                if (aLong < 0)
+                                {
+                                    log.warn("Unable to parse content length. Received out of range value {}", aLong);
+                                    return Option.none();
+                                }
+                                else
+                                {
+                                    return Option.some(aLong);
+                                }
+                            }
+                        });
+            }
+            catch (NumberFormatException e)
+            {
+                log.warn("Unable to parse content length {}", lengthString);
+                return Option.none();
+            }
+        }
+        else
+        {
+            return Option.none();
+        }
     }
 
     public static class DefaultResponseBuilder implements Builder

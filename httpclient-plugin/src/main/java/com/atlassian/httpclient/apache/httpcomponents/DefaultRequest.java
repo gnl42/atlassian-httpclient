@@ -5,6 +5,7 @@ import com.atlassian.httpclient.api.EntityBuilder;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.ResponsePromise;
+import com.google.common.base.Preconditions;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -27,15 +28,17 @@ public class DefaultRequest extends DefaultMessage implements Request
     private final boolean cacheDisabled;
     private final Map<String, String> attributes;
     private final Method method;
+    private final Option<Long> contentLength;
 
     private DefaultRequest(URI uri, boolean cacheDisabled, Map<String, String> attributes,
-            Headers headers, Method method, InputStream entityStream)
+            Headers headers, Method method, InputStream entityStream, Option<Long> contentLength)
     {
         super(headers, entityStream, Option.<Long>none());
         this.uri = uri;
         this.cacheDisabled = cacheDisabled;
         this.attributes = attributes;
         this.method = method;
+        this.contentLength = contentLength;
     }
 
     public static DefaultRequestBuilder builder(HttpClient httpClient)
@@ -71,6 +74,12 @@ public class DefaultRequest extends DefaultMessage implements Request
     public Map<String, String> getAttributes()
     {
         return Collections.unmodifiableMap(attributes);
+    }
+
+    @Override
+    public Option<Long> getContentLength()
+    {
+        return contentLength;
     }
 
     public boolean isCacheDisabled()
@@ -113,6 +122,7 @@ public class DefaultRequest extends DefaultMessage implements Request
         private URI uri;
         private boolean cacheDisabled;
         private Method method;
+        private Option<Long> contentLength;
 
         public DefaultRequestBuilder(final HttpClient httpClient)
         {
@@ -120,6 +130,7 @@ public class DefaultRequest extends DefaultMessage implements Request
             this.attributes = new HashMap<String, String>();
             commonBuilder = new CommonBuilder<DefaultRequest>();
             setAccept("*/*");
+            contentLength = Option.none();
         }
 
         @Override
@@ -183,6 +194,7 @@ public class DefaultRequest extends DefaultMessage implements Request
         public DefaultRequestBuilder setEntity(final String entity)
         {
             commonBuilder.setEntity(entity);
+            setContentLength(entity.length());
             return this;
         }
 
@@ -216,10 +228,18 @@ public class DefaultRequest extends DefaultMessage implements Request
         }
 
         @Override
+        public DefaultRequestBuilder setContentLength(final long contentLength)
+        {
+            Preconditions.checkArgument(contentLength >= 0, "Content length must be greater than or equal to 0");
+            this.contentLength = Option.some(contentLength);
+            return this;
+        }
+
+        @Override
         public DefaultRequest build()
         {
             return new DefaultRequest(uri, cacheDisabled, attributes, commonBuilder.getHeaders(),
-                    method, commonBuilder.getEntityStream());
+                    method, commonBuilder.getEntityStream(), contentLength);
         }
 
         @Override
