@@ -2,6 +2,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.Buildable;
 import com.google.common.base.Preconditions;
+import org.apache.http.protocol.HTTP;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -97,7 +98,7 @@ public class Headers
 
         public Builder setContentLength(long contentLength)
         {
-            Preconditions.checkArgument(contentLength > 0, "Content-Length must be greater than 0");
+            Preconditions.checkArgument(contentLength >= 0, "Content-Length must be greater than or equal to 0");
             setHeader(Names.CONTENT_LENGTH, Long.toString(contentLength));
             return this;
         }
@@ -151,8 +152,8 @@ public class Headers
 
     public static class Names
     {
-        public static final String CONTENT_LENGTH = "Content-Length";
-        public static final String CONTENT_TYPE = "Content-Type";
+        public static final String CONTENT_LENGTH = HTTP.CONTENT_LEN;
+        public static final String CONTENT_TYPE = HTTP.CONTENT_TYPE;
 
         private Names() {}
     }

@@ -7,12 +7,16 @@ import com.google.common.collect.ImmutableList;
 import org.apache.http.HttpHost;
 import org.apache.http.nio.conn.scheme.AsyncScheme;
 import org.apache.http.nio.conn.scheme.LayeringStrategy;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -53,8 +57,7 @@ public class ProvidedHttpClientProxyConfigTest
         nonProxyHosts.put(Scheme.HTTP, ImmutableList.of("foo"));
         HttpClientProxyConfig config = new ProvidedHttpClientProxyConfig(proxies, nonProxyHosts);
         List<String> nonProxyHostList = config.getNonProxyHosts(scheme);
-        assertThat(nonProxyHostList.size(), is(1));
-        assertThat(nonProxyHostList.contains("foo"), is(true));
+        assertThat(nonProxyHostList, contains("foo"));
     }
 
     @Test
@@ -67,6 +70,6 @@ public class ProvidedHttpClientProxyConfigTest
         nonProxyHosts.put(Scheme.HTTPS, ImmutableList.of("foo"));
         HttpClientProxyConfig config = new ProvidedHttpClientProxyConfig(proxies, nonProxyHosts);
         List<String> nonProxyHostList = config.getNonProxyHosts(scheme);
-        assertThat(nonProxyHostList.size(), is(0));
+        assertThat(nonProxyHostList, Matchers.<String>empty());
     }
 }

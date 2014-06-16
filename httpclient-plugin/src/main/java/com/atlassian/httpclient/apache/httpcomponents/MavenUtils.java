@@ -41,8 +41,10 @@ final class MavenUtils
             {
                 Closeables.close(is, true);
             }
-            catch (IOException e) {
-                logger.error("IOException should not have been thrown.", e);
+            catch (IOException e)
+            {
+                logger.debug("Could not find version for maven artifact {}:{}", groupId, artifactId);
+                logger.debug("IOException should not have been thrown.", e);
             }
         }
     }

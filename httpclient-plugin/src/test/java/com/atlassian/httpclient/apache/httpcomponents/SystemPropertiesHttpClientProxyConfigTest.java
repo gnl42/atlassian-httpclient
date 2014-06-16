@@ -10,7 +10,9 @@ import org.apache.http.impl.nio.conn.AsyncSchemeRegistryFactory;
 import org.apache.http.nio.conn.scheme.AsyncScheme;
 import org.apache.http.nio.conn.scheme.LayeringStrategy;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.ClearSystemProperties;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Properties;
@@ -26,6 +28,9 @@ import static org.mockito.Mockito.when;
 
 public class SystemPropertiesHttpClientProxyConfigTest
 {
+    @Rule
+    public final ClearSystemProperties clearSystemProps = new ClearSystemProperties("https.proxyHost", "https.proxyPort", "http.proxyHost", "http.proxyPort", "http.proxyUser", "http.proxyPassword");
+
     @Test
     public void httpsProxyConfigured()
     {
@@ -142,11 +147,4 @@ public class SystemPropertiesHttpClientProxyConfigTest
 
         verify(credentialsProvider, times(0)).setCredentials(any(AuthScope.class), any(Credentials.class));
     }
-
-    @After
-    public void tearDown()
-    {
-        System.setProperties(new Properties());
-    }
-
 }

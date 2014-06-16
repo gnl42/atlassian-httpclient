@@ -230,7 +230,7 @@ public class DefaultRequest extends DefaultMessage implements Request
         @Override
         public DefaultRequestBuilder setContentLength(final long contentLength)
         {
-            Preconditions.checkArgument(contentLength > 0, "Content length must be greater than 0");
+            Preconditions.checkArgument(contentLength >= 0, "Content length must be greater than or equal to 0");
             this.contentLength = Option.some(contentLength);
             return this;
         }
