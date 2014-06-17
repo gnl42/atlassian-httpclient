@@ -79,7 +79,7 @@
         <dependency>
             <groupId>com.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Http client -->
@@ -205,10 +205,12 @@
                             org.slf4j*;version="1.5",
                             org.springframework*,
                             org.xml.sax*,
+                            com.atlassian.fugue*,
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
-                            com.atlassian.httpclient.api*;version="${httpclient.api.version}"
+                            com.atlassian.httpclient.api*;version="${httpclient.api.version}",
+                            com.atlassian.fugue*
                         </Export-Package>
                         <Spring-Context>*;timeout:=60</Spring-Context>
                     </instructions>
