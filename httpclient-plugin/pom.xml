@@ -24,7 +24,7 @@
     </licenses>
 
     <properties>
-        <httpclient.api.version>0.18</httpclient.api.version>
+        <httpclient.api.version>0.19</httpclient.api.version>
         <http.port>9000</http.port>
     </properties>
 
