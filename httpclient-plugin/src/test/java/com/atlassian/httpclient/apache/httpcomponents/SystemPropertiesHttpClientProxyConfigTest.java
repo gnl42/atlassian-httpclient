@@ -1,6 +1,7 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.fugue.Option;
+
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -9,13 +10,10 @@ import org.apache.http.impl.nio.client.AbstractHttpAsyncClient;
 import org.apache.http.impl.nio.conn.AsyncSchemeRegistryFactory;
 import org.apache.http.nio.conn.scheme.AsyncScheme;
 import org.apache.http.nio.conn.scheme.LayeringStrategy;
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ClearSystemProperties;
 import org.mockito.ArgumentCaptor;
-
-import java.util.Properties;
 
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;

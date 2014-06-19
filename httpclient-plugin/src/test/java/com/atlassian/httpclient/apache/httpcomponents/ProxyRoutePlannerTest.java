@@ -6,10 +6,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.nio.conn.AsyncSchemeRegistryFactory;
 import org.apache.http.protocol.HttpContext;
-import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Properties;
+import org.junit.contrib.java.lang.system.ClearSystemProperties;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -19,6 +18,9 @@ import static org.mockito.Mockito.mock;
 
 public class ProxyRoutePlannerTest
 {
+    @Rule
+    public final ClearSystemProperties clearSystemProps = new ClearSystemProperties("https.proxyHost", "https.proxyPort", "http.proxyHost", "http.proxyPort", "http.proxyUser", "http.proxyPassword");
+    
     private final ProxyRoutePlanner proxyRoutePlanner = new ProxyRoutePlanner(AsyncSchemeRegistryFactory.createDefault(), new SystemPropertiesHttpClientProxyConfig());
 
     @Test
@@ -79,9 +81,4 @@ public class ProxyRoutePlannerTest
         assertThat(route.getProxyHost(), nullValue(HttpHost.class));
     }
 
-    @After
-    public void tearDown() throws Exception
-    {
-        System.setProperties(new Properties());
-    }
 }
