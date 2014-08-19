@@ -2,10 +2,11 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.fugue.Effect;
-import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorage;
 import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheStorageImpl;
 import com.atlassian.httpclient.apache.httpcomponents.cache.LoggingHttpCacheStorage;
+import com.atlassian.httpclient.apache.httpcomponents.proxy.ProxyConfigFactory;
+import com.atlassian.httpclient.apache.httpcomponents.proxy.ProxyCredentialsProvider;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.HttpStatus;
 import com.atlassian.httpclient.api.Request;
@@ -26,51 +27,55 @@ import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpRequest;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpTrace;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
-import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
-import org.apache.http.impl.nio.conn.PoolingClientAsyncConnectionManager;
+import org.apache.http.impl.conn.DefaultSchemePortResolver;
+import org.apache.http.impl.conn.SystemDefaultDnsResolver;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.impl.nio.conn.ManagedNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
-import org.apache.http.nio.client.HttpAsyncClient;
-import org.apache.http.nio.conn.scheme.AsyncScheme;
-import org.apache.http.nio.conn.scheme.AsyncSchemeRegistry;
-import org.apache.http.nio.conn.ssl.SSLLayeringStrategy;
+import org.apache.http.nio.conn.NoopIOSessionStrategy;
+import org.apache.http.nio.conn.SchemeIOSessionStrategy;
+import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.GeneralSecurityException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import javax.net.ssl.SSLContext;
 
 import static com.atlassian.util.concurrent.Promises.rejected;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -95,8 +100,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private final ExecutorService callbackExecutor;
     private final HttpClientOptions httpClientOptions;
 
-    private final HttpAsyncClient httpClient;
-    private final HttpAsyncClient nonCachingHttpClient;
+    private final CachingHttpAsyncClient httpClient;
+    private final CloseableHttpAsyncClient nonCachingHttpClient;
     private final FlushableHttpCacheStorage httpCacheStorage;
 
     public ApacheAsyncHttpClient(EventPublisher eventConsumer, ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager)
@@ -104,7 +109,10 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         this(eventConsumer, applicationProperties, threadLocalContextManager, new HttpClientOptions());
     }
 
-    public ApacheAsyncHttpClient(final EventPublisher eventConsumer, final ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
+    public ApacheAsyncHttpClient(EventPublisher eventConsumer,
+            ApplicationProperties applicationProperties,
+            ThreadLocalContextManager<C> threadLocalContextManager,
+            HttpClientOptions options)
     {
         this(new DefaultApplicationNameSupplier(applicationProperties),
                 new EventConsumerFunction(eventConsumer),
@@ -122,41 +130,50 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         this(Suppliers.ofInstance(applicationName), Functions.constant((Void) null), new NoOpThreadLocalContextManager<C>(), options);
     }
 
-    public ApacheAsyncHttpClient(Supplier<String> applicationName, Function<Object, Void> eventConsumer, ThreadLocalContextManager<C> threadLocalContextManager, final HttpClientOptions options)
+    public ApacheAsyncHttpClient(final Supplier<String> applicationName,
+            final Function<Object, Void> eventConsumer,
+            final ThreadLocalContextManager<C> threadLocalContextManager,
+            final HttpClientOptions options)
     {
         this.eventConsumer = checkNotNull(eventConsumer);
         this.applicationName = checkNotNull(applicationName);
         this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
         this.httpClientOptions = checkNotNull(options);
 
-        final DefaultHttpAsyncClient client;
         try
         {
-            IOReactorConfig ioReactorConfig = new IOReactorConfig();
-            ioReactorConfig.setIoThreadCount(options.getIoThreadCount());
-            ioReactorConfig.setSelectInterval(options.getIoSelectInterval());
-            ioReactorConfig.setInterestOpQueued(true);
-            DefaultConnectingIOReactor reactor = new DefaultConnectingIOReactor(
-                    ioReactorConfig,
-                    ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io", ThreadFactories.Type.DAEMON));
-            reactor.setExceptionHandler(new IOReactorExceptionHandler()
+            final IOReactorConfig reactorConfig = IOReactorConfig.custom()
+                    .setIoThreadCount(options.getIoThreadCount())
+                    .setSelectInterval(options.getIoSelectInterval())
+                    .setInterestOpQueued(true)
+                    .build();
+
+            final DefaultConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(reactorConfig);
+            ioReactor.setExceptionHandler(new IOReactorExceptionHandler()
             {
                 @Override
-                public boolean handle(IOException ex)
+                public boolean handle(final IOException e)
                 {
-                    log.error("IO exception in reactor", ex);
+                    log.error("IO exception in reactor ", e);
                     return false;
                 }
 
                 @Override
-                public boolean handle(RuntimeException ex)
+                public boolean handle(final RuntimeException e)
                 {
-                    log.error("Fatal runtime error", ex);
+                    log.error("Fatal runtime error", e);
                     return false;
                 }
             });
-            final PoolingClientAsyncConnectionManager connmgr = new PoolingClientAsyncConnectionManager(reactor,
-                    getAsyncSchemeRegistryFactory(options.trustSelfSignedCertificates()), options.getConnectionPoolTimeToLive(), options.getLeaseTimeout(), TimeUnit.MILLISECONDS)
+
+            final PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(
+                    ioReactor,
+                    ManagedNHttpClientConnectionFactory.INSTANCE,
+                    getRegistry(options),
+                    DefaultSchemePortResolver.INSTANCE,
+                    SystemDefaultDnsResolver.INSTANCE,
+                    options.getConnectionPoolTimeToLive(),
+                    TimeUnit.MILLISECONDS)
             {
                 @Override
                 protected void finalize() throws Throwable
@@ -168,129 +185,105 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 }
             };
 
-            connmgr.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
-            client = new DefaultHttpAsyncClient(connmgr);
+            final RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectTimeout((int) options.getConnectionTimeout())
+                    .setConnectionRequestTimeout((int) options.getLeaseTimeout())
+                    .setSocketTimeout((int) options.getSocketTimeout())
+                    .build();
 
-            Option<HttpClientProxyConfig> optProxyConfig = getProxyConfig(options);
-            optProxyConfig.foreach(
-                    new Effect<HttpClientProxyConfig>()
+            connectionManager.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
+
+            final HttpAsyncClientBuilder clientBuilder = HttpAsyncClients.custom()
+                    .setThreadFactory(ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io", ThreadFactories.Type.DAEMON))
+                    .setDefaultIOReactorConfig(reactorConfig)
+                    .setConnectionManager(connectionManager)
+                    .setRedirectStrategy(new RedirectStrategy())
+                    .setUserAgent(getUserAgent(options))
+                    .setDefaultRequestConfig(requestConfig);
+
+            ProxyConfigFactory.getProxyHost(options).foreach(new Effect<HttpHost>()
+            {
+                @Override
+                public void apply(final HttpHost httpHost)
+                {
+                    clientBuilder.setProxy(httpHost);
+                    ProxyCredentialsProvider.build(options).foreach(new Effect<ProxyCredentialsProvider>()
                     {
                         @Override
-                        public void apply(HttpClientProxyConfig httpClientProxyConfig) {
-                            httpClientProxyConfig.applyProxyCredentials(client, connmgr.getSchemeRegistry());
-                            client.setRoutePlanner(new ProxyRoutePlanner(connmgr.getSchemeRegistry(), httpClientProxyConfig));
+                        public void apply(final ProxyCredentialsProvider proxyCredentialsProvider)
+                        {
+                            clientBuilder.setProxyAuthenticationStrategy(ProxyAuthenticationStrategy.INSTANCE);
+                            clientBuilder.setDefaultCredentialsProvider(proxyCredentialsProvider);
                         }
                     });
-
-            client.setRedirectStrategy(new DefaultRedirectStrategy()
-            {
-                final String[] REDIRECT_METHODS = {HttpHead.METHOD_NAME, HttpGet.METHOD_NAME, HttpPost.METHOD_NAME, HttpPut.METHOD_NAME, HttpDelete.METHOD_NAME, HttpPatch.METHOD_NAME};
-
-                @Override
-                protected boolean isRedirectable(String method)
-                {
-                    for (String m : REDIRECT_METHODS)
-                    {
-                        if (m.equalsIgnoreCase(method))
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-
-                @Override
-                public HttpUriRequest getRedirect(final HttpRequest request, final HttpResponse response, final HttpContext context) throws ProtocolException
-                {
-                    URI uri = getLocationURI(request, response, context);
-                    String method = request.getRequestLine().getMethod();
-                    if (method.equalsIgnoreCase(HttpHead.METHOD_NAME))
-                    {
-                        return new HttpHead(uri);
-                    }
-                    else if (method.equalsIgnoreCase(HttpGet.METHOD_NAME))
-                    {
-                        return new HttpGet(uri);
-                    }
-                    else if (method.equalsIgnoreCase(HttpPost.METHOD_NAME))
-                    {
-                        final HttpPost post = new HttpPost(uri);
-                        if (request instanceof HttpEntityEnclosingRequest)
-                        {
-                            post.setEntity(((HttpEntityEnclosingRequest) request).getEntity());
-                        }
-                        return post;
-                    }
-                    else if (method.equalsIgnoreCase(HttpPut.METHOD_NAME))
-                    {
-                        return new HttpPut(uri);
-                    }
-                    else if (method.equalsIgnoreCase(HttpDelete.METHOD_NAME))
-                    {
-                        return new HttpDelete(uri);
-                    }
-                    else if (method.equalsIgnoreCase(HttpPatch.METHOD_NAME))
-                    {
-                        return new HttpPatch(uri);
-                    }
-                    else
-                    {
-                        return new HttpGet(uri);
-                    }
                 }
             });
+
+            this.nonCachingHttpClient = clientBuilder.build();
+
+            final CacheConfig cacheConfig = CacheConfig.custom()
+                    .setMaxCacheEntries(options.getMaxCacheEntries())
+                    .setSharedCache(false)
+                    .setNeverCacheHTTP10ResponsesWithQueryString(false)
+                    .setMaxObjectSize(options.getMaxCacheObjectSize())
+                    .build();
+
+            this.httpCacheStorage = new LoggingHttpCacheStorage(new FlushableHttpCacheStorageImpl(cacheConfig));
+            this.httpClient = new CachingHttpAsyncClient(nonCachingHttpClient, httpCacheStorage, cacheConfig);
+            this.callbackExecutor = options.getCallbackExecutor();
+
+            nonCachingHttpClient.start();
         }
         catch (IOReactorException e)
         {
             throw new RuntimeException("Reactor " + options.getThreadPrefix() + "not set up correctly", e);
         }
-
-        HttpParams params = client.getParams();
-
-        HttpProtocolParams.setUserAgent(params, getUserAgent(options));
-
-        HttpConnectionParams.setConnectionTimeout(params, (int) options.getConnectionTimeout());
-        HttpConnectionParams.setSoTimeout(params, (int) options.getSocketTimeout());
-        HttpConnectionParams.setSocketBufferSize(params, 8 * 1024);
-        HttpConnectionParams.setTcpNoDelay(params, true);
-
-        CacheConfig cacheConfig = new CacheConfig();
-        cacheConfig.setMaxCacheEntries(options.getMaxCacheEntries());
-        cacheConfig.setSharedCache(false);
-        cacheConfig.setMaxObjectSize(options.getMaxCacheObjectSize());
-        cacheConfig.setNeverCache1_0ResponsesWithQueryString(false);
-
-        this.nonCachingHttpClient = client;
-        this.httpCacheStorage = new LoggingHttpCacheStorage(new FlushableHttpCacheStorageImpl(cacheConfig));
-        httpClient = new CachingHttpAsyncClient(client, httpCacheStorage, cacheConfig);
-
-        callbackExecutor = httpClientOptions.getCallbackExecutor();
-        httpClient.start();
     }
 
-    private Option<HttpClientProxyConfig> getProxyConfig(HttpClientOptions options)
-    {
-        return ProxyConfigFactory.from(options.getProxyOptions());
-    }
-
-    private AsyncSchemeRegistry getAsyncSchemeRegistryFactory(boolean trustSelfSignedCertificates)
-    {
-        AsyncSchemeRegistry registry = new AsyncSchemeRegistry();
-        registry.register(new AsyncScheme("http", 80, null));
-        registry.register(new AsyncScheme("https", 443, getSslLayeringStrategy(trustSelfSignedCertificates)));
-        return registry;
-    }
-
-    private SSLLayeringStrategy getSslLayeringStrategy(boolean trustSelfSignedCertificates)
+    private Registry<SchemeIOSessionStrategy> getRegistry(final HttpClientOptions options)
     {
         try
         {
-            return new SSLLayeringStrategy(trustSelfSignedCertificates ? new TrustSelfSignedStrategy() : null);
+            final TrustSelfSignedStrategy strategy = options.trustSelfSignedCertificates() ?
+                    new TrustSelfSignedStrategy() : null;
+
+            final SSLContext sslContext = new SSLContextBuilder()
+                    .useTLS()
+                    .loadTrustMaterial(null, strategy)
+                    .build();
+
+            final SSLIOSessionStrategy sslioSessionStrategy = new SSLIOSessionStrategy(
+                    sslContext,
+                    split(System.getProperty("https.protocols")),
+                    split(System.getProperty("https.cipherSuites")),
+                    SSLIOSessionStrategy.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+
+            return RegistryBuilder.<SchemeIOSessionStrategy>create()
+                    .register("http", NoopIOSessionStrategy.INSTANCE)
+                    .register("https", sslioSessionStrategy)
+                    .build();
         }
-        catch (GeneralSecurityException e)
+        catch (KeyManagementException e)
         {
-            throw new RuntimeException(e);
+            return getFallbackRegistry(e);
         }
+        catch (NoSuchAlgorithmException e)
+        {
+            return getFallbackRegistry(e);
+        }
+        catch (KeyStoreException e)
+        {
+            return getFallbackRegistry(e);
+        }
+    }
+
+    private Registry<SchemeIOSessionStrategy> getFallbackRegistry(final GeneralSecurityException e)
+    {
+        log.error("Error when creating scheme session strategy registry", e);
+        return RegistryBuilder.<SchemeIOSessionStrategy>create()
+                .register("http", NoopIOSessionStrategy.INSTANCE)
+                .register("https", SSLIOSessionStrategy.getDefaultStrategy())
+                .build();
     }
 
     private String getUserAgent(HttpClientOptions options)
@@ -452,7 +445,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     public void destroy() throws Exception
     {
         callbackExecutor.shutdown();
-        httpClient.shutdown();
+        nonCachingHttpClient.close();
     }
 
     @Override
@@ -460,6 +453,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     {
         httpCacheStorage.flushByUriPattern(urlPattern);
     }
+
+
 
     private static final class NoOpThreadLocalContextManager<C> implements ThreadLocalContextManager<C>
     {
@@ -514,5 +509,14 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             eventPublisher.publish(event);
             return null;
         }
+    }
+
+    private static String[] split(final String s)
+    {
+        if (TextUtils.isBlank(s))
+        {
+            return null;
+        }
+        return s.split(" *, *");
     }
 }

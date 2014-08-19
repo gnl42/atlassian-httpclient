@@ -166,7 +166,7 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
             this.manager = checkNotNull(manager);
         }
 
-        public void execute(Runnable runnable)
+        public void execute(final Runnable runnable)
         {
             delegate.execute(new ThreadLocalDelegateRunnable<C>(manager, runnable));
         }
