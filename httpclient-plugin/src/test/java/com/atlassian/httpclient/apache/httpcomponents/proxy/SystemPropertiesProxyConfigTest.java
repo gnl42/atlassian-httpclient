@@ -1,14 +1,15 @@
 package com.atlassian.httpclient.apache.httpcomponents.proxy;
 
 import com.atlassian.fugue.Option;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.hamcrest.Matchers;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Properties;
+import org.junit.contrib.java.lang.system.ClearSystemProperties;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -16,11 +17,9 @@ import static org.junit.Assert.assertThat;
 
 public class SystemPropertiesProxyConfigTest
 {
-    @Before
-    public void setUp()
-    {
-        System.setProperties(new Properties());
-    }
+    @Rule
+    public ClearSystemProperties clearSystemPropertiesRule =
+            new ClearSystemProperties(getPropertiesNames());
 
     @Test
     public void httpsProxyConfigured()
@@ -135,4 +134,18 @@ public class SystemPropertiesProxyConfigTest
         final Option<HttpHost> proxyHost = config.getProxyHost();
         assertThat(proxyHost.isDefined(), Matchers.is(true));
     }
+
+    private String[] getPropertiesNames()
+    {
+        final ImmutableList.Builder<String> builder = ImmutableList.builder();
+        for (String scheme : Lists.newArrayList("http", "https"))
+        {
+            for (String property : Lists.newArrayList("proxyHost", "proxyPort", "proxyUser", "proxyPassword"))
+            {
+                builder.add(scheme + "." + property);
+            }
+        }
+        return builder.build().toArray(new String[8]);
+    }
+
 }
