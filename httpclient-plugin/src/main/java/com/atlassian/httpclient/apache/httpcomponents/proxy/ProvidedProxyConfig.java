@@ -62,7 +62,7 @@ public class ProvidedProxyConfig extends ProxyConfig
             @Override
             public Option<HttpHost> apply(final String schema)
             {
-                return Option.some(proxyHostMap.get(schema));
+                return Option.option(proxyHostMap.get(schema));
             }
         });
         return Options.flatten(Options.filterNone(httpHosts));

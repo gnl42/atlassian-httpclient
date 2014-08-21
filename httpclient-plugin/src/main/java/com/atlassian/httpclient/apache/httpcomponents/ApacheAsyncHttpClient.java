@@ -43,6 +43,7 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
@@ -71,11 +72,15 @@ import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 
 import static com.atlassian.util.concurrent.Promises.rejected;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -256,7 +261,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     sslContext,
                     split(System.getProperty("https.protocols")),
                     split(System.getProperty("https.cipherSuites")),
-                    SSLIOSessionStrategy.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+                    options.trustSelfSignedCertificates() ?
+                            getSelfSignedVerifier() : SSLIOSessionStrategy.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
 
             return RegistryBuilder.<SchemeIOSessionStrategy>create()
                     .register("http", NoopIOSessionStrategy.INSTANCE)
@@ -275,6 +281,37 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         {
             return getFallbackRegistry(e);
         }
+    }
+
+    private X509HostnameVerifier getSelfSignedVerifier()
+    {
+        return new X509HostnameVerifier()
+        {
+            @Override
+            public void verify(final String host, final SSLSocket ssl) throws IOException
+            {
+                log.debug("Verification for certificates from {0} disabled", host);
+            }
+
+            @Override
+            public void verify(final String host, final X509Certificate cert) throws SSLException
+            {
+                log.debug("Verification for certificates from {0} disabled", host);
+            }
+
+            @Override
+            public void verify(final String host, final String[] cns, final String[] subjectAlts) throws SSLException
+            {
+                log.debug("Verification for certificates from {0} disabled", host);
+            }
+
+            @Override
+            public boolean verify(final String host, final SSLSession sslSession)
+            {
+                log.debug("Verification for certificates from {0} disabled", host);
+                return true;
+            }
+        };
     }
 
     private Registry<SchemeIOSessionStrategy> getFallbackRegistry(final GeneralSecurityException e)
