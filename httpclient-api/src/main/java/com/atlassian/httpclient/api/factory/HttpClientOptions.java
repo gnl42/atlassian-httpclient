@@ -5,8 +5,12 @@ import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Effects;
 import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import javax.annotation.Nonnull;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -47,6 +51,8 @@ public final class HttpClientOptions
     private ExecutorService callbackExecutor;
 
     private ProxyOptions proxyOptions = ProxyOptions.ProxyOptionsBuilder.create().build();
+
+    private List<String> dheDisabledHosts = Lists.newArrayList();
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
@@ -348,4 +354,18 @@ public final class HttpClientOptions
     {
         return this.proxyOptions;
     }
+
+	public List<String> getDheDisabledHosts() {
+		return dheDisabledHosts;
+	}
+
+	/**
+	 * Disable DHE ciphers for certain hosts, to workaround a bug in JDK6.
+	 *
+	 * See https://ecosystem.atlassian.net/browse/AC-1424
+	 * @param dheDisabledHosts
+	 */
+	public void setDheDisabledHosts(List<String> dheDisabledHosts) {
+		this.dheDisabledHosts  = Lists.newArrayList(dheDisabledHosts);
+	}
 }
