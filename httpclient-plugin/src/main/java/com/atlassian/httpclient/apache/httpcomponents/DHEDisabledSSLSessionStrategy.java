@@ -26,6 +26,18 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+/**
+ * Workaround for http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6521495
+ * 
+ * See https://ecosystem.atlassian.net/browse/AC-1424 for more details
+ * 
+ * This class disables SSL ciphers using Diffie-Hellmann key exchange when connecting to any of the blacklisted hosts.
+ * Specifically, we have to disable DHE for *.rhcloud.com, since they have setup a dh_param with length of 2048.
+ * 
+ * The code should be deleted once Ondemand is updated to JDK8.
+ * 
+ * 
+ */
 public class DHEDisabledSSLSessionStrategy extends SSLIOSessionStrategy
 {
 
@@ -76,12 +88,12 @@ public class DHEDisabledSSLSessionStrategy extends SSLIOSessionStrategy
     public DHEDisabledSSLSessionStrategy(SSLContext sslContext, List<String> hostBlacklist,
         @Nullable String[] httpsProtocols, @Nullable String[] httpsCipherSuites, X509HostnameVerifier hostnameVerifier)
     {
-
         super(sslContext, httpsProtocols, httpsCipherSuites, hostnameVerifier);
         this.sslContext = Preconditions.checkNotNull(sslContext, "SSL context");
 
         SSLParameters sslParams = sslContext.getDefaultSSLParameters();
 
+        Preconditions.checkNotNull(hostnameVerifier);
         this.hostBlacklist = Preconditions.checkNotNull(hostBlacklist);
         if (!(httpsProtocols == null))
         {
@@ -111,6 +123,7 @@ public class DHEDisabledSSLSessionStrategy extends SSLIOSessionStrategy
         this.httpsProtocols = sslParams.getProtocols();
     }
 
+    @Override
     public SSLIOSession upgrade(final HttpHost host, final IOSession ioSession) throws IOException
     {
         final SSLIOSession sslIOSession = new SSLIOSession(ioSession,
