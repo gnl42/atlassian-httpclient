@@ -25,6 +25,7 @@ import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -77,6 +78,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
@@ -257,12 +259,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     .loadTrustMaterial(null, strategy)
                     .build();
 
-            final SSLIOSessionStrategy sslioSessionStrategy = new SSLIOSessionStrategy(
-                    sslContext,
-                    split(System.getProperty("https.protocols")),
-                    split(System.getProperty("https.cipherSuites")),
-                    options.trustSelfSignedCertificates() ?
-                            getSelfSignedVerifier() : SSLIOSessionStrategy.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+            final SSLIOSessionStrategy sslioSessionStrategy = getSSLIOSessionStrategy(options, sslContext);
 
             return RegistryBuilder.<SchemeIOSessionStrategy>create()
                     .register("http", NoopIOSessionStrategy.INSTANCE)
@@ -280,6 +277,26 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         catch (KeyStoreException e)
         {
             return getFallbackRegistry(e);
+        }
+    }
+
+    private SSLIOSessionStrategy getSSLIOSessionStrategy(final HttpClientOptions options, final SSLContext sslContext)
+    {
+        final X509HostnameVerifier hostnameVerifier = options.trustSelfSignedCertificates() ? getSelfSignedVerifier()
+            : SSLIOSessionStrategy.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER;
+        final String[] httpsProtocols = split(System.getProperty("https.protocols"));
+        final String[] httpsCipherSuites = split(System.getProperty("https.cipherSuites"));
+        if (options.getDheDisabledHosts().isEmpty())
+        {
+            return new SSLIOSessionStrategy(sslContext, httpsProtocols, httpsCipherSuites, hostnameVerifier);
+        }
+        else
+        {
+            return new DHEDisabledSSLSessionStrategy(sslContext,
+                                                     options.getDheDisabledHosts(),
+                                                     httpsProtocols,
+                                                     httpsCipherSuites,
+                                                     hostnameVerifier);
         }
     }
 

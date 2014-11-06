@@ -3,10 +3,12 @@ package com.atlassian.httpclient.apache.httpcomponents;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.api.factory.ProxyOptions;
+import com.google.common.collect.Lists;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +17,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -24,12 +27,15 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public final class ApacheAsyncHttpClientTest
 {
     private HttpsServer server;
+
+    private List<String> dheDisabledHosts = Lists.newArrayList("aip-flyingagile.rhcloud.com", "www.google.com");
 
     @Before
     public void setUp() throws Exception
@@ -48,6 +54,52 @@ public final class ApacheAsyncHttpClientTest
         {
             server.stop(3);
         }
+    }
+
+    //These tests are probably not something we want to keep because they rely on
+    //external services, but I'm including them here since I can't figure out
+    //any other way to test the stuff (without unreasonable effort, such us spinning up 
+    //multiple servers running different JVM versions)
+    @Test 
+    public void testWeCanTalkToRedHatWithoutDHE()
+    {
+        HttpClientOptions options = new HttpClientOptions();
+        options.setDheDisabledHosts(dheDisabledHosts);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("non-dhe-client", options);
+        httpClient.newRequest("https://aip-flyingagile.rhcloud.com").get().claim();
+    }
+    
+    @Test 
+    public void testWeCanTalkToRedhatWhenCiphersuitesAreSpecified()
+    {
+        String cipherSuites = "SSL_RSA_WITH_RC4_128_MD5, SSL_RSA_WITH_RC4_128_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, SSL_RSA_WITH_3DES_EDE_CBC_SHA, SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA, SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA, SSL_RSA_WITH_DES_CBC_SHA, SSL_DHE_RSA_WITH_DES_CBC_SHA, SSL_DHE_DSS_WITH_DES_CBC_SHA, SSL_RSA_EXPORT_WITH_RC4_40_MD5, SSL_RSA_EXPORT_WITH_DES40_CBC_SHA, SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA, SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA, TLS_EMPTY_RENEGOTIATION_INFO_SCSV";
+        System.setProperty("https.cipherSuites", cipherSuites);
+        HttpClientOptions options = new HttpClientOptions();
+        options.setDheDisabledHosts(dheDisabledHosts);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("non-dhe-client", options);
+        httpClient.newRequest("https://aip-flyingagile.rhcloud.com").get().claim();
+        System.clearProperty("https.cipherSuites");
+    }
+    
+    @Test
+    public void testWeCanTalkToRedhatWhenProtocolsAreSpecified()
+    {
+        String protocols = "SSLv2Hello, SSLv3, TLSv1";
+        System.setProperty("https.protocols", protocols);
+        HttpClientOptions options = new HttpClientOptions();
+        options.setDheDisabledHosts(dheDisabledHosts);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("non-dhe-client", options);
+        httpClient.newRequest("https://aip-flyingagile.rhcloud.com").get().claim();
+        System.clearProperty("https.protocols");
+    }
+
+    @Test
+    public void testWeCanTalkToGoogleWithoutDHE()
+    {
+        HttpClientOptions options = new HttpClientOptions();
+        options.setDheDisabledHosts(dheDisabledHosts);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("non-dhes-client", options);
+        httpClient.newRequest("https://www.google.com").get().claim();
     }
 
     @Test
