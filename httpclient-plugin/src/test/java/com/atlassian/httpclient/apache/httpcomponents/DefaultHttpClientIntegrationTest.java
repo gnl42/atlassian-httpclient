@@ -45,6 +45,8 @@ public final class DefaultHttpClientIntegrationTest
     @Before
     public void setUp()
     {
+        NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.set(false); //By default use thread manager in all tests
+
         when(applicationProperties.getDisplayName()).thenReturn(DefaultHttpClientIntegrationTest.class.getSimpleName());
         when(applicationProperties.getVersion()).thenReturn("1");
         when(applicationProperties.getBuildNumber()).thenReturn("0001");
