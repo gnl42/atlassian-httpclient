@@ -172,7 +172,12 @@ public class DefaultRequest extends DefaultMessage implements Request
         public DefaultRequestBuilder setEntity(final EntityBuilder entityBuilder)
         {
             EntityBuilder.Entity entity = entityBuilder.build();
-            setHeaders(entity.getHeaders()).setEntityStream(entity.getInputStream());
+            final Map<String, String> headers = entity.getHeaders();
+            for (Map.Entry<String, String> headerEntry : headers.entrySet())
+            {
+                setHeader(headerEntry.getKey(), headerEntry.getValue());
+            }
+            setEntityStream(entity.getInputStream());
             return this;
         }
 
