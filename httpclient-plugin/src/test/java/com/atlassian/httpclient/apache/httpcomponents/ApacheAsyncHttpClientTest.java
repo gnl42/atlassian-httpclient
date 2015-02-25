@@ -165,4 +165,53 @@ public final class ApacheAsyncHttpClientTest
             os.close();
         }
     }
+
+    /*
+    // Uncomment the tests below and run a local proxy (such as tinyproxy) to test SNI with a proxy.
+    // They're commented out because relying on external services in automated tests is a bad plan.
+    // These tests should go away when we no longer need to use SniCompatibleSSLIOSessionStrategy.
+
+    @Test
+    public void testWeCanTalkToSNIAddons_dlsstudios()
+    {
+        testWeCanTalkToSNIAddonswithProxy("https://jira.dlsstudios.com/");
+    }
+
+    @Test
+    public void testWeCanTalkToSNIAddonswithProxy_stiltsoft()
+    {
+        testWeCanTalkToSNIAddonswithProxy("https://todo.stiltsoft.com");
+    }
+
+    @Test
+    public void testWeCanTalkToSNIAddonswithProxy_scrumdash()
+    {
+       testWeCanTalkToSNIAddonswithProxy("https://scrumdash.com/");
+    }
+
+    @Test
+    public void testWeCanTalkToSNIAddonswithProxy_DavidBlack()
+    {
+        testWeCanTalkToSNIAddonswithProxy("https://d1b.org");
+    }
+
+    @Test
+    public void testWeCanTalkToSNIAddons_scrumdash()
+    {
+        HttpClientOptions options = new HttpClientOptions();
+        options.setDheDisabledHosts(dheDisabledHosts);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("non-dhes-client", options);
+        httpClient.newRequest("https://scrumdash.com/").get().claim();
+    }
+
+    private void testWeCanTalkToSNIAddonswithProxy(String uri)
+    {
+        Host proxyHost = new Host("localhost", 3128);
+        HttpClientOptions options = new HttpClientOptions();
+        options.setProxyOptions(ProxyOptions.ProxyOptionsBuilder.create().withProxy(Scheme.HTTP, proxyHost).withProxy(Scheme.HTTPS, proxyHost).build());
+        options.setDheDisabledHosts(dheDisabledHosts);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("non-dhes-client", options);
+        httpClient.newRequest(uri).get().claim();
+    }
+    */
 }
