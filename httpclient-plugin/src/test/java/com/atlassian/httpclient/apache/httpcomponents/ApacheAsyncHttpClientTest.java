@@ -190,12 +190,6 @@ public final class ApacheAsyncHttpClientTest
     }
 
     @Test
-    public void testWeCanTalkToSNIAddonswithProxy_DavidBlack()
-    {
-        testWeCanTalkToSNIAddonswithProxy("https://d1b.org");
-    }
-
-    @Test
     public void testWeCanTalkToSNIAddons_scrumdash()
     {
         HttpClientOptions options = new HttpClientOptions();
