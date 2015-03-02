@@ -20,7 +20,7 @@ import java.io.IOException;
 // Remove this class when we are using a version of org.apache.httpcomponents:httpasyncclient that includes the fix <https://issues.apache.org/jira/browse/HTTPASYNC-90>.
 // Version 4.0.2 suffers from this bug.
 // This class is a copy of the necessary parts of SSLIOSessionStrategy except for the 'host' bug fix below.
-public class SniCompatibleSSLIOSessionStrategy extends SSLIOSessionStrategy
+class SniCompatibleSSLIOSessionStrategy extends SSLIOSessionStrategy
 {
     private final SSLContext sslContext;
     private final String[] supportedProtocols;
