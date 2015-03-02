@@ -81,6 +81,11 @@
             <artifactId>fugue</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.bundles</groupId>
+            <artifactId>jsr305</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Http client -->
         <dependency>

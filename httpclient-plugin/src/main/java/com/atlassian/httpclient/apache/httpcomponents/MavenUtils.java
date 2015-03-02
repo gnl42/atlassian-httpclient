@@ -1,16 +1,15 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.google.common.io.Closeables;
-import com.google.common.io.InputSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 
 import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.newInputStreamSupplier;
 import static java.lang.String.format;
 
 final class MavenUtils
@@ -25,7 +24,7 @@ final class MavenUtils
         InputStream is = null;
         try
         {
-            is = getPomInputStreamSupplier(groupId, artifactId).getInput();
+            is = getPomInputStreamUrl(groupId, artifactId).openStream();
             props.load(is);
             return props.getProperty("version", UNKNOWN_VERSION);
         }
@@ -49,9 +48,9 @@ final class MavenUtils
         }
     }
 
-    private static InputSupplier<InputStream> getPomInputStreamSupplier(String groupId, String artifactId)
+    private static URL getPomInputStreamUrl(String groupId, String artifactId)
     {
-        return newInputStreamSupplier(getResource(MavenUtils.class, getPomFilePath(groupId, artifactId)));
+        return getResource(MavenUtils.class, getPomFilePath(groupId, artifactId));
     }
 
     private static String getPomFilePath(String groupId, String artifactId)
