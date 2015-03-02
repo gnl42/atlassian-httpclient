@@ -165,4 +165,145 @@ public final class ApacheAsyncHttpClientTest
             os.close();
         }
     }
+
+    /*
+    // Uncomment the tests below and run a local proxy (such as tinyproxy) to test SNI with a proxy.
+    // They're commented out because relying on external services in automated tests is a bad plan.
+    // These tests should go away when we no longer need to use SniCompatibleSSLIOSessionStrategy.
+
+    private static Iterable<String> ADD_ON_BASE_URLS = asList(
+            "https://ac-copy-space.herokuapp.com",
+            "https://jira.agile-values.com",
+            "https://upraise.cleverapps.io",
+            "https://addon-anydo.firebaseapp.com",
+            "https://addon-anydo.firebaseapp.com",
+            "https://confluence-gmaps.firebaseapp.com/",
+            "https://ac-multiexcerpt-macro.herokuapp.com",
+            "https://s3.amazonaws.com/bulkactiontools/",
+            "https://ch-mibex-beautifulmath.herokuapp.com",
+            "https://jira.abacolla.com/",
+            "https://mscgen-confluence.addteq.com",
+            "https://mscgen-jira.addteq.com",
+            "https://inspire-confluence-app.herokuapp.com",
+            "https://autowatch.herokuapp.com",
+            "https://embedly-addon.herokuapp.com",
+            "https://my-reminders.useast.atlassian.io",
+            "https://atlas-addon.bugsio.com/ereminders",
+            "https://comalatech-canvas-production.herokuapp.com",
+            "https://comalatech-canvas-production.herokuapp.com",
+            "https://secure.donay.com/incentify-connect",
+            "https://aod.eazybi.com",
+            "https://aip-flyingagile.herokuapp.com",
+            "https://buffalo.arvixe.com",
+            "https://awl-gebsun.herokuapp.com",
+            "https://desolate-beach-6557.herokuapp.com/",
+            // times out in browser and here: "https://jemhcloud.thepluginpeople.com/app",
+            "https://connect.jirareports.com",
+            "https://d3uu992mgfv1d.cloudfront.net",
+            "https://vast-caverns-9249.herokuapp.com",
+            "https://www.lucidchart.com",
+            "https://matrixjira.matrixreq.com",
+            "https://matrixjira-c.matrixreq.com",
+            "https://svnpluginpro.matrixreq.com",
+            "https://copy-page-hierarchy.herokuapp.com",
+            "https://www.pingmonit.com",
+            "https://create-your-own.play-sql.com",
+            // times out in browser and here: "https://com-playsql-sqlsaas.herokuapp.com",
+            "https://ps-jira-ac.herokuapp.com",
+            "https://www.jiraproject.com/ganttconnect",
+            "https://tfs4jira-ondemand.spartez.com/tfs4jiraod",
+            "https://agilecards-ondemand.spartez.com/agilecardsod",
+            "https://table-filter.herokuapp.com",
+            "https://todo.stiltsoft.com",
+            "https://harvest-jira.usestrategery.com",
+            "https://prod-play.zephyr4jiracloud.com/connect",
+            "https://tdcdn.blob.core.windows.net/jira/jira-plugin-1.0.jar",
+            "https://weekdone.com/jira",
+            "https://announcer-for-confluence.aod-apps.wittified.com",
+            "https://webfrags.apps.wittified.com",
+            "https://connect-usage-statistics.herokuapp.com",
+            "https://tpe.crowdsourcedtesting.com",
+            "https://ac.customercase.com",
+            "https://customizer-jira.aod-apps.wittified.com",
+            "https://simpletaskprinter.herokuapp.com",
+            "https://connect.assetsforjira.com",
+            "https://ac-relatedissues.herokuapp.com",
+            "https://ac-rsvp.herokuapp.com",
+            "https://atlassian.wisoft.eu",
+            "https://platform.harvestapp.com",
+            "https://hiptest.net",
+            "https://secure.aha.io",
+            "https://jira-hipchat-discussions.herokuapp.com",
+            "https://jira.flapps.com",
+            "https://bit-atlassian.herokuapp.com",
+            "https://bit-atlassian-organizer.herokuapp.com",
+            "https://jql.agile-values.com",
+            "https://lambda-plugin.herokuapp.com",
+            "https://learn-connect.herokuapp.com",
+            "https://www.lucidchart.com",
+            "https://jira-work-calendar.com",
+            "https://nh-ondemand.herokuapp.com",
+            "https://xsd-viewer-cloud.herokuapp.com",
+            "https://appfire-addons.com/org.swift.confluence.cli",
+            "https://appfire-addons.com/org.swift.jira.cli",
+            "https://prod.practitest.com",
+            "https://behave.pro",
+            "https://jira-quotes.herokuapp.com",
+            "https://d27i9fmzbobp10.cloudfront.net/",
+            "https://reopening-counter.herokuapp.com",
+            "https://simple-edit.agile-values.com",
+            "https://jiratimereports.herokuapp.com",
+            "https://whoslooking.herokuapp.com",
+            "https://jiraplugin.zendesk.com/integrations/jira",
+            "https://jira.dlsstudios.com",
+            "https://scrumdash.com"
+    );
+
+    @Test
+    public void testWeCanTalkToAllPublicAddonsWithProxy()
+    {
+        Map<String, Throwable> errors = new HashMap<String, Throwable>();
+
+        for (String addOnBaseUrl: ADD_ON_BASE_URLS)
+        {
+            try
+            {
+                testWeCanTalkToSNIAddonswithProxy(addOnBaseUrl);
+            }
+            catch (Throwable t)
+            {
+                errors.put(addOnBaseUrl, t);
+            }
+        }
+
+        for (Map.Entry<String, Throwable> error: errors.entrySet())
+        {
+            System.err.printf("%s: ", error.getKey());
+            error.getValue().printStackTrace(System.err);
+            System.err.println();
+        }
+
+        assertThat(String.format("Contacting add-on base URLs failed in at least one case. Check the log for details. Num failures = %d.", errors.size()),
+                errors.size(), is(0));
+    }
+
+    @Test
+    public void testWeCanTalkToSNIAddons_scrumdash()
+    {
+        HttpClientOptions options = new HttpClientOptions();
+        options.setDheDisabledHosts(dheDisabledHosts);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("non-dhes-client", options);
+        httpClient.newRequest("https://scrumdash.com/").get().claim();
+    }
+
+    private void testWeCanTalkToSNIAddonswithProxy(String uri)
+    {
+        Host proxyHost = new Host("localhost", 3128);
+        HttpClientOptions options = new HttpClientOptions();
+        options.setProxyOptions(ProxyOptions.ProxyOptionsBuilder.create().withProxy(Scheme.HTTP, proxyHost).withProxy(Scheme.HTTPS, proxyHost).build());
+        options.setDheDisabledHosts(dheDisabledHosts);
+        final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("non-dhes-client", options);
+        httpClient.newRequest(uri).get().claim();
+    }
+    */
 }

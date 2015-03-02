@@ -128,6 +128,7 @@ public class DHEDisabledSSLSessionStrategy extends SSLIOSessionStrategy
     {
         final SSLIOSession sslIOSession = new SSLIOSession(ioSession,
                                                            SSLMode.CLIENT,
+                                                           host,
                                                            this.sslContext,
                                                            new NonDHESSLSetupHandler(host));
         ioSession.setAttribute(SSLIOSession.SESSION_KEY, sslIOSession);

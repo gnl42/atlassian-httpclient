@@ -288,7 +288,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         final String[] httpsCipherSuites = split(System.getProperty("https.cipherSuites"));
         if (options.getDheDisabledHosts().isEmpty())
         {
-            return new SSLIOSessionStrategy(sslContext, httpsProtocols, httpsCipherSuites, hostnameVerifier);
+            return new SniCompatibleSSLIOSessionStrategy(sslContext, httpsProtocols, httpsCipherSuites, hostnameVerifier);
         }
         else
         {
