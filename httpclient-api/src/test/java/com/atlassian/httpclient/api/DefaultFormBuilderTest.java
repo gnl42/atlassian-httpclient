@@ -1,14 +1,13 @@
 package com.atlassian.httpclient.api;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import com.google.common.io.InputSupplier;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.io.InputStreamReader;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
 
 public class DefaultFormBuilderTest
 {
@@ -87,16 +86,7 @@ public class DefaultFormBuilderTest
     {
         try
         {
-            return CharStreams.toString(CharStreams.newReaderSupplier(
-                    new InputSupplier<InputStream>()
-                    {
-                        @Override
-                        public InputStream getInput() throws IOException
-                        {
-                            return form.build().getInputStream();
-                        }
-                    },
-                    Charset.forName("UTF-8")));
+            return CharStreams.toString(new InputStreamReader(form.build().getInputStream(), Charsets.UTF_8));
         }
         catch (IOException e)
         {
