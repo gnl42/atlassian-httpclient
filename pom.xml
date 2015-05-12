@@ -60,8 +60,8 @@
         <confluence.version>4.2.13</confluence.version>
         <sdk.version>4.0</sdk.version>
         <analytics.version>2.12</analytics.version>
-        <httpasyncclient.version>4.0.2</httpasyncclient.version>
-        <httpcore.version>4.3.2</httpcore.version>
+        <httpasyncclient.version>4.1</httpasyncclient.version>
+        <httpcore.version>4.4.1</httpcore.version>
     </properties>
 
     <dependencyManagement>
