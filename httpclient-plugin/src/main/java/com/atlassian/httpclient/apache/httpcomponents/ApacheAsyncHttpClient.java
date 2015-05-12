@@ -286,18 +286,11 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             : SSLIOSessionStrategy.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER;
         final String[] httpsProtocols = split(System.getProperty("https.protocols"));
         final String[] httpsCipherSuites = split(System.getProperty("https.cipherSuites"));
-        if (options.getDheDisabledHosts().isEmpty())
-        {
-            return new SSLIOSessionStrategy(sslContext, httpsProtocols, httpsCipherSuites, hostnameVerifier);
-        }
-        else
-        {
-            return new DHEDisabledSSLSessionStrategy(sslContext,
-                                                     options.getDheDisabledHosts(),
-                                                     httpsProtocols,
-                                                     httpsCipherSuites,
-                                                     hostnameVerifier);
-        }
+
+        return new SSLIOSessionStrategy(sslContext,
+                                        httpsProtocols,
+                                        httpsCipherSuites,
+                                        hostnameVerifier);
     }
 
     private X509HostnameVerifier getSelfSignedVerifier()

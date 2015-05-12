@@ -52,8 +52,6 @@ public final class HttpClientOptions
 
     private ProxyOptions proxyOptions = ProxyOptions.ProxyOptionsBuilder.create().build();
 
-    private List<String> dheDisabledHosts = Lists.newArrayList();
-
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
      * <p/>
@@ -354,18 +352,4 @@ public final class HttpClientOptions
     {
         return this.proxyOptions;
     }
-
-	public List<String> getDheDisabledHosts() {
-		return dheDisabledHosts;
-	}
-
-	/**
-	 * Disable DHE ciphers for certain hosts, to workaround a bug in JDK6.
-	 *
-	 * See https://ecosystem.atlassian.net/browse/AC-1424
-	 * @param dheDisabledHosts
-	 */
-	public void setDheDisabledHosts(List<String> dheDisabledHosts) {
-		this.dheDisabledHosts  = Lists.newArrayList(dheDisabledHosts);
-	}
 }
