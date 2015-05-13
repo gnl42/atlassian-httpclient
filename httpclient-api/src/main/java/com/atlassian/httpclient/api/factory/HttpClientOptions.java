@@ -5,12 +5,8 @@ import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Effects;
 import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import javax.annotation.Nonnull;
-
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
