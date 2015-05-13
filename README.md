@@ -8,7 +8,7 @@ Please see [the following guide](https://extranet.atlassian.com/x/Uouvdg) for co
 
 ### Builds
 
-The Bamboo builds for this project are on [BEAC](https://extranet-bamboo.internal.atlassian.com/browse/AHCP)
+The Bamboo builds for this project are [HERE](https://ecosystem-bamboo.internal.atlassian.com/browse/AHCP).
 
 ## External User?
 
