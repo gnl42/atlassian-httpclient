@@ -49,19 +49,21 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <atlassian-plugins.version>3.2.5</atlassian-plugins.version>
-        <sal.version>2.10.0</sal.version>
-        <slf4j.version>1.7.6</slf4j.version>
+        <atlassian-plugins.version>3.2.18</atlassian-plugins.version>
+        <sal.version>2.13.0</sal.version>
+        <slf4j.version>1.7.12</slf4j.version>
         <atlassian-util-concurrent.version>2.4.0</atlassian-util-concurrent.version>
         <atlassian-util-concurrent-api.version>2.4</atlassian-util-concurrent-api.version>
-        <guava.version>18.0</guava.version>
+        <guava.version>11.0.2</guava.version>
         <spring.version>2.5.6</spring.version>
-        <jira.version>5.2.5</jira.version>
-        <confluence.version>4.2.13</confluence.version>
-        <sdk.version>4.0</sdk.version>
+        <jira.version>6.4.2</jira.version>
+        <confluence.version>5.7.3</confluence.version>
+        <sdk.version>5.1.2</sdk.version>
         <analytics.version>2.12</analytics.version>
         <httpasyncclient.version>4.1</httpasyncclient.version>
         <httpcore.version>4.4.1</httpcore.version>
+        <httpclient.version>4.4.1</httpclient.version>
+        <hamcrest.version>1.3</hamcrest.version>
     </properties>
 
     <dependencyManagement>
@@ -85,6 +87,26 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.util.concurrent</groupId>
@@ -121,8 +143,22 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.10</version>
-                <scope>test</scope>
+                <version>4.11</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.9.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-core</artifactId>
+                <version>${hamcrest.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>${hamcrest.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -131,34 +167,30 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -212,12 +244,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.1.1</version>
                 <configuration>
                     <rules>
                         <bannedDependencies>
                             <excludes>
                                 <exclude>commons-logging</exclude>
+                                <exclude>org.mockito:mockito-all</exclude>
+                                <exclude>org.hamcrest:hamcrest-all</exclude>
+                                <exclude>com.google.collections:google-collections</exclude>
                             </excludes>
                         </bannedDependencies>
                     </rules>

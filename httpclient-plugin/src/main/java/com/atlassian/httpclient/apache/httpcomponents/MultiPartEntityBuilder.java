@@ -3,6 +3,7 @@ package com.atlassian.httpclient.apache.httpcomponents;
 import com.atlassian.httpclient.api.EntityBuilder;
 import com.google.common.collect.Maps;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 
 import java.io.ByteArrayInputStream;
@@ -16,10 +17,21 @@ import java.util.Map;
  */
 public class MultiPartEntityBuilder implements EntityBuilder
 {
+    private final HttpEntity apacheMultipartEntity;
 
-    private final MultipartEntity apacheMultipartEntity;
-
+    /**
+     * @deprecated since 0.22. Use {@link #MultiPartEntityBuilder(org.apache.http.HttpEntity)} instead.
+     */
+    @Deprecated
     public MultiPartEntityBuilder(final MultipartEntity multipartEntity)
+    {
+        this.apacheMultipartEntity = multipartEntity;
+    }
+
+    /**
+     * @since 0.22
+     */
+    public MultiPartEntityBuilder(final HttpEntity multipartEntity)
     {
         this.apacheMultipartEntity = multipartEntity;
     }

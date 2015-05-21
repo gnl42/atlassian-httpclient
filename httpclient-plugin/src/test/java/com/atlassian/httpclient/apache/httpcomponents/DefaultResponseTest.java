@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 /**
  *
  */
-public class TestDefaultResponse
+public class DefaultResponseTest
 {
     @Test
     public void testRetrievalWithinLimits() throws ExecutionException, InterruptedException, IOException

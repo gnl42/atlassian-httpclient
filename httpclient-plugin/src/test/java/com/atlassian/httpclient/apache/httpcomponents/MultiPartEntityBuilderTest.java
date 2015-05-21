@@ -2,8 +2,11 @@ package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.EntityBuilder;
 import com.google.common.io.CharStreams;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.hamcrest.core.StringContains;
 import org.hamcrest.core.StringStartsWith;
@@ -16,15 +19,17 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-public class TestMultiPartEntityBuilder
+public class MultiPartEntityBuilderTest
 {
 
     @Test
     public void testBuildMultipartEntity() throws IOException, URISyntaxException
     {
         final File file = new File(getClass().getResource("/com/atlassian/httpclient/apache/httpcomponents/multipart-test-file").toURI());
-        final MultipartEntity multipartEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-        multipartEntity.addPart("file", new FileBody(file, "application/octet-stream"));
+        HttpEntity multipartEntity = MultipartEntityBuilder.create()
+                .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                .addBinaryBody("file", file, ContentType.APPLICATION_OCTET_STREAM, file.getName())
+                .build();
 
         final MultiPartEntityBuilder builder = new MultiPartEntityBuilder(multipartEntity);
         final EntityBuilder.Entity entity = builder.build();
@@ -39,6 +44,4 @@ public class TestMultiPartEntityBuilder
         Assert.assertThat(multiPartContent, new StringContains("application/octet-stream"));
         Assert.assertThat(multiPartContent, new StringContains("Content-Disposition: form-data; name=\"file\"; filename=\"multipart-test-file\""));
     }
-
-
 }
