@@ -50,7 +50,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <atlassian-plugins.version>3.2.18</atlassian-plugins.version>
-        <sal.version>2.13.0</sal.version>
+        <sal.version>2.11.6</sal.version>
         <slf4j.version>1.7.12</slf4j.version>
         <atlassian-util-concurrent.version>2.4.0</atlassian-util-concurrent.version>
         <atlassian-util-concurrent-api.version>2.4</atlassian-util-concurrent-api.version>
