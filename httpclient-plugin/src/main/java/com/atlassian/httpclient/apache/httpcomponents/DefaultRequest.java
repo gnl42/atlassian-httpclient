@@ -1,10 +1,7 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.fugue.Option;
-import com.atlassian.httpclient.api.EntityBuilder;
-import com.atlassian.httpclient.api.HttpClient;
-import com.atlassian.httpclient.api.Request;
-import com.atlassian.httpclient.api.ResponsePromise;
+import com.atlassian.httpclient.api.*;
 import com.google.common.base.Preconditions;
 
 import java.io.InputStream;
@@ -29,9 +26,11 @@ public class DefaultRequest extends DefaultMessage implements Request
     private final Map<String, String> attributes;
     private final Method method;
     private final Option<Long> contentLength;
+    private final RequestContext context;
 
     private DefaultRequest(URI uri, boolean cacheDisabled, Map<String, String> attributes,
-            Headers headers, Method method, InputStream entityStream, Option<Long> contentLength)
+            Headers headers, Method method, InputStream entityStream, Option<Long> contentLength,
+            RequestContext context)
     {
         super(headers, entityStream, Option.<Long>none());
         this.uri = uri;
@@ -39,6 +38,7 @@ public class DefaultRequest extends DefaultMessage implements Request
         this.attributes = attributes;
         this.method = method;
         this.contentLength = contentLength;
+        this.context = context;
     }
 
     public static DefaultRequestBuilder builder(HttpClient httpClient)
@@ -82,6 +82,11 @@ public class DefaultRequest extends DefaultMessage implements Request
         return contentLength;
     }
 
+    @Override
+    public RequestContext getContext() {
+        return context;
+    }
+
     public boolean isCacheDisabled()
     {
         return cacheDisabled;
@@ -123,6 +128,7 @@ public class DefaultRequest extends DefaultMessage implements Request
         private boolean cacheDisabled;
         private Method method;
         private Option<Long> contentLength;
+        private RequestContext context;
 
         public DefaultRequestBuilder(final HttpClient httpClient)
         {
@@ -131,6 +137,7 @@ public class DefaultRequest extends DefaultMessage implements Request
             commonBuilder = new CommonBuilder<DefaultRequest>();
             setAccept("*/*");
             contentLength = Option.none();
+            context = null;
         }
 
         @Override
@@ -165,6 +172,13 @@ public class DefaultRequest extends DefaultMessage implements Request
         public DefaultRequestBuilder setAttributes(final Map<String, String> properties)
         {
             attributes.putAll(properties);
+            return this;
+        }
+
+        @Override
+        public DefaultRequestBuilder setContext(final RequestContext context)
+        {
+            this.context = context;
             return this;
         }
 
@@ -244,7 +258,7 @@ public class DefaultRequest extends DefaultMessage implements Request
         public DefaultRequest build()
         {
             return new DefaultRequest(uri, cacheDisabled, attributes, commonBuilder.getHeaders(),
-                    method, commonBuilder.getEntityStream(), contentLength);
+                    method, commonBuilder.getEntityStream(), contentLength, context);
         }
 
         @Override

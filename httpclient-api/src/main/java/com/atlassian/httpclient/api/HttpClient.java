@@ -65,6 +65,30 @@ public interface HttpClient
     Request.Builder newRequest(String uri, String contentType, String entity);
 
     /**
+     * Constructs a new RequestContext for use with {@link Request.Builder#setContext(RequestContext)}.
+     *
+     * @return The new request context
+     */
+    RequestContext newRequestContext();
+
+    /**
+     * Constructs a new empty CookieStore for use with {@link RequestContext#setCookieStore(CookieStore)}.
+     *
+     * @return The new cookie store
+     */
+    CookieStore newCookieStore();
+
+    /**
+     * Constructs a new Cookie with the specified name and value, for use with
+     * {@link RequestContext#setCookieStore(CookieStore)}.
+     *
+     * @param name the cookie name
+     * @param value the cookie value
+     * @return The new cookie
+     */
+    Cookie newCookie(String name, String value);
+
+    /**
      * Flush the cache entries by matching the URI using a regular expression
      *
      * @param uriPattern The regular expression to match

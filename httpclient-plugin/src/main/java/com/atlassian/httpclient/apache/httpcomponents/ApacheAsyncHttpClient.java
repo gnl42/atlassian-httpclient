@@ -7,12 +7,7 @@ import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheSt
 import com.atlassian.httpclient.apache.httpcomponents.cache.LoggingHttpCacheStorage;
 import com.atlassian.httpclient.apache.httpcomponents.proxy.ProxyConfigFactory;
 import com.atlassian.httpclient.apache.httpcomponents.proxy.ProxyCredentialsProvider;
-import com.atlassian.httpclient.api.HttpClient;
-import com.atlassian.httpclient.api.HttpStatus;
-import com.atlassian.httpclient.api.Request;
-import com.atlassian.httpclient.api.Response;
-import com.atlassian.httpclient.api.ResponsePromise;
-import com.atlassian.httpclient.api.ResponsePromises;
+import com.atlassian.httpclient.api.*;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
@@ -39,11 +34,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpTrace;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
@@ -62,6 +59,7 @@ import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -389,7 +387,10 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
 
         final PromiseHttpAsyncClient asyncClient = getPromiseHttpAsyncClient(request);
-        return ResponsePromises.toResponsePromise(asyncClient.execute(op, new BasicHttpContext()).fold(
+        final RequestContext requestContext = request.getContext();
+        HttpContext context = (requestContext instanceof DefaultRequestContext) ?
+                ((DefaultRequestContext) requestContext).delegate : new BasicHttpContext();
+        return ResponsePromises.toResponsePromise(asyncClient.execute(op, context).fold(
                 new Function<Throwable, Response>()
                 {
                     @Override

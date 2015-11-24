@@ -1,7 +1,5 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.fugue.Option;
-
 import java.net.URI;
 import java.util.Map;
 
@@ -42,6 +40,13 @@ public interface Request extends Message
      * @return All attributes
      */
     Map<String, String> getAttributes();
+
+    /**
+     * Gets the context for this request.
+     *
+     * @return the request context
+     */
+    RequestContext getContext();
 
     boolean isCacheDisabled();
 
@@ -99,6 +104,14 @@ public interface Request extends Message
          * @return This object, for builder-style chaining
          */
         Builder setContentLength(long contentLength);
+
+        /**
+         * Set the context for the request.
+         *
+         * @param context The request context.
+         * @return This object, for builder-style chaining
+         */
+        Builder setContext(RequestContext context);
 
         /**
          * Sets the entity and any associated headers from an entity builder.

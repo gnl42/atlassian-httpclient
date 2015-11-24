@@ -1,10 +1,10 @@
 package com.atlassian.httpclient.base;
 
+import com.atlassian.httpclient.apache.httpcomponents.DefaultCookie;
+import com.atlassian.httpclient.apache.httpcomponents.DefaultCookieStore;
 import com.atlassian.httpclient.apache.httpcomponents.DefaultRequest;
-import com.atlassian.httpclient.api.DefaultResponseTransformation;
-import com.atlassian.httpclient.api.HttpClient;
-import com.atlassian.httpclient.api.Request;
-import com.atlassian.httpclient.api.ResponseTransformation;
+import com.atlassian.httpclient.apache.httpcomponents.DefaultRequestContext;
+import com.atlassian.httpclient.api.*;
 
 import java.net.URI;
 
@@ -41,6 +41,24 @@ public abstract class AbstractHttpClient implements HttpClient
     public Request.Builder newRequest(String uri, String contentType, String entity)
     {
         return newRequest(URI.create(uri), contentType, entity);
+    }
+
+    @Override
+    public RequestContext newRequestContext()
+    {
+        return new DefaultRequestContext();
+    }
+
+    @Override
+    public CookieStore newCookieStore()
+    {
+        return new DefaultCookieStore();
+    }
+
+    @Override
+    public Cookie newCookie(String name, String value)
+    {
+        return new DefaultCookie(name, value);
     }
 
     @Override
