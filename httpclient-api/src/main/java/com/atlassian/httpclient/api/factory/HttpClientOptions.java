@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public final class HttpClientOptions
 {
     private String threadPrefix = "httpclient";
-    private boolean ignoreCookies = true;
+    private boolean ignoreCookies = false;
     private int ioThreadCount = 10;
     private long ioSelectInterval = 1000;
 

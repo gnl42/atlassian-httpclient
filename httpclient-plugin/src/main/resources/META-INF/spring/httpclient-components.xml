@@ -12,6 +12,11 @@
         <beans:constructor-arg ref="eventPublisher"/>
         <beans:constructor-arg ref="applicationProperties"/>
         <beans:constructor-arg ref="threadLocalContextManager" />
+        <beans:constructor-arg>
+            <beans:bean class="com.atlassian.httpclient.api.factory.HttpClientOptions">
+                <beans:property name="ignoreCookies" value="true"/>
+            </beans:bean>
+        </beans:constructor-arg>
     </beans:bean>
 
     <beans:bean id="httpClientFactory" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClientFactory">
