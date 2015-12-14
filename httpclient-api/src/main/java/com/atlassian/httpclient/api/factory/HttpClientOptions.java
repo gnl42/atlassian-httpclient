@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 public final class HttpClientOptions
 {
     private String threadPrefix = "httpclient";
-    private int ioThreadCount = 10;
-    private long ioSelectInterval = 1000;
+    private int ioThreadCount = Integer.getInteger(HttpClientOptions.class.getName() + ".ioThreadCount", 10);
+    private long ioSelectInterval = Integer.getInteger(HttpClientOptions.class.getName() + ".ioSelectInterval", 1000);
 
     private long connectionTimeout = 5 * 1000;
     private long socketTimeout = 20 * 1000;
