@@ -30,6 +30,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -193,6 +194,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             final RequestConfig requestConfig = RequestConfig.custom()
                     .setConnectTimeout((int) options.getConnectionTimeout())
                     .setConnectionRequestTimeout((int) options.getLeaseTimeout())
+                    .setCookieSpec(options.getIgnoreCookies() ? CookieSpecs.IGNORE_COOKIES : CookieSpecs.DEFAULT)
                     .setSocketTimeout((int) options.getSocketTimeout())
                     .build();
 
