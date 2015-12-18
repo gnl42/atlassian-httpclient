@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 public final class HttpClientOptions
 {
     private String threadPrefix = "httpclient";
+    private boolean ignoreCookies = false;
     private int ioThreadCount = Integer.getInteger(HttpClientOptions.class.getName() + ".ioThreadCount", 10);
     private long ioSelectInterval = Integer.getInteger(HttpClientOptions.class.getName() + ".ioSelectInterval", 1000);
 
@@ -47,6 +48,24 @@ public final class HttpClientOptions
     private ExecutorService callbackExecutor;
 
     private ProxyOptions proxyOptions = ProxyOptions.ProxyOptionsBuilder.create().build();
+
+    /**
+     * Whether or not to ignore cookies.
+     * <p/>
+     * Default: <code>true</code>
+     */
+    public boolean getIgnoreCookies()
+    {
+        return ignoreCookies;
+    }
+
+    /**
+     * @param ignoreCookies Whether or not to ignore cookies.
+     */
+    public void setIgnoreCookies(boolean ignoreCookies)
+    {
+        this.ignoreCookies = ignoreCookies;
+    }
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
