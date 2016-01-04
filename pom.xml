@@ -32,7 +32,7 @@
 
     <ciManagement>
         <system>Bamboo</system>
-        <url>https://bamboo.extranet.atlassian.com/browse/AHCP</url>
+        <url>https://ecosystem-bamboo.internal.atlassian.com/browse/AHCP</url>
     </ciManagement>
 
     <licenses>
