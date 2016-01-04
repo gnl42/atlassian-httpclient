@@ -18,10 +18,12 @@ import java.util.concurrent.TimeUnit;
  */
 public final class HttpClientOptions
 {
+    public static final String OPTION_PROPERTY_PREFIX = "com.atlassian.httpclient.options";
+
     private String threadPrefix = "httpclient";
     private boolean ignoreCookies = false;
-    private int ioThreadCount = Integer.getInteger(HttpClientOptions.class.getName() + ".ioThreadCount", 10);
-    private long ioSelectInterval = Integer.getInteger(HttpClientOptions.class.getName() + ".ioSelectInterval", 1000);
+    private int ioThreadCount = Integer.getInteger(OPTION_PROPERTY_PREFIX + ".ioThreadCount", 10);
+    private long ioSelectInterval = Integer.getInteger(OPTION_PROPERTY_PREFIX + ".ioSelectInterval", 1000);
 
     private long connectionTimeout = 5 * 1000;
     private long socketTimeout = 20 * 1000;
