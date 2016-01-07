@@ -58,7 +58,7 @@
         <spring.version>2.5.6</spring.version>
         <jira.version>6.4.2</jira.version>
         <confluence.version>5.7.3</confluence.version>
-        <sdk.version>5.1.2</sdk.version>
+        <sdk.version>5.1.19</sdk.version>
         <analytics.version>2.12</analytics.version>
         <httpasyncclient.version>4.1</httpasyncclient.version>
         <httpcore.version>4.4.1</httpcore.version>
