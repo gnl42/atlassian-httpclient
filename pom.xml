@@ -238,6 +238,14 @@
                         <tagNameFormat>atlassian-httpclient-@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <configuration>
+                        <!-- Since JDK8, bad javadoc fails the release, so make it not fail as a workaround -->
+                        <failOnError>false</failOnError>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
