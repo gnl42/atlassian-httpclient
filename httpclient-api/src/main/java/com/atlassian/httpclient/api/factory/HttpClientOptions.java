@@ -5,10 +5,13 @@ import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Effects;
 import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -19,11 +22,15 @@ import java.util.concurrent.TimeUnit;
 public final class HttpClientOptions
 {
     public static final String OPTION_PROPERTY_PREFIX = "com.atlassian.httpclient.options";
+    public static final String OPTION_THREAD_WORK_QUEUE_LIMIT = OPTION_PROPERTY_PREFIX + ".threadWorkQueueLimit";
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private String threadPrefix = "httpclient";
     private boolean ignoreCookies = false;
     private int ioThreadCount = Integer.getInteger(OPTION_PROPERTY_PREFIX + ".ioThreadCount", 10);
     private long ioSelectInterval = Integer.getInteger(OPTION_PROPERTY_PREFIX + ".ioSelectInterval", 1000);
+    private int threadWorkQueueLimit = Integer.getInteger(OPTION_THREAD_WORK_QUEUE_LIMIT, 256);
 
     private long connectionTimeout = 5 * 1000;
     private long socketTimeout = 20 * 1000;
@@ -336,7 +343,21 @@ public final class HttpClientOptions
     private ExecutorService defaultCallbackExecutor()
     {
         ThreadFactory threadFactory = ThreadFactories.namedThreadFactory(getThreadPrefix() + "-callbacks", ThreadFactories.Type.DAEMON);
-        return new ThreadPoolExecutor(0, getMaxCallbackThreadPoolSize(), 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
+        return new ThreadPoolExecutor(
+                0,
+                getMaxCallbackThreadPoolSize(),
+                60L,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(threadWorkQueueLimit),
+                threadFactory,
+                (r, e) -> log.warn(
+                        "Exceeded the limit of requests waiting for execution. " +
+                                " Increase the value of the system property {} to prevent these situations in the " +
+                                "future. Current value of {} = {}.",
+                        OPTION_THREAD_WORK_QUEUE_LIMIT,
+                        OPTION_THREAD_WORK_QUEUE_LIMIT,
+                        threadWorkQueueLimit)
+        );
     }
 
     public void setTrustSelfSignedCertificates(boolean trustSelfSignedCertificates)
@@ -368,5 +389,13 @@ public final class HttpClientOptions
     public ProxyOptions getProxyOptions()
     {
         return this.proxyOptions;
+    }
+
+    public int getThreadWorkQueueLimit() {
+        return threadWorkQueueLimit;
+    }
+
+    public void setThreadWorkQueueLimit(int threadWorkQueueLimit) {
+        this.threadWorkQueueLimit = threadWorkQueueLimit;
     }
 }
