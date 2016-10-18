@@ -68,6 +68,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
@@ -78,10 +82,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
 
 import static com.atlassian.util.concurrent.Promises.rejected;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -102,7 +102,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
     private final Function<Object, Void> eventConsumer;
     private final Supplier<String> applicationName;
-    private final ThreadLocalContextManager<C> threadLocalContextManager;
+    private final ThreadLocalContextManager<C> threadLocalContextManager = new NoOpThreadLocalContextManager<C>();
     private final ExecutorService callbackExecutor;
     private final HttpClientOptions httpClientOptions;
 
@@ -143,7 +143,6 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     {
         this.eventConsumer = checkNotNull(eventConsumer);
         this.applicationName = checkNotNull(applicationName);
-        this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
         this.httpClientOptions = checkNotNull(options);
 
         try
