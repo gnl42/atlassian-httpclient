@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -77,32 +76,6 @@ public final class DefaultHttpClientIntegrationTest
                 }
             }
         });
-    }
-
-    @Test
-    public void threadLocalVariablesAreAvailableToFunctionsWithWorkingThreadLocalContextManager()
-    {
-        final AtomicBoolean okFunctionCalled = new AtomicBoolean(false);
-        final long testThreadId = Thread.currentThread().getId();
-
-        final Object objectInThreadLocal = new Object();
-        TEST_THREAD_LOCAL.set(objectInThreadLocal);
-
-        ResponsePromise responsePromise = httpClient.newRequest(SERVER.newUri("/test")).get();
-        final Object claimedObject = httpClient.transformation().ok(new Function<Response, Object>()
-        {
-            @Override
-            public Object apply(Response response)
-            {
-                okFunctionCalled.set(true);
-                assertTrue("For this test to work the function should be executed in a separate thread!", testThreadId != Thread.currentThread().getId());
-                assertTrue(Thread.currentThread().getName().startsWith("httpclient-callbacks"));
-                return TEST_THREAD_LOCAL.get();
-            }
-        }).build().apply(responsePromise).claim();
-
-        assertTrue(okFunctionCalled.get());
-        assertSame(objectInThreadLocal, claimedObject);
     }
 
     @Test
