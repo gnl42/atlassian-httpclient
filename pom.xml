@@ -11,7 +11,7 @@
 
     <groupId>com.atlassian.httpclient</groupId>
     <artifactId>atlassian-httpclient-parent</artifactId>
-    <version>0.23.3</version>
+    <version>0.23.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Atlassian HttpClientProject</name>
@@ -22,7 +22,7 @@
         <connection>scm:git:git@bitbucket.org:atlassian/atlassian-httpclient.git</connection>
         <developerConnection>scm:git:git@bitbucket.org:atlassian/atlassian-httpclient.git</developerConnection>
         <url>https://bitbucket.org/atlassian/atlassian-httpclient</url>
-        <tag>atlassian-httpclient-0.23.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
