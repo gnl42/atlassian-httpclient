@@ -110,7 +110,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private final CloseableHttpAsyncClient nonCachingHttpClient;
     private final FlushableHttpCacheStorage httpCacheStorage;
 
-    public ApacheAsyncHttpClient(EventPublisher eventConsumer, ApplicationProperties applicationProperties, ThreadLocalContextManager<C> threadLocalContextManager)
+    public ApacheAsyncHttpClient(EventPublisher eventConsumer, ApplicationProperties applicationProperties,
+                                 ThreadLocalContextManager<C> threadLocalContextManager)
     {
         this(eventConsumer, applicationProperties, threadLocalContextManager, new HttpClientOptions());
     }
@@ -199,6 +200,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     .build();
 
             connectionManager.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
+            connectionManager.setMaxTotal(options.getMaxTotalConnections());
 
             final HttpAsyncClientBuilder clientBuilder = HttpAsyncClients.custom()
                     .setThreadFactory(ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io", ThreadFactories.Type.DAEMON))
