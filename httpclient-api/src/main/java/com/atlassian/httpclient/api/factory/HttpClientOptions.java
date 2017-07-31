@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +35,7 @@ public final class HttpClientOptions
     private long socketTimeout = 20 * 1000;
     private long requestTimeout = 30 * 3000;
 
+    private int maxTotalConnections = 20;
     private int maxConnectionsPerHost = 20;
 
     private long connectionPoolTimeToLive = 30 * 1000;
@@ -61,7 +61,7 @@ public final class HttpClientOptions
     /**
      * Whether or not to ignore cookies.
      * <p/>
-     * Default: <code>true</code>
+     * Default: <code>false</code>
      */
     public boolean getIgnoreCookies()
     {
@@ -219,7 +219,23 @@ public final class HttpClientOptions
     }
 
     /**
-     * @return How many simultaneous connections are allowed per host.  Defaults to 20
+     * @return How many simultaneous connections are allowed in total. Defaults to 20
+     */
+    public int getMaxTotalConnections()
+    {
+        return maxTotalConnections;
+    }
+
+    /**
+     * @param maxTotalConnections How many simultaneous connections are allowed in total
+     */
+    public void setMaxTotalConnections(int maxTotalConnections)
+    {
+        this.maxTotalConnections = maxTotalConnections;
+    }
+
+    /**
+     * @return How many simultaneous connections are allowed per host. Defaults to 20
      */
     public int getMaxConnectionsPerHost()
     {
