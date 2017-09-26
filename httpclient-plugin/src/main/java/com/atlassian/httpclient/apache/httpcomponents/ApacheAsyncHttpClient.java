@@ -13,6 +13,7 @@ import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.Response;
 import com.atlassian.httpclient.api.ResponsePromise;
 import com.atlassian.httpclient.api.ResponsePromises;
+import com.atlassian.httpclient.api.ResponseTooLargeException;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
@@ -25,6 +26,7 @@ import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
+import com.google.common.primitives.Ints;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -228,7 +230,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 }
             });
 
-            this.nonCachingHttpClient = clientBuilder.build();
+            this.nonCachingHttpClient = new BoundedHttpAsyncClient(clientBuilder.build(),
+                    Ints.saturatedCast(options.getMaxEntitySize()));
 
             final CacheConfig cacheConfig = CacheConfig.custom()
                     .setMaxCacheEntries(options.getMaxCacheEntries())
@@ -400,8 +403,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     public Response apply(Throwable ex)
                     {
                         final long requestDuration = System.currentTimeMillis() - start;
-                        publishEvent(request, requestDuration, ex);
-                        throw Throwables.propagate(ex);
+                        Throwable exception = maybeTranslate(ex);
+                        publishEvent(request, requestDuration, exception);
+                        throw Throwables.propagate(exception);
                     }
                 },
                 new Function<HttpResponse, Response>()
@@ -458,7 +462,27 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
     private PromiseHttpAsyncClient getPromiseHttpAsyncClient(Request request)
     {
-        return new SettableFuturePromiseHttpPromiseAsyncClient<C>(request.isCacheDisabled() ? nonCachingHttpClient : httpClient, threadLocalContextManager, callbackExecutor);
+        return new SettableFuturePromiseHttpPromiseAsyncClient<>(
+                request.isCacheDisabled() ? nonCachingHttpClient : httpClient,
+                threadLocalContextManager, callbackExecutor);
+    }
+
+    private Throwable maybeTranslate(Throwable ex)
+    {
+        if (ex instanceof EntityTooLargeException)
+        {
+            EntityTooLargeException tooLarge = (EntityTooLargeException) ex;
+            try
+            {
+                // don't include the cause to ensure that the HttpResponse is released
+                return new ResponseTooLargeException(translate(tooLarge.getResponse()), ex.getMessage());
+            }
+            catch (IOException e)
+            {
+                // could not translate, just return the original exception
+            }
+        }
+        return ex;
     }
 
     private Response translate(HttpResponse httpResponse) throws IOException
@@ -494,8 +518,6 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     {
         httpCacheStorage.flushByUriPattern(urlPattern);
     }
-
-
 
     private static final class NoOpThreadLocalContextManager<C> implements ThreadLocalContextManager<C>
     {
