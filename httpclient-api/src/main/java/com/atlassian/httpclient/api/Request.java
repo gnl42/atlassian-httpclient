@@ -1,7 +1,5 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.fugue.Option;
-
 import java.net.URI;
 import java.util.Map;
 
@@ -10,7 +8,7 @@ import java.util.Map;
  */
 public interface Request extends Message
 {
-    public enum Method { GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE }
+    enum Method { GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE }
 
     /**
      * Returns this request's URI, if set.
