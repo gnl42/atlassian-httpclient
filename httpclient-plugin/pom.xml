@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.atlassian.httpclient</groupId>
         <artifactId>atlassian-httpclient-parent</artifactId>
-        <version>0.23.5-SNAPSHOT</version>
+        <version>0.23.5</version>
     </parent>
 
     <artifactId>atlassian-httpclient-plugin</artifactId>
