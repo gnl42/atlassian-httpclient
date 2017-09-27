@@ -51,6 +51,23 @@ public class BoundedAsyncResponseConsumerTest {
     }
 
     @Test
+    public void testContentReturnedIfContentLengthZeroButActualLengthEqualToMaxLength() throws Exception {
+        int maxSize = 4096;
+        int actualSize = 4096;
+        int chunkSize = 19;
+        int contentLength = 0;
+
+        // stream 1024 bytes of content through the truncating response consumer
+        try (InputStream stream = streamContent(maxSize, actualSize, chunkSize, contentLength)) {
+
+            // verify that exactly 4096 bytes have been buffered
+            byte[] buffer = new byte[2 * maxSize];
+            assertEquals(actualSize, stream.read(buffer));
+            assertEquals(-1, stream.read(buffer));
+        }
+    }
+
+    @Test
     public void testContentReturnedIfActualLengthLowerThanMaxLength() throws Exception {
         int maxSize = 4096;
         int actualSize = 1024;

@@ -25,6 +25,9 @@ import java.io.IOException;
  */
 public class BoundedAsyncResponseConsumer extends AbstractAsyncResponseConsumer<HttpResponse> {
 
+    // limit the amount of memory that is pre-allocated based on the reported Content-Length. Let's be a bit paranoid
+    private static final int MAX_INITIAL_BUFFER_SIZE = 256 * 1024;
+
     private final int maxEntitySize;
 
     private volatile BoundedInputBuffer buf;
@@ -54,8 +57,9 @@ public class BoundedAsyncResponseConsumer extends AbstractAsyncResponseConsumer<
             // start with a 4k buffer
             length = Math.min(4096, maxEntitySize);
         }
+        int initialBufferSize = Math.min(MAX_INITIAL_BUFFER_SIZE, length);
 
-        buf = new BoundedInputBuffer(length, maxEntitySize, new HeapByteBufferAllocator());
+        buf = new BoundedInputBuffer(initialBufferSize, maxEntitySize, new HeapByteBufferAllocator());
         Asserts.notNull(response, "response");
         response.setEntity(new ContentBufferEntity(entity, buf));
     }
@@ -81,8 +85,10 @@ public class BoundedAsyncResponseConsumer extends AbstractAsyncResponseConsumer<
 
         @Override
         protected void expand() {
-            int newCapacity = (buffer.capacity() + 1) << 1;
-            if (newCapacity < 0) {
+            int capacity = buffer.capacity();
+            int newCapacity = capacity < 2 ? 2 : capacity + (capacity >>> 1);
+            if (newCapacity < capacity) {
+                // must be integer overflow
                 newCapacity = Integer.MAX_VALUE;
             }
             ensureCapacity(newCapacity);
