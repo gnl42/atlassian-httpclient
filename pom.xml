@@ -45,7 +45,6 @@
     <modules>
         <module>httpclient-api</module>
         <module>httpclient-library</module>
-        <module>httpclient-library-plugin</module>
         <module>httpclient-plugin</module>
     </modules>
 
