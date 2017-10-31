@@ -32,7 +32,6 @@
         <dependency>
             <groupId>com.atlassian.httpclient</groupId>
             <artifactId>atlassian-httpclient-library</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.sal</groupId>
@@ -45,8 +44,18 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.analytics</groupId>
+            <artifactId>analytics-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.fugue</groupId>
+            <artifactId>fugue</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -110,9 +119,9 @@
                     <extractDependencies>true</extractDependencies>
                     <instructions>
                         <Import-Package>
-                            com.atlassian.sal.api*;version="${sal.version}",
-                            com.atlassian.util.concurrent*;version="${atlassian-util-concurrent-api.version}",
-                            com.google.common*;version="${guava.version}",
+                            com.atlassian.sal.api*,
+                            com.atlassian.util.concurrent*,
+                            com.google.common*,
                             javax.net.ssl,
                             javax.servlet.*,
                             org.osgi*,
@@ -124,7 +133,6 @@
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.httpclient.api*;version="${httpclient.api.version}",
-                            com.atlassian.fugue*;version="${fugue.version}"
                         </Export-Package>
                         <!-- Ensure plugin is spring powered - see https://extranet.atlassian.com/x/xBS9hQ -->
                         <Spring-Context>*</Spring-Context>

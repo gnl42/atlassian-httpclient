@@ -1,7 +1,7 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.Response;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import java.io.IOException;

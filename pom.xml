@@ -72,28 +72,52 @@
         <product.version>3.3.9</product.version>
         <product.data.version>${product.version}</product.data.version>
 
-        <atlassian-plugins.version>3.2.18</atlassian-plugins.version>
-        <sal.version>2.11.6</sal.version>
-        <slf4j.version>1.7.12</slf4j.version>
-        <atlassian-util-concurrent.version>2.4.0</atlassian-util-concurrent.version>
-        <atlassian-util-concurrent-api.version>2.4</atlassian-util-concurrent-api.version>
-        <guava.version>18.0</guava.version>
-        <spring.version>2.5.6</spring.version>
-        <confluence.version>5.7.3</confluence.version>
-        <amps.version>5.1.19</amps.version>
+        <amps.version>6.3.4</amps.version>
+        <platform.version>3.1.7</platform.version>
+        <!-- spring version as in platform 4.0.1, so we can manage excludes -->
+        <spring.version>4.2.4.RELEASE</spring.version>
+
+        <!-- dependencies not included in platform 4.0.1 -->
         <analytics.version>2.12</analytics.version>
         <httpasyncclient.version>4.1.3</httpasyncclient.version>
         <httpcore.version>4.4.8</httpcore.version>
         <httpclient.version>4.5.3</httpclient.version>
-        <hamcrest.version>1.3</hamcrest.version>
-        <jetty.version>7.6.8.v20121106</jetty.version>
-        <fugue.version>1.1</fugue.version>
-        <jackson2.version>2.5.2</jackson2.version>
+        <!-- upgrade to jetty 9.x once platform supports a minimum of servlets 3.1.0 -->
+        <jetty.version>8.2.0.v20160908</jetty.version>
+        <jackson2.version>2.9.2</jackson2.version>
         <log4j.version>1.2.17</log4j.version>
+        <commons-codec.version>1.9</commons-codec.version>
+        <commons-lang3.version>3.5</commons-lang3.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.atlassian.platform</groupId>
+                <artifactId>platform</artifactId>
+                <version>${platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.platform</groupId>
+                <artifactId>third-party</artifactId>
+                <version>${platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.atlassian.httpclient</groupId>
+                <artifactId>atlassian-httpclient-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.httpclient</groupId>
+                <artifactId>atlassian-httpclient-library</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpasyncclient</artifactId>
@@ -154,66 +178,10 @@
                 </exclusions>
             </dependency>
 
-
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atlassian.bundles</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atlassian.fugue</groupId>
-                <artifactId>fugue</artifactId>
-                <version>${fugue.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>3.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jul-to-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atlassian.util.concurrent</groupId>
-                <artifactId>atlassian-util-concurrent</artifactId>
-                <version>${atlassian-util-concurrent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atlassian.sal</groupId>
-                <artifactId>sal-api</artifactId>
-                <version>${sal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atlassian.event</groupId>
-                <artifactId>atlassian-event</artifactId>
-                <version>2.2.0</version>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.analytics</groupId>
@@ -235,27 +203,12 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.9</version>
+                <version>${commons-codec.version}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.12</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>1.10.19</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-core</artifactId>
-                <version>${hamcrest.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-library</artifactId>
-                <version>${hamcrest.version}</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
             </dependency>
 
             <dependency>
