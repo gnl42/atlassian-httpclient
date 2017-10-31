@@ -9,11 +9,11 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>atlassian-httpclient-plugin</artifactId>
+    <artifactId>atlassian-httpclient-library-plugin</artifactId>
     <packaging>atlassian-plugin</packaging>
 
     <name>Atlassian HTTP Client, Apache HTTP components impl</name>
-    <description>Implementation of the HTTP Client API based on Apache HTTP Components</description>
+    <description>Implementation of the HTTP Client API based on Apache HTTP Components.</description>
 
     <licenses>
         <license>
@@ -49,6 +49,31 @@
             <artifactId>commons-codec</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-cache</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore-nio</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -69,16 +94,19 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+            <version>${jackson2.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
+            <version>${jackson2.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jackson2.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -115,6 +143,7 @@
                             com.google.common*;version="${guava.version}",
                             javax.net.ssl,
                             javax.servlet.*,
+                            org.apache.http.*,
                             org.osgi*,
                             org.slf4j*;version="1.5",
                             org.springframework*,
@@ -132,6 +161,33 @@
                     <systemPropertyVariables>
                         <http.port>${http.port}</http.port>
                     </systemPropertyVariables>
+                    <libArtifacts>
+                        <libArtifact>
+                            <groupId>org.apache.httpcomponents</groupId>
+                            <artifactId>httpclient</artifactId>
+                            <version>${httpclient.version}</version>
+                        </libArtifact>
+                        <libArtifact>
+                            <groupId>org.apache.httpcomponents</groupId>
+                            <artifactId>httpclient-cache</artifactId>
+                            <version>${httpcore.version}</version>
+                        </libArtifact>
+                        <libArtifact>
+                            <groupId>org.apache.httpcomponents</groupId>
+                            <artifactId>httpcore</artifactId>
+                            <version>${httpcore.version}</version>
+                        </libArtifact>
+                        <libArtifact>
+                            <groupId>org.apache.httpcomponents</groupId>
+                            <artifactId>httpcore-nio</artifactId>
+                            <version>${httpcore.version}</version>
+                        </libArtifact>
+                        <libArtifact>
+                            <groupId>org.apache.httpcomponents</groupId>
+                            <artifactId>httpmime</artifactId>
+                            <version>${httpclient.version}</version>
+                        </libArtifact>
+                    </libArtifacts>
                 </configuration>
             </plugin>
         </plugins>
