@@ -123,11 +123,8 @@
                             com.atlassian.util.concurrent*,
                             com.google.common*,
                             javax.net.ssl,
-                            javax.servlet.*,
-                            org.osgi*,
                             org.slf4j*;version="1.5",
                             org.springframework*,
-                            org.xml.sax*,
                             com.atlassian.fugue*,
                             *;resolution:=optional
                         </Import-Package>
