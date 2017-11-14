@@ -9,39 +9,35 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.atlassian.httpclient.apache.httpcomponents.SettableFuturePromiseHttpPromiseAsyncClient.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static com.atlassian.httpclient.apache.httpcomponents.SettableFuturePromiseHttpPromiseAsyncClient.runInContext;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class SettableFuturePromiseHttpPromiseAsyncClientTest
-{
+public final class SettableFuturePromiseHttpPromiseAsyncClientTest {
     @Mock
     private ThreadLocalContextManager<Object> threadLocalContextManager;
 
     @Test
-    public void testRunInContext()
-    {
+    public void testRunInContext() {
         final AtomicBoolean run = new AtomicBoolean(false);
 
         final Object currentThreadLocalContext = new Object();
         when(threadLocalContextManager.getThreadLocalContext()).thenReturn(currentThreadLocalContext);
 
         final Object newThreadLocalContext = new Object();
-        try
-        {
-            runInContext(threadLocalContextManager, newThreadLocalContext, this.getClass().getClassLoader(), new Runnable()
-            {
+        try {
+            runInContext(threadLocalContextManager, newThreadLocalContext, this.getClass().getClassLoader(), new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     run.set(true);
                     throw new RuntimeException(); // this shouldn't affect things
                 }
             });
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             // ignore
         }
 

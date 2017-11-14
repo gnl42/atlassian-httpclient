@@ -6,8 +6,7 @@ import java.util.Map;
 /**
  * Represents the result of an HTTP request.
  */
-public interface Response extends Message
-{
+public interface Response extends Message {
     /**
      * Gets the status code of the response.
      *
@@ -157,8 +156,7 @@ public interface Response extends Message
      */
     boolean isNotSuccessful();
 
-    interface Builder extends Common<Builder>, Buildable<Response>
-    {
+    interface Builder extends Common<Builder>, Buildable<Response> {
         @Override
         Builder setContentType(String contentType);
 

@@ -15,22 +15,17 @@ import static com.atlassian.httpclient.apache.httpcomponents.proxy.ProxyConfig.A
 /**
  * Configuration of credentials for proxy.
  */
-public class ProxyCredentialsProvider implements CredentialsProvider
-{
+public class ProxyCredentialsProvider implements CredentialsProvider {
     private final SystemDefaultCredentialsProvider delegate;
 
-    private ProxyCredentialsProvider(final SystemDefaultCredentialsProvider delegate)
-    {
+    private ProxyCredentialsProvider(final SystemDefaultCredentialsProvider delegate) {
         this.delegate = delegate;
     }
 
-    public static Option<ProxyCredentialsProvider> build(final HttpClientOptions options)
-    {
-        final Iterable<AuthenticationInfo> authenticationInfos = Iterables.filter(ProxyConfigFactory.getProxyAuthentication(options), new Predicate<AuthenticationInfo>()
-        {
+    public static Option<ProxyCredentialsProvider> build(final HttpClientOptions options) {
+        final Iterable<AuthenticationInfo> authenticationInfos = Iterables.filter(ProxyConfigFactory.getProxyAuthentication(options), new Predicate<AuthenticationInfo>() {
             @Override
-            public boolean apply(final AuthenticationInfo authenticationInfo)
-            {
+            public boolean apply(final AuthenticationInfo authenticationInfo) {
                 return authenticationInfo.getCredentials().isDefined();
             }
         });
@@ -38,17 +33,13 @@ public class ProxyCredentialsProvider implements CredentialsProvider
         return Iterables.isEmpty(authenticationInfos) ? Option.<ProxyCredentialsProvider>none() : Option.some(createCredentialProvider(authenticationInfos));
     }
 
-    private static ProxyCredentialsProvider createCredentialProvider(final Iterable<AuthenticationInfo> authenticationInfos)
-    {
+    private static ProxyCredentialsProvider createCredentialProvider(final Iterable<AuthenticationInfo> authenticationInfos) {
         final SystemDefaultCredentialsProvider credentialsProvider = new SystemDefaultCredentialsProvider();
 
-        for (final AuthenticationInfo authenticationInfo : authenticationInfos)
-        {
-            authenticationInfo.getCredentials().foreach(new Effect<Credentials>()
-            {
+        for (final AuthenticationInfo authenticationInfo : authenticationInfos) {
+            authenticationInfo.getCredentials().foreach(new Effect<Credentials>() {
                 @Override
-                public void apply(final Credentials credentials)
-                {
+                public void apply(final Credentials credentials) {
                     credentialsProvider.setCredentials(authenticationInfo.getAuthScope(), credentials);
                 }
             });
@@ -58,20 +49,17 @@ public class ProxyCredentialsProvider implements CredentialsProvider
     }
 
     @Override
-    public void setCredentials(final AuthScope authscope, final Credentials credentials)
-    {
+    public void setCredentials(final AuthScope authscope, final Credentials credentials) {
         delegate.setCredentials(authscope, credentials);
     }
 
     @Override
-    public Credentials getCredentials(final AuthScope authscope)
-    {
+    public Credentials getCredentials(final AuthScope authscope) {
         return delegate.getCredentials(authscope);
     }
 
     @Override
-    public void clear()
-    {
+    public void clear() {
         delegate.clear();
     }
 }

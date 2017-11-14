@@ -12,49 +12,37 @@ import java.util.Properties;
 import static com.google.common.io.Resources.getResource;
 import static java.lang.String.format;
 
-final class MavenUtils
-{
+final class MavenUtils {
     private static final Logger logger = LoggerFactory.getLogger(MavenUtils.class);
 
     private static final String UNKNOWN_VERSION = "unknown";
 
-    static String getVersion(String groupId, String artifactId)
-    {
+    static String getVersion(String groupId, String artifactId) {
         final Properties props = new Properties();
         InputStream is = null;
-        try
-        {
+        try {
             is = getPomInputStreamUrl(groupId, artifactId).openStream();
             props.load(is);
             return props.getProperty("version", UNKNOWN_VERSION);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.debug("Could not find version for maven artifact {}:{}", groupId, artifactId);
             logger.debug("Got the following exception:", e);
             return UNKNOWN_VERSION;
-        }
-        finally
-        {
-            try
-            {
+        } finally {
+            try {
                 Closeables.close(is, true);
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 logger.debug("Could not find version for maven artifact {}:{}", groupId, artifactId);
                 logger.debug("IOException should not have been thrown.", e);
             }
         }
     }
 
-    private static URL getPomInputStreamUrl(String groupId, String artifactId)
-    {
+    private static URL getPomInputStreamUrl(String groupId, String artifactId) {
         return getResource(MavenUtils.class, getPomFilePath(groupId, artifactId));
     }
 
-    private static String getPomFilePath(String groupId, String artifactId)
-    {
+    private static String getPomFilePath(String groupId, String artifactId) {
         return format("/META-INF/maven/%s/%s/pom.properties", groupId, artifactId);
     }
 }

@@ -9,8 +9,7 @@ import com.google.common.base.Function;
  *
  * @param <T> The target object for the transformation.
  */
-public interface ResponseTransformation<T>
-{
+public interface ResponseTransformation<T> {
     Function<Throwable, ? extends T> getFailFunction();
 
     Function<Response, T> getSuccessFunctions();
@@ -22,8 +21,7 @@ public interface ResponseTransformation<T>
      */
     Promise<T> apply(ResponsePromise responsePromise);
 
-    interface Builder<T> extends Buildable<ResponseTransformation<T>>
-    {
+    interface Builder<T> extends Buildable<ResponseTransformation<T>> {
 
         /**
          * Register a function to transform HTTP responses with a specific status.
@@ -31,7 +29,7 @@ public interface ResponseTransformation<T>
          * a more explicit registration method for it.
          *
          * @param status The HTTP status to select on
-         * @param f The transformation function
+         * @param f      The transformation function
          * @return This instance for chaining
          * @see #on(int, com.google.common.base.Function)
          */
@@ -45,7 +43,7 @@ public interface ResponseTransformation<T>
          * HTTP status.
          *
          * @param statusCode The code to select on
-         * @param f The transformation function
+         * @param f          The transformation function
          * @return This instance for chaining
          * @see #on(HttpStatus, com.google.common.base.Function)
          */
@@ -226,8 +224,8 @@ public interface ResponseTransformation<T>
         /**
          * Register a function to transform both of the following events:
          * <ul>
-         *     <li>Any value passed to <code>fail()</code></li>
-         *     <li>Any value passed to others(), converted into an exception</li>
+         * <li>Any value passed to <code>fail()</code></li>
+         * <li>Any value passed to others(), converted into an exception</li>
          * </ul>
          *
          * @param f The transformation function

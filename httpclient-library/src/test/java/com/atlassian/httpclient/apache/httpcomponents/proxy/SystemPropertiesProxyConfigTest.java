@@ -15,15 +15,13 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SystemPropertiesProxyConfigTest
-{
+public class SystemPropertiesProxyConfigTest {
     @Rule
     public ClearSystemProperties clearSystemPropertiesRule =
             new ClearSystemProperties(getPropertiesNames());
 
     @Test
-    public void httpsProxyConfigured()
-    {
+    public void httpsProxyConfigured() {
         System.setProperty("https.proxyHost", "localhost");
         System.setProperty("https.proxyPort", "3128");
         ProxyConfig config = new SystemPropertiesProxyConfig();
@@ -35,8 +33,7 @@ public class SystemPropertiesProxyConfigTest
     }
 
     @Test
-    public void httpProxyConfigured()
-    {
+    public void httpProxyConfigured() {
         System.setProperty("http.proxyHost", "localhost");
         System.setProperty("http.proxyPort", "3128");
         ProxyConfig config = new SystemPropertiesProxyConfig();
@@ -48,8 +45,7 @@ public class SystemPropertiesProxyConfigTest
     }
 
     @Test
-    public void httpProxyNotConfigured()
-    {
+    public void httpProxyNotConfigured() {
         ProxyConfig config = new SystemPropertiesProxyConfig();
         Option<HttpHost> proxy = config.getProxyHost();
 
@@ -57,8 +53,7 @@ public class SystemPropertiesProxyConfigTest
     }
 
     @Test
-    public void proxyUserForHttpConfigured()
-    {
+    public void proxyUserForHttpConfigured() {
         System.setProperty("http.proxyHost", "localhost");
         System.setProperty("http.proxyPort", "3128");
         System.setProperty("http.proxyUser", "user");
@@ -81,8 +76,7 @@ public class SystemPropertiesProxyConfigTest
     }
 
     @Test
-    public void proxyUserForHttpsConfigured()
-    {
+    public void proxyUserForHttpsConfigured() {
         System.setProperty("https.proxyHost", "localhost");
         System.setProperty("https.proxyPort", "3128");
         System.setProperty("https.proxyUser", "user");
@@ -105,8 +99,7 @@ public class SystemPropertiesProxyConfigTest
     }
 
     @Test
-    public void proxyAndProxyUserNotConfigured()
-    {
+    public void proxyAndProxyUserNotConfigured() {
         ProxyConfig config = new SystemPropertiesProxyConfig();
         final Iterable<ProxyConfig.AuthenticationInfo> authenticationInfo = config.getAuthenticationInfo();
 
@@ -118,8 +111,7 @@ public class SystemPropertiesProxyConfigTest
     }
 
     @Test
-    public void proxyUserNotConfigured()
-    {
+    public void proxyUserNotConfigured() {
         System.setProperty("https.proxyHost", "localhost");
         System.setProperty("https.proxyPort", "3128");
 
@@ -135,13 +127,10 @@ public class SystemPropertiesProxyConfigTest
         assertThat(proxyHost.isDefined(), Matchers.is(true));
     }
 
-    private String[] getPropertiesNames()
-    {
+    private String[] getPropertiesNames() {
         final ImmutableList.Builder<String> builder = ImmutableList.builder();
-        for (String scheme : Lists.newArrayList("http", "https"))
-        {
-            for (String property : Lists.newArrayList("proxyHost", "proxyPort", "proxyUser", "proxyPassword"))
-            {
+        for (String scheme : Lists.newArrayList("http", "https")) {
+            for (String property : Lists.newArrayList("proxyHost", "proxyPort", "proxyUser", "proxyPassword")) {
                 builder.add(scheme + "." + property);
             }
         }

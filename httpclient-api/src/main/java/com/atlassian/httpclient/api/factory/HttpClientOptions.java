@@ -18,8 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Configuration options for the http client instance and its caching system
  */
-public final class HttpClientOptions
-{
+public final class HttpClientOptions {
     public static final String OPTION_PROPERTY_PREFIX = "com.atlassian.httpclient.options";
     public static final String OPTION_THREAD_WORK_QUEUE_LIMIT = OPTION_PROPERTY_PREFIX + ".threadWorkQueueLimit";
 
@@ -63,16 +62,14 @@ public final class HttpClientOptions
      * <p/>
      * Default: <code>false</code>
      */
-    public boolean getIgnoreCookies()
-    {
+    public boolean getIgnoreCookies() {
         return ignoreCookies;
     }
 
     /**
      * @param ignoreCookies Whether or not to ignore cookies.
      */
-    public void setIgnoreCookies(boolean ignoreCookies)
-    {
+    public void setIgnoreCookies(boolean ignoreCookies) {
         this.ignoreCookies = ignoreCookies;
     }
 
@@ -81,17 +78,15 @@ public final class HttpClientOptions
      * <p/>
      * Default: <code>10</code>
      */
-    public int getIoThreadCount()
-    {
+    public int getIoThreadCount() {
         return ioThreadCount;
     }
 
     /**
      * @param ioThreadCount The number of I/O dispatch threads to be used by the I/O reactor.
-     * May not be negative or zero.
+     *                      May not be negative or zero.
      */
-    public void setIoThreadCount(int ioThreadCount)
-    {
+    public void setIoThreadCount(int ioThreadCount) {
         this.ioThreadCount = ioThreadCount;
     }
 
@@ -101,8 +96,7 @@ public final class HttpClientOptions
      * <p/>
      * Default: <code>1000</code> milliseconds.
      */
-    public long getIoSelectInterval()
-    {
+    public long getIoSelectInterval() {
         return ioSelectInterval;
     }
 
@@ -110,16 +104,14 @@ public final class HttpClientOptions
      * Defines time interval in milliseconds at which the I/O reactor wakes up to check for
      * timed out sessions and session requests. May not be negative or zero.
      */
-    public void setIoSelectInterval(int ioSelectInterval, TimeUnit timeUnit)
-    {
+    public void setIoSelectInterval(int ioSelectInterval, TimeUnit timeUnit) {
         this.ioSelectInterval = timeUnit.toMillis(ioSelectInterval);
     }
 
     /**
      * @return How long, in milliseconds, to wait for a TCP connection
      */
-    public long getConnectionTimeout()
-    {
+    public long getConnectionTimeout() {
         return connectionTimeout;
     }
 
@@ -127,76 +119,67 @@ public final class HttpClientOptions
      * Sets how long, in milliseconds, to wait for a TCP connection
      *
      * @param connectionTimeout Timeout value, defaults to 5000 milliseconds
-     * @param timeUnit The time unit
+     * @param timeUnit          The time unit
      */
-    public void setConnectionTimeout(int connectionTimeout, TimeUnit timeUnit)
-    {
+    public void setConnectionTimeout(int connectionTimeout, TimeUnit timeUnit) {
         this.connectionTimeout = timeUnit.toMillis(connectionTimeout);
     }
 
     /**
      * @return How long, in milliseconds, to wait for data over the socket
      */
-    public long getSocketTimeout()
-    {
+    public long getSocketTimeout() {
         return socketTimeout;
     }
 
     /**
      * @param socketTimeout How long to wait for data, defaults to 20 seconds
-     * @param timeUnit The time unit
+     * @param timeUnit      The time unit
      */
-    public void setSocketTimeout(int socketTimeout, TimeUnit timeUnit)
-    {
+    public void setSocketTimeout(int socketTimeout, TimeUnit timeUnit) {
         this.socketTimeout = timeUnit.toMillis(socketTimeout);
     }
 
     /**
      * @return How long to wait for the entire request
      */
-    public long getRequestTimeout()
-    {
+    public long getRequestTimeout() {
         return requestTimeout;
     }
 
     /**
      * @param requestTimeout How long to wait for the entire request.  Defaults to 30 seconds.
-     * @param timeUnit The time unit
+     * @param timeUnit       The time unit
      */
-    public void setRequestTimeout(int requestTimeout, TimeUnit timeUnit)
-    {
+    public void setRequestTimeout(int requestTimeout, TimeUnit timeUnit) {
         this.requestTimeout = timeUnit.toMillis(requestTimeout);
     }
 
     /**
      * @return The user agent string
      */
-    public String getUserAgent()
-    {
+    public String getUserAgent() {
         return userAgent;
     }
 
     /**
      * @param userAgent The user agent string
      */
-    public void setUserAgent(String userAgent)
-    {
+    public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
     }
 
     /**
      * @return Name prefix to use for spawned threads
      */
-    public String getThreadPrefix()
-    {
+    public String getThreadPrefix() {
         return threadPrefix;
     }
 
     /**
      * @param threadPrefix Name prefix to use for spawned threads
      */
-    public void setThreadPrefix(String threadPrefix)
-    {
+    public void setThreadPrefix(String threadPrefix) {
         this.threadPrefix = threadPrefix;
     }
 
@@ -204,160 +187,139 @@ public final class HttpClientOptions
      * @return How long, in milliseconds, to allow connections to live in the pool.  Defaults
      * to 30 seconds.
      */
-    public long getConnectionPoolTimeToLive()
-    {
+    public long getConnectionPoolTimeToLive() {
         return connectionPoolTimeToLive;
     }
 
     /**
      * @param connectionPoolTimeToLive How long to allow connections to live in the pool
-     * @param timeUnit The time unit
+     * @param timeUnit                 The time unit
      */
-    public void setConnectionPoolTimeToLive(int connectionPoolTimeToLive, TimeUnit timeUnit)
-    {
+    public void setConnectionPoolTimeToLive(int connectionPoolTimeToLive, TimeUnit timeUnit) {
         this.connectionPoolTimeToLive = timeUnit.toMillis(connectionPoolTimeToLive);
     }
 
     /**
      * @return How many simultaneous connections are allowed in total. Defaults to 20
      */
-    public int getMaxTotalConnections()
-    {
+    public int getMaxTotalConnections() {
         return maxTotalConnections;
     }
 
     /**
      * @param maxTotalConnections How many simultaneous connections are allowed in total
      */
-    public void setMaxTotalConnections(int maxTotalConnections)
-    {
+    public void setMaxTotalConnections(int maxTotalConnections) {
         this.maxTotalConnections = maxTotalConnections;
     }
 
     /**
      * @return How many simultaneous connections are allowed per host. Defaults to 20
      */
-    public int getMaxConnectionsPerHost()
-    {
+    public int getMaxConnectionsPerHost() {
         return maxConnectionsPerHost;
     }
 
     /**
      * @param maxConnectionsPerHost How many connections are allowed per host
      */
-    public void setMaxConnectionsPerHost(int maxConnectionsPerHost)
-    {
+    public void setMaxConnectionsPerHost(int maxConnectionsPerHost) {
         this.maxConnectionsPerHost = maxConnectionsPerHost;
     }
 
     /**
      * @return The max object size, in bytes, allowed in the HTTP cache.  Defaults to 100k
      */
-    public long getMaxCacheObjectSize()
-    {
+    public long getMaxCacheObjectSize() {
         return maxCacheObjectSize;
     }
 
     /**
      * @param maxCacheObjectSize The max cache object size in bytes
      */
-    public void setMaxCacheObjectSize(long maxCacheObjectSize)
-    {
+    public void setMaxCacheObjectSize(long maxCacheObjectSize) {
         this.maxCacheObjectSize = maxCacheObjectSize;
     }
 
     /**
      * @return The max cache entries.  Defaults to 1000.
      */
-    public int getMaxCacheEntries()
-    {
+    public int getMaxCacheEntries() {
         return maxCacheEntries;
     }
 
     /**
      * @param maxCacheEntries The max cache entries
      */
-    public void setMaxCacheEntries(int maxCacheEntries)
-    {
+    public void setMaxCacheEntries(int maxCacheEntries) {
         this.maxCacheEntries = maxCacheEntries;
     }
 
     /**
      * @return The effect to apply before the request is executed
      */
-    public Effect<Request> getRequestPreparer()
-    {
+    public Effect<Request> getRequestPreparer() {
         return requestPreparer;
     }
 
     /**
      * @param requestPreparer The effect to apply before the request is executed
      */
-    public void setRequestPreparer(Effect<Request> requestPreparer)
-    {
+    public void setRequestPreparer(Effect<Request> requestPreparer) {
         this.requestPreparer = requestPreparer;
     }
 
     /**
      * @return The maximum entity size in bytes.  Default is 100MB
      */
-    public long getMaxEntitySize()
-    {
+    public long getMaxEntitySize() {
         return maxEntitySize;
     }
 
     /**
      * @return The maximum time request to be kept in queue before execution, after timeout - request will be removed
      */
-    public long getLeaseTimeout()
-    {
+    public long getLeaseTimeout() {
         return leaseTimeout;
     }
 
     /**
      * @param leaseTimeout The maximum time request to be kept in queue before execution, after timeout - request will be removed
      */
-    public void setLeaseTimeout(long leaseTimeout)
-    {
+    public void setLeaseTimeout(long leaseTimeout) {
         this.leaseTimeout = leaseTimeout;
     }
 
     /**
      * param maxEntitySize The maximum entity size in bytes
      */
-    public void setMaxEntitySize(long maxEntitySize)
-    {
+    public void setMaxEntitySize(long maxEntitySize) {
         this.maxEntitySize = maxEntitySize;
     }
 
     /**
      * @return The maximum number of threads that can be used for executing callbacks
      */
-    public int getMaxCallbackThreadPoolSize()
-    {
+    public int getMaxCallbackThreadPoolSize() {
         return maxCallbackThreadPoolSize;
     }
 
     /**
      * @param maxCallbackThreadPoolSize The maximum number of threads that can be used for executing callbacks
      */
-    public void setMaxCallbackThreadPoolSize(final int maxCallbackThreadPoolSize)
-    {
+    public void setMaxCallbackThreadPoolSize(final int maxCallbackThreadPoolSize) {
         this.maxCallbackThreadPoolSize = maxCallbackThreadPoolSize;
     }
 
-    public void setCallbackExecutor(ExecutorService callbackExecutor)
-    {
+    public void setCallbackExecutor(ExecutorService callbackExecutor) {
         this.callbackExecutor = callbackExecutor;
     }
 
-    public ExecutorService getCallbackExecutor()
-    {
+    public ExecutorService getCallbackExecutor() {
         return callbackExecutor != null ? callbackExecutor : defaultCallbackExecutor();
     }
 
-    private ExecutorService defaultCallbackExecutor()
-    {
+    private ExecutorService defaultCallbackExecutor() {
         ThreadFactory threadFactory = ThreadFactories.namedThreadFactory(getThreadPrefix() + "-callbacks", ThreadFactories.Type.DAEMON);
         return new ThreadPoolExecutor(
                 0,
@@ -376,25 +338,23 @@ public final class HttpClientOptions
         );
     }
 
-    public void setTrustSelfSignedCertificates(boolean trustSelfSignedCertificates)
-    {
+    public void setTrustSelfSignedCertificates(boolean trustSelfSignedCertificates) {
         this.trustSelfSignedCertificates = trustSelfSignedCertificates;
     }
 
     /**
      * @return whether self signed certificates are trusted.
      */
-    public boolean trustSelfSignedCertificates()
-    {
+    public boolean trustSelfSignedCertificates() {
         return trustSelfSignedCertificates;
     }
 
     /**
      * Set proxy options for the client
+     *
      * @param proxyOptions Proxy options created using {@link com.atlassian.httpclient.api.factory.ProxyOptions.ProxyOptionsBuilder}.
      */
-    public void setProxyOptions(final @Nonnull ProxyOptions proxyOptions)
-    {
+    public void setProxyOptions(final @Nonnull ProxyOptions proxyOptions) {
         Preconditions.checkNotNull(proxyOptions, "Proxy options cannot be null");
         this.proxyOptions = proxyOptions;
     }
@@ -402,8 +362,7 @@ public final class HttpClientOptions
     /**
      * @return The proxy options to use for the client.
      */
-    public ProxyOptions getProxyOptions()
-    {
+    public ProxyOptions getProxyOptions() {
         return this.proxyOptions;
     }
 

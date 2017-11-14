@@ -9,51 +9,38 @@ import org.apache.http.HttpHost;
 
 import static com.atlassian.httpclient.apache.httpcomponents.proxy.ProxyConfig.AuthenticationInfo;
 
-public class ProxyConfigFactory
-{
-    public static Option<HttpHost> getProxyHost(final HttpClientOptions options)
-    {
-        return getProxyConfig(options).fold(new Supplier<Option<HttpHost>>()
-        {
+public class ProxyConfigFactory {
+    public static Option<HttpHost> getProxyHost(final HttpClientOptions options) {
+        return getProxyConfig(options).fold(new Supplier<Option<HttpHost>>() {
             @Override
-            public Option<HttpHost> get()
-            {
+            public Option<HttpHost> get() {
                 return Option.none();
             }
-        }, new Function<ProxyConfig, Option<HttpHost>>()
-        {
+        }, new Function<ProxyConfig, Option<HttpHost>>() {
             @Override
-            public Option<HttpHost> apply(final ProxyConfig proxyConfig)
-            {
+            public Option<HttpHost> apply(final ProxyConfig proxyConfig) {
                 return proxyConfig.getProxyHost();
             }
         });
     }
 
-    public static Iterable<AuthenticationInfo> getProxyAuthentication(final HttpClientOptions options)
-    {
-        return getProxyConfig(options).fold(new Supplier<Iterable<AuthenticationInfo>>()
-        {
+    public static Iterable<AuthenticationInfo> getProxyAuthentication(final HttpClientOptions options) {
+        return getProxyConfig(options).fold(new Supplier<Iterable<AuthenticationInfo>>() {
             @Override
-            public Iterable<AuthenticationInfo> get()
-            {
+            public Iterable<AuthenticationInfo> get() {
                 return Lists.newLinkedList();
             }
-        }, new Function<ProxyConfig, Iterable<AuthenticationInfo>>()
-        {
+        }, new Function<ProxyConfig, Iterable<AuthenticationInfo>>() {
             @Override
-            public Iterable<AuthenticationInfo> apply(final ProxyConfig proxyConfig)
-            {
+            public Iterable<AuthenticationInfo> apply(final ProxyConfig proxyConfig) {
                 return proxyConfig.getAuthenticationInfo();
             }
         });
     }
 
-    private static Option<ProxyConfig> getProxyConfig(final HttpClientOptions options)
-    {
+    private static Option<ProxyConfig> getProxyConfig(final HttpClientOptions options) {
         final Option<ProxyConfig> config;
-        switch (options.getProxyOptions().getProxyMode())
-        {
+        switch (options.getProxyOptions().getProxyMode()) {
             case SYSTEM_PROPERTIES:
                 config = Option.<ProxyConfig>some(new SystemPropertiesProxyConfig());
                 break;

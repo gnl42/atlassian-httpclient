@@ -13,20 +13,16 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
-final class DefaultFormBuilder implements FormBuilder
-{
+final class DefaultFormBuilder implements FormBuilder {
     private Map<String, List<String>> parameters = newLinkedHashMap();
 
-    public FormBuilder addParam(String name)
-    {
+    public FormBuilder addParam(String name) {
         return addParam(name, null);
     }
 
-    public FormBuilder addParam(String name, String value)
-    {
+    public FormBuilder addParam(String name, String value) {
         List<String> values = parameters.get(name);
-        if (values == null)
-        {
+        if (values == null) {
             values = newLinkedList();
             parameters.put(name, values);
         }
@@ -34,33 +30,25 @@ final class DefaultFormBuilder implements FormBuilder
         return this;
     }
 
-    public FormBuilder setParam(String name, List<String> values)
-    {
+    public FormBuilder setParam(String name, List<String> values) {
         parameters.put(name, newLinkedList(values));
         return this;
     }
 
-    public Entity build()
-    {
+    public Entity build() {
         StringBuilder buf = new StringBuilder();
         boolean first = true;
-        for (Map.Entry<String, List<String>> entry : parameters.entrySet())
-        {
+        for (Map.Entry<String, List<String>> entry : parameters.entrySet()) {
             String name = encode(entry.getKey());
             List<String> values = entry.getValue();
-            for (String value : values)
-            {
-                if (first)
-                {
+            for (String value : values) {
+                if (first) {
                     first = false;
-                }
-                else
-                {
+                } else {
                     buf.append("&");
                 }
                 buf.append(name);
-                if (value != null)
-                {
+                if (value != null) {
                     buf.append("=");
                     buf.append(encode(value));
                 }
@@ -69,36 +57,28 @@ final class DefaultFormBuilder implements FormBuilder
 
         final byte[] bytes = buf.toString().getBytes(Charset.forName("UTF-8"));
 
-        return new Entity()
-        {
+        return new Entity() {
             @Override
-            public Map<String, String> getHeaders()
-            {
+            public Map<String, String> getHeaders() {
                 return ImmutableMap.of("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             }
 
             @Override
-            public InputStream getInputStream()
-            {
+            public InputStream getInputStream() {
                 return new ByteArrayInputStream(bytes);
             }
 
             @Override
-            public String toString()
-            {
+            public String toString() {
                 return new String(bytes, Charset.forName("UTF-8"));
             }
         };
     }
 
-    private String encode(String str)
-    {
-        try
-        {
+    private String encode(String str) {
+        try {
             str = URLEncoder.encode(str, "UTF-8");
-        }
-        catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
         return str;

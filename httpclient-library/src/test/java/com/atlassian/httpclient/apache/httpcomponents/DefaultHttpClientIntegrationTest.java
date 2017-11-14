@@ -25,8 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class DefaultHttpClientIntegrationTest
-{
+public final class DefaultHttpClientIntegrationTest {
     private static final ThreadLocal<Object> TEST_THREAD_LOCAL = new ThreadLocal<Object>();
 
     private static final AtomicBoolean NO_OP_THREAD_LOCAL_CONTEXT_MANAGER = new AtomicBoolean(false);
@@ -43,36 +42,29 @@ public final class DefaultHttpClientIntegrationTest
     private ApplicationProperties applicationProperties;
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.set(false); //By default use thread manager in all tests
 
         when(applicationProperties.getDisplayName()).thenReturn(DefaultHttpClientIntegrationTest.class.getSimpleName());
         when(applicationProperties.getVersion()).thenReturn("1");
         when(applicationProperties.getBuildNumber()).thenReturn("0001");
 
-        httpClient = new ApacheAsyncHttpClient<Object>(eventPublisher, applicationProperties, new ThreadLocalContextManager<Object>()
-        {
+        httpClient = new ApacheAsyncHttpClient<Object>(eventPublisher, applicationProperties, new ThreadLocalContextManager<Object>() {
             @Override
-            public Object getThreadLocalContext()
-            {
+            public Object getThreadLocalContext() {
                 return NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.get() ? null : TEST_THREAD_LOCAL.get();
             }
 
             @Override
-            public void setThreadLocalContext(Object context)
-            {
-                if (!NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.get())
-                {
+            public void setThreadLocalContext(Object context) {
+                if (!NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.get()) {
                     TEST_THREAD_LOCAL.set(context);
                 }
             }
 
             @Override
-            public void clearThreadLocalContext()
-            {
-                if (!NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.get())
-                {
+            public void clearThreadLocalContext() {
+                if (!NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.get()) {
                     TEST_THREAD_LOCAL.set(null);
                 }
             }
@@ -80,8 +72,7 @@ public final class DefaultHttpClientIntegrationTest
     }
 
     @Test
-    public void threadLocalVariablesAreAvailableToFunctionsWithWorkingThreadLocalContextManager()
-    {
+    public void threadLocalVariablesAreAvailableToFunctionsWithWorkingThreadLocalContextManager() {
         final AtomicBoolean okFunctionCalled = new AtomicBoolean(false);
         final long testThreadId = Thread.currentThread().getId();
 
@@ -89,11 +80,9 @@ public final class DefaultHttpClientIntegrationTest
         TEST_THREAD_LOCAL.set(objectInThreadLocal);
 
         ResponsePromise responsePromise = httpClient.newRequest(SERVER.newUri("/test")).get();
-        final Object claimedObject = httpClient.transformation().ok(new Function<Response, Object>()
-        {
+        final Object claimedObject = httpClient.transformation().ok(new Function<Response, Object>() {
             @Override
-            public Object apply(Response response)
-            {
+            public Object apply(Response response) {
                 okFunctionCalled.set(true);
                 assertTrue("For this test to work the function should be executed in a separate thread!", testThreadId != Thread.currentThread().getId());
                 assertTrue(Thread.currentThread().getName().startsWith("httpclient-callbacks"));
@@ -106,8 +95,7 @@ public final class DefaultHttpClientIntegrationTest
     }
 
     @Test
-    public void threadLocalVariablesAreNotAvailableToFunctionsWithNoOpThreadLocalContextManager()
-    {
+    public void threadLocalVariablesAreNotAvailableToFunctionsWithNoOpThreadLocalContextManager() {
         NO_OP_THREAD_LOCAL_CONTEXT_MANAGER.set(true);
 
         final AtomicBoolean okFunctionCalled = new AtomicBoolean(false);
@@ -117,11 +105,9 @@ public final class DefaultHttpClientIntegrationTest
         TEST_THREAD_LOCAL.set(objectInThreadLocal);
 
         ResponsePromise responsePromise = httpClient.newRequest(SERVER.newUri("/test")).get();
-        final Object claimedObject = httpClient.transformation().ok(new Function<Response, Object>()
-        {
+        final Object claimedObject = httpClient.transformation().ok(new Function<Response, Object>() {
             @Override
-            public Object apply(Response response)
-            {
+            public Object apply(Response response) {
                 okFunctionCalled.set(true);
                 assertTrue("For this test to work the function should be executed in a separate thread!", testThreadId != Thread.currentThread().getId());
                 assertTrue(Thread.currentThread().getName().startsWith("httpclient-callbacks"));
@@ -134,17 +120,14 @@ public final class DefaultHttpClientIntegrationTest
     }
 
     @Test
-    public void contextClassLoaderSetForCallback()
-    {
+    public void contextClassLoaderSetForCallback() {
         ClassLoader tmpClassLoader = new URLClassLoader(new URL[0]);
         Thread.currentThread().setContextClassLoader(tmpClassLoader);
 
         ResponsePromise responsePromise = httpClient.newRequest(SERVER.newUri("/test")).get();
-        ClassLoader callbackClassLoader = httpClient.<ClassLoader>transformation().ok(new Function<Response, ClassLoader>()
-        {
+        ClassLoader callbackClassLoader = httpClient.<ClassLoader>transformation().ok(new Function<Response, ClassLoader>() {
             @Override
-            public ClassLoader apply(Response response)
-            {
+            public ClassLoader apply(Response response) {
                 return Thread.currentThread().getContextClassLoader();
             }
         }).build().apply(responsePromise).claim();

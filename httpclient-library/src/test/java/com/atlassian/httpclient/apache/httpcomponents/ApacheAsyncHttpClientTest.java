@@ -27,15 +27,13 @@ import java.security.cert.CertificateException;
 
 import static org.junit.Assert.assertEquals;
 
-public final class ApacheAsyncHttpClientTest
-{
+public final class ApacheAsyncHttpClientTest {
     private HttpsServer server;
 
     private int port;
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         server = HttpsServer.create(new InetSocketAddress(0), 0);
         port = server.getAddress().getPort();
         server.setHttpsConfigurator(new HttpsConfigurator(getSslContext()));
@@ -45,33 +43,26 @@ public final class ApacheAsyncHttpClientTest
     }
 
     @After
-    public void tearDown() throws Exception
-    {
-        if (server != null)
-        {
+    public void tearDown() throws Exception {
+        if (server != null) {
             server.stop(3);
         }
     }
 
     @Test
-    public void testGetWhenNotTrustingSelfSignedCertificates()
-    {
+    public void testGetWhenNotTrustingSelfSignedCertificates() {
         HttpClientOptions options = new HttpClientOptions();
         options.setTrustSelfSignedCertificates(false);
         final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("not-trusty-client", options);
-        try
-        {
+        try {
             httpClient.newRequest(serverUrl()).get().claim();
-        }
-        catch (RuntimeException expected)
-        {
+        } catch (RuntimeException expected) {
             assertEquals(SSLHandshakeException.class, expected.getCause().getClass());
         }
     }
 
     @Test
-    public void testGetWhenTrustingSelfSignedCertificates()
-    {
+    public void testGetWhenTrustingSelfSignedCertificates() {
         HttpClientOptions options = new HttpClientOptions();
         options.setTrustSelfSignedCertificates(true);
         final HttpClient httpClient = new ApacheAsyncHttpClient<Void>("trusty-client", options);
@@ -79,8 +70,7 @@ public final class ApacheAsyncHttpClientTest
     }
 
     @Test
-    public void testGetWithoutAProxy()
-    {
+    public void testGetWithoutAProxy() {
         HttpClientOptions options = new HttpClientOptions();
         options.setProxyOptions(ProxyOptions.ProxyOptionsBuilder.create().withNoProxy().build());
         options.setTrustSelfSignedCertificates(true);
@@ -88,8 +78,7 @@ public final class ApacheAsyncHttpClientTest
         httpClient.newRequest(serverUrl()).get().claim();
     }
 
-    private SSLContext getSslContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, KeyManagementException
-    {
+    private SSLContext getSslContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, KeyManagementException {
         char[] passphrase = "password".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
         ks.load(this.getClass().getResourceAsStream("/keystore.jks"), passphrase);
@@ -105,10 +94,8 @@ public final class ApacheAsyncHttpClientTest
         return ssl;
     }
 
-    private final class NoOpHandler implements HttpHandler
-    {
-        public void handle(HttpExchange t) throws IOException
-        {
+    private final class NoOpHandler implements HttpHandler {
+        public void handle(HttpExchange t) throws IOException {
             String response = "This is the response";
             t.sendResponseHeaders(200, response.length());
             OutputStream os = t.getResponseBody();

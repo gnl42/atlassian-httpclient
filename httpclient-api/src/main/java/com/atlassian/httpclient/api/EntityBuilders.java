@@ -6,17 +6,16 @@ import java.util.Map;
 /**
  * Provides access to various entity builders
  */
-public final class EntityBuilders
-{
-    private EntityBuilders() { }
+public final class EntityBuilders {
+    private EntityBuilders() {
+    }
 
     /**
      * Creates a new form entity builder for content-type "application/x-www-form-urlencoded".
      *
      * @return The new form builder
      */
-    public static FormBuilder newForm()
-    {
+    public static FormBuilder newForm() {
         return new DefaultFormBuilder();
     }
 
@@ -27,11 +26,9 @@ public final class EntityBuilders
      * @param params The parameter map
      * @return The new form builder
      */
-    FormBuilder newFormWithParams(Map<String, String> params)
-    {
+    FormBuilder newFormWithParams(Map<String, String> params) {
         FormBuilder form = newForm();
-        for (Map.Entry<String, String> param : params.entrySet())
-        {
+        for (Map.Entry<String, String> param : params.entrySet()) {
             form.addParam(param.getKey(), param.getValue());
         }
         return form;
@@ -44,22 +41,16 @@ public final class EntityBuilders
      * @param params The multi-valued parameter map
      * @return The new form builder
      */
-    FormBuilder newFormWithListParams(Map<String, List<String>> params)
-    {
+    FormBuilder newFormWithListParams(Map<String, List<String>> params) {
         FormBuilder form = newForm();
-        for (Map.Entry<String, List<String>> param : params.entrySet())
-        {
+        for (Map.Entry<String, List<String>> param : params.entrySet()) {
             String key = param.getKey();
             List<String> values = param.getValue();
-            if (values != null && values.size() > 0)
-            {
-                for (String value : values)
-                {
+            if (values != null && values.size() > 0) {
+                for (String value : values) {
                     form.addParam(key, value);
                 }
-            }
-            else
-            {
+            } else {
                 form.addParam(key);
             }
         }

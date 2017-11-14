@@ -19,18 +19,14 @@ import java.util.List;
 /**
  * Proxy configuration set with system properties.
  */
-public class SystemPropertiesProxyConfig extends ProxyConfig
-{
+public class SystemPropertiesProxyConfig extends ProxyConfig {
     private static final Iterable<String> SUPPORTED_SCHEMAS = Lists.newArrayList("http", "https");
     private static Splitter NON_PROXY_HOST_SPLITTER = Splitter.on('|');
 
-    Iterable<HttpHost> getProxyHosts()
-    {
-        Iterable<Option<HttpHost>> proxyHosts = Iterables.transform(SUPPORTED_SCHEMAS, new Function<String, Option<HttpHost>>()
-        {
+    Iterable<HttpHost> getProxyHosts() {
+        Iterable<Option<HttpHost>> proxyHosts = Iterables.transform(SUPPORTED_SCHEMAS, new Function<String, Option<HttpHost>>() {
             @Override
-            public Option<HttpHost> apply(final String schema)
-            {
+            public Option<HttpHost> apply(final String schema) {
                 return getProxy(schema);
             }
         });
@@ -38,13 +34,10 @@ public class SystemPropertiesProxyConfig extends ProxyConfig
     }
 
     @Override
-    public Iterable<AuthenticationInfo> getAuthenticationInfo()
-    {
-        return Iterables.transform(getProxyHosts(), new Function<HttpHost, AuthenticationInfo>()
-        {
+    public Iterable<AuthenticationInfo> getAuthenticationInfo() {
+        return Iterables.transform(getProxyHosts(), new Function<HttpHost, AuthenticationInfo>() {
             @Override
-            public AuthenticationInfo apply(final HttpHost httpHost)
-            {
+            public AuthenticationInfo apply(final HttpHost httpHost) {
                 final AuthScope authScope = new AuthScope(httpHost);
                 final Option<Credentials> credentials = credentialsForScheme(httpHost.getSchemeName());
                 return new AuthenticationInfo(authScope, credentials);
@@ -52,57 +45,40 @@ public class SystemPropertiesProxyConfig extends ProxyConfig
         });
     }
 
-    private static Option<HttpHost> getProxy(final String schemeName)
-    {
+    private static Option<HttpHost> getProxy(final String schemeName) {
         String proxyHost = System.getProperty(schemeName + ".proxyHost");
-        if (proxyHost != null)
-        {
+        if (proxyHost != null) {
             return Option.some(new HttpHost(proxyHost, Integer.parseInt(System.getProperty(schemeName + ".proxyPort")), schemeName));
-        }
-        else
-        {
+        } else {
             return Option.none();
         }
     }
 
-    private static List<String> getNonProxyHosts(final String schemeName)
-    {
+    private static List<String> getNonProxyHosts(final String schemeName) {
         String nonProxyHosts = System.getProperty(schemeName + ".nonProxyHosts");
-        if (nonProxyHosts != null)
-        {
+        if (nonProxyHosts != null) {
             return Lists.newArrayList(NON_PROXY_HOST_SPLITTER.split(nonProxyHosts));
-        }
-        else
-        {
+        } else {
             return ImmutableList.of();
         }
     }
 
-    private static Option<Credentials> credentialsForScheme(final String schemeName)
-    {
+    private static Option<Credentials> credentialsForScheme(final String schemeName) {
         final String username = System.getProperty(schemeName + ".proxyUser");
-        if (username != null)
-        {
+        if (username != null) {
             final String proxyPassword = System.getProperty(schemeName + ".proxyPassword");
             final String proxyAuth = System.getProperty(schemeName + ".proxyAuth");
-            if (proxyAuth == null || proxyAuth.equalsIgnoreCase("basic"))
-            {
+            if (proxyAuth == null || proxyAuth.equalsIgnoreCase("basic")) {
                 return Option.<Credentials>some(new UsernamePasswordCredentials(username, proxyPassword));
-            }
-            else if (proxyAuth.equalsIgnoreCase("digest") || proxyAuth.equalsIgnoreCase("ntlm"))
-            {
+            } else if (proxyAuth.equalsIgnoreCase("digest") || proxyAuth.equalsIgnoreCase("ntlm")) {
                 String ntlmDomain = System.getProperty(schemeName + ".proxyNtlmDomain");
                 String ntlmWorkstation = System.getProperty(schemeName + ".proxyNtlmWorkstation");
                 return Option.<Credentials>some(new NTCredentials(username, proxyPassword,
                         StringUtils.defaultString(ntlmWorkstation), StringUtils.defaultString(ntlmDomain)));
-            }
-            else
-            {
+            } else {
                 return Option.none();
             }
-        }
-        else
-        {
+        } else {
             return Option.none();
         }
     }

@@ -17,9 +17,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-@RunWith (MockitoJUnitRunner.class)
-public class DefaultHttpClientFactoryTest
-{
+@RunWith(MockitoJUnitRunner.class)
+public class DefaultHttpClientFactoryTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
@@ -33,8 +32,7 @@ public class DefaultHttpClientFactoryTest
     private ThreadLocalContextManager<?> threadLocalContextManager;
 
     @Test
-    public void testDisposingHttpClient() throws Exception
-    {
+    public void testDisposingHttpClient() throws Exception {
         DefaultHttpClientFactory<?> factory = new DefaultHttpClientFactory<>(eventPublisher, applicationProperties, threadLocalContextManager);
         final HttpClient httpClient1 = factory.create(new HttpClientOptions());
         final HttpClient httpClient2 = factory.create(new HttpClientOptions());
@@ -53,8 +51,7 @@ public class DefaultHttpClientFactoryTest
     }
 
     @Test
-    public void testDisposingClientTwice() throws Exception
-    {
+    public void testDisposingClientTwice() throws Exception {
         DefaultHttpClientFactory<?> factory = new DefaultHttpClientFactory<>(eventPublisher, applicationProperties, threadLocalContextManager);
         final HttpClient httpClient = factory.create(new HttpClientOptions());
 
@@ -71,8 +68,7 @@ public class DefaultHttpClientFactoryTest
     }
 
     @Test
-    public void testNotDisposingNotDisposableClient() throws Exception
-    {
+    public void testNotDisposingNotDisposableClient() throws Exception {
         DefaultHttpClientFactory<?> factory = new DefaultHttpClientFactory<>(eventPublisher, applicationProperties, threadLocalContextManager);
 
         exception.expect(IllegalArgumentException.class);

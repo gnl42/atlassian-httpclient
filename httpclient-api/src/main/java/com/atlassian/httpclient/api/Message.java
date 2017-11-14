@@ -9,8 +9,7 @@ import java.util.Map;
  * An abstract base class for HTTP messages (i.e. Request and Response) with support for
  * header and entity management.
  */
-public interface Message
-{
+public interface Message {
     /**
      * Returns the IANA media type, minus charset information, for the current entity, if any.
      * To access charset information, use <code>getContentCharset()</code>.  To get the full
@@ -33,7 +32,7 @@ public interface Message
      *
      * @return An input stream for the current entity, or null if not set
      * @throws IllegalStateException If the non-null entity has already been accessed once, through
-     *         any accessor for this object
+     *                               any accessor for this object
      */
     InputStream getEntityStream() throws IllegalStateException;
 
@@ -43,8 +42,8 @@ public interface Message
      * standard of "ISO-8859-1" if no content charset has been specified.
      *
      * @return The entity string, or null if no entity has been set
-     * @throws IllegalStateException If the non-null entity has already been accessed once, through
-     *         any accessor for this object.  Also thrown if underlying body cannot be converted into a String
+     * @throws IllegalStateException    If the non-null entity has already been accessed once, through
+     *                                  any accessor for this object.  Also thrown if underlying body cannot be converted into a String
      * @throws IllegalArgumentException If the entity exceeds the maximum size
      */
     String getEntity() throws IllegalStateException, IllegalArgumentException;
@@ -90,6 +89,7 @@ public interface Message
      * Returns the content length for the entity in the message. For requests, this would be the content length of the
      * entity that you set, or the content length that you can set manually (e.g. for streamed entities). For responses,
      * this would be the content length from the header.
+     *
      * @return The content length as an option. None is returned if no content length has been set or not present.
      */
     Option<Long> getContentLength();

@@ -12,9 +12,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nullable;
 
 import static com.atlassian.httpclient.api.ResponsePromises.toResponsePromise;
 import static com.atlassian.util.concurrent.Promises.forFuture;
@@ -25,8 +25,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class ResponseTransformationTest
-{
+public final class ResponseTransformationTest {
     @Mock
     private Response response;
 
@@ -89,8 +88,7 @@ public final class ResponseTransformationTest
     private SettableFuture<Response> responseSettableFuture;
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         responseSettableFuture = SettableFuture.create();
         allFunctions = ImmutableSet.<Function<Response, Object>>builder()
                 .add(informationalFunction)
@@ -107,136 +105,111 @@ public final class ResponseTransformationTest
     }
 
     @Test
-    public void testInformationalFunctionCalledOn1xx()
-    {
-        for (int statusCode = HttpStatus.CONTINUE.code; statusCode < HttpStatus.OK.code; statusCode++)
-        {
+    public void testInformationalFunctionCalledOn1xx() {
+        for (int statusCode = HttpStatus.CONTINUE.code; statusCode < HttpStatus.OK.code; statusCode++) {
             testFunctionCalledForStatus(rangesBuilder(), informationalFunction, statusCode);
             resetAllMocks();
         }
     }
 
     @Test
-    public void testInformationalFunctionCalledOn2xx()
-    {
-        for (int statusCode = HttpStatus.OK.code; statusCode < HttpStatus.MULTIPLE_CHOICES.code; statusCode++)
-        {
+    public void testInformationalFunctionCalledOn2xx() {
+        for (int statusCode = HttpStatus.OK.code; statusCode < HttpStatus.MULTIPLE_CHOICES.code; statusCode++) {
             testFunctionCalledForStatus(rangesBuilder(), successfulFunction, statusCode);
             resetAllMocks();
         }
     }
 
     @Test
-    public void testOkFunctionCalledOn200()
-    {
+    public void testOkFunctionCalledOn200() {
         testFunctionCalledForStatus(okFunction, HttpStatus.OK.code);
     }
 
     @Test
-    public void testCreatedFunctionCalledOn201()
-    {
+    public void testCreatedFunctionCalledOn201() {
         testFunctionCalledForStatus(createdFunction, HttpStatus.CREATED.code);
     }
 
     @Test
-    public void testNoContentFunctionCalledOn204()
-    {
+    public void testNoContentFunctionCalledOn204() {
         testFunctionCalledForStatus(noContentFunction, HttpStatus.NO_CONTENT.code);
     }
 
 
     @Test
-    public void testInformationalFunctionCalledOn3xx()
-    {
-        for (int statusCode = HttpStatus.MULTIPLE_CHOICES.code; statusCode < HttpStatus.BAD_REQUEST.code; statusCode++)
-        {
+    public void testInformationalFunctionCalledOn3xx() {
+        for (int statusCode = HttpStatus.MULTIPLE_CHOICES.code; statusCode < HttpStatus.BAD_REQUEST.code; statusCode++) {
             testFunctionCalledForStatus(rangesBuilder(), redirectionFunction, statusCode);
             resetAllMocks();
         }
     }
 
     @Test
-    public void testSeeOtherFunctionCalledOn303()
-    {
+    public void testSeeOtherFunctionCalledOn303() {
         testFunctionCalledForStatus(seeOtherFunction, HttpStatus.SEE_OTHER.code);
     }
 
     @Test
-    public void testSeeOtherFunctionCalledOn304()
-    {
+    public void testSeeOtherFunctionCalledOn304() {
         testFunctionCalledForStatus(notModifiedFunction, HttpStatus.NOT_MODIFIED.code);
     }
 
     @Test
-    public void testInformationalFunctionCalledOn4xx()
-    {
-        for (int statusCode = HttpStatus.BAD_REQUEST.code; statusCode < HttpStatus.INTERNAL_SERVER_ERROR.code; statusCode++)
-        {
+    public void testInformationalFunctionCalledOn4xx() {
+        for (int statusCode = HttpStatus.BAD_REQUEST.code; statusCode < HttpStatus.INTERNAL_SERVER_ERROR.code; statusCode++) {
             testFunctionCalledForStatus(rangesBuilder(), clientErrorFunction, statusCode);
             resetAllMocks();
         }
     }
 
     @Test
-    public void testBadRequestFunctionCalledOn400()
-    {
+    public void testBadRequestFunctionCalledOn400() {
         testFunctionCalledForStatus(badRequestFunction, HttpStatus.BAD_REQUEST.code);
     }
 
     @Test
-    public void testBadRequestFunctionCalledOn401()
-    {
+    public void testBadRequestFunctionCalledOn401() {
         testFunctionCalledForStatus(unauthorizedFunction, HttpStatus.UNAUTHORIZED.code);
     }
 
     @Test
-    public void testForbiddenFunctionCalledOn403()
-    {
+    public void testForbiddenFunctionCalledOn403() {
         testFunctionCalledForStatus(forbiddenFunction, HttpStatus.FORBIDDEN.code);
     }
 
     @Test
-    public void testNotFoundFunctionCalledOn404()
-    {
+    public void testNotFoundFunctionCalledOn404() {
         testFunctionCalledForStatus(notFoundFunction, HttpStatus.NOT_FOUND.code);
     }
 
     @Test
-    public void testConflictFunctionCalledOn409()
-    {
+    public void testConflictFunctionCalledOn409() {
         testFunctionCalledForStatus(conflictFunction, HttpStatus.CONFLICT.code);
     }
 
     @Test
-    public void testInformationalFunctionCalledOn5xx()
-    {
-        for (int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.code; statusCode < 600; statusCode++)
-        {
+    public void testInformationalFunctionCalledOn5xx() {
+        for (int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.code; statusCode < 600; statusCode++) {
             testFunctionCalledForStatus(rangesBuilder(), serverErrorFunction, statusCode);
             resetAllMocks();
         }
     }
 
     @Test
-    public void testInternalServerErrorFunctionCalledOn500()
-    {
+    public void testInternalServerErrorFunctionCalledOn500() {
         testFunctionCalledForStatus(internalServerErrorFunction, HttpStatus.INTERNAL_SERVER_ERROR.code);
     }
 
     @Test
-    public void testServiceUnavailableFunctionCalledOn503()
-    {
+    public void testServiceUnavailableFunctionCalledOn503() {
         testFunctionCalledForStatus(serviceUnavailableFunction, HttpStatus.SERVICE_UNAVAILABLE.code);
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testFailThrowsException()
-    {
-        ResponseTransformation<Object> responseTransformation = newBuilder().fail(new Function<Throwable, Object>()
-        {
+    public void testFailThrowsException() {
+        ResponseTransformation<Object> responseTransformation = newBuilder().fail(new Function<Throwable, Object>() {
             @Override
-            public Object apply(@Nullable Throwable input)
-            {
+            public Object apply(@Nullable Throwable input) {
                 throw new IllegalStateException("foo");
             }
         }).build();
@@ -246,27 +219,22 @@ public final class ResponseTransformationTest
     }
 
     @Test
-    public void testDelayedExecutionExecutesOnce()
-    {
+    public void testDelayedExecutionExecutesOnce() {
         final AtomicInteger counter = new AtomicInteger(0);
         when(this.response.getStatusCode()).thenReturn(200);
 
         ResponsePromise responsePromise = toResponsePromise(forListenableFuture(responseSettableFuture));
 
         ResponseTransformation<String> responseTransformation = DefaultResponseTransformation.<String>builder()
-                .ok(new Function<Response, String>()
-                {
+                .ok(new Function<Response, String>() {
                     @Override
-                    public String apply(@Nullable Response input)
-                    {
+                    public String apply(@Nullable Response input) {
                         return "foo" + counter.getAndIncrement();
                     }
                 })
-                .fail(new Function<Throwable, String>()
-                {
+                .fail(new Function<Throwable, String>() {
                     @Override
-                    public String apply(@Nullable Throwable input)
-                    {
+                    public String apply(@Nullable Throwable input) {
                         throw new IllegalStateException();
                     }
                 }).build();
@@ -276,62 +244,49 @@ public final class ResponseTransformationTest
     }
 
     @Test
-    public void testDelayedExecutionExecutesDoneOnceWithException()
-    {
+    public void testDelayedExecutionExecutesDoneOnceWithException() {
         final AtomicInteger counter = new AtomicInteger(0);
 
         when(this.response.getStatusCode()).thenReturn(200);
 
         ResponseTransformation<String> responseTransformation = DefaultResponseTransformation.<String>builder()
-                .ok(new Function<Response, String>()
-                {
+                .ok(new Function<Response, String>() {
                     @Override
-                    public String apply(@Nullable Response input)
-                    {
+                    public String apply(@Nullable Response input) {
                         throw new IllegalArgumentException("foo" + counter.getAndIncrement());
                     }
                 })
-                .fail(new Function<Throwable, String>()
-                {
+                .fail(new Function<Throwable, String>() {
                     @Override
-                    public String apply(@Nullable Throwable input)
-                    {
+                    public String apply(@Nullable Throwable input) {
                         return null;
                     }
                 }).build();
         Promise<String> promise = toResponsePromise(forListenableFuture(responseSettableFuture)).transform(responseTransformation);
 
         responseSettableFuture.set(this.response);
-        try
-        {
+        try {
             promise.claim();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             Assert.assertEquals("foo0", ex.getMessage());
         }
     }
 
     @Test
-    public void testDelayedExecutionExecutesFailOnce()
-    {
+    public void testDelayedExecutionExecutesFailOnce() {
         final AtomicInteger counter = new AtomicInteger(0);
         when(this.response.getStatusCode()).thenReturn(200);
 
         ResponseTransformation<String> responseTransformation = DefaultResponseTransformation.<String>builder()
-                .fail(new Function<Throwable, String>()
-                {
+                .fail(new Function<Throwable, String>() {
                     @Override
-                    public String apply(@Nullable Throwable input)
-                    {
+                    public String apply(@Nullable Throwable input) {
                         return "foo" + counter.getAndIncrement();
                     }
                 })
-                .ok(new Function<Response, String>()
-                {
+                .ok(new Function<Response, String>() {
                     @Override
-                    public String apply(@Nullable Response input)
-                    {
+                    public String apply(@Nullable Response input) {
                         throw new IllegalStateException();
                     }
                 })
@@ -342,21 +297,16 @@ public final class ResponseTransformationTest
     }
 
     @Test
-    public void testNotSuccessfulFunctionCalled()
-    {
+    public void testNotSuccessfulFunctionCalled() {
 
 
-        for (int statusCode = HttpStatus.CONTINUE.code; statusCode < 600; statusCode++)
-        {
+        for (int statusCode = HttpStatus.CONTINUE.code; statusCode < 600; statusCode++) {
             final ResponseTransformation<Object> transformation = newBuilder()
                     .notSuccessful(clientErrorFunction)
                     .others(successfulFunction).build();
-            if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code)
-            {
+            if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code) {
                 testFunctionCalledForStatus(transformation, successfulFunction, statusCode);
-            }
-            else
-            {
+            } else {
                 testFunctionCalledForStatus(transformation, clientErrorFunction, statusCode);
             }
             resetAllMocks();
@@ -364,20 +314,15 @@ public final class ResponseTransformationTest
     }
 
     @Test
-    public void testErrorFunctionCalled()
-    {
+    public void testErrorFunctionCalled() {
 
-        for (int statusCode = HttpStatus.CONTINUE.code; statusCode < 600; statusCode++)
-        {
+        for (int statusCode = HttpStatus.CONTINUE.code; statusCode < 600; statusCode++) {
             final ResponseTransformation<Object> responseTransformation = newBuilder()
                     .error(clientErrorFunction)
                     .others(successfulFunction).build();
-            if (HttpStatus.BAD_REQUEST.code <= statusCode && statusCode < 600)
-            {
+            if (HttpStatus.BAD_REQUEST.code <= statusCode && statusCode < 600) {
                 testFunctionCalledForStatus(responseTransformation, clientErrorFunction, statusCode);
-            }
-            else
-            {
+            } else {
                 testFunctionCalledForStatus(responseTransformation, successfulFunction, statusCode);
             }
             resetAllMocks();
@@ -385,8 +330,7 @@ public final class ResponseTransformationTest
     }
 
     @Test
-    public void testOthersFunctionCalled()
-    {
+    public void testOthersFunctionCalled() {
         testFunctionCalledForStatus(
                 newBuilder().others(othersFunction).build(),
                 othersFunction,
@@ -394,51 +338,41 @@ public final class ResponseTransformationTest
     }
 
     @Test
-    public void testFunctionAddedOnNonStandardHttpStatus()
-    {
-        newBuilder().on(601, new Function<Response, Object>()
-        {
+    public void testFunctionAddedOnNonStandardHttpStatus() {
+        newBuilder().on(601, new Function<Response, Object>() {
             @Override
-            public Object apply(@Nullable Response input)
-            {
+            public Object apply(@Nullable Response input) {
                 return null;
             }
         });
     }
 
     @Test(expected = IllegalMonitorStateException.class)
-    public void testFailCanThrowExceptions()
-    {
+    public void testFailCanThrowExceptions() {
         responseSettableFuture.setException(new Throwable("Some message"));
         ResponsePromise responsePromise = toResponsePromise(forListenableFuture(responseSettableFuture));
         DefaultResponseTransformation.<String>builder()
-                .ok(new Function<Response, String>()
-                {
+                .ok(new Function<Response, String>() {
                     @Override
-                    public String apply(Response input)
-                    {
+                    public String apply(Response input) {
                         return "Ok";
                     }
                 })
-                .fail(new Function<Throwable, String>()
-                {
+                .fail(new Function<Throwable, String>() {
                     @Override
-                    public String apply(Throwable input)
-                    {
+                    public String apply(Throwable input) {
                         throw new IllegalMonitorStateException();
                     }
                 }).build().apply(responsePromise).claim();
     }
 
     @Test(expected = IllegalMonitorStateException.class)
-    public void testFailExceptionsWithoutHandlersAreThrownAtClaim()
-    {
+    public void testFailExceptionsWithoutHandlersAreThrownAtClaim() {
         responseSettableFuture.setException(new IllegalMonitorStateException("Some message"));
         newBuilder().build().apply(toResponsePromise(forListenableFuture(responseSettableFuture))).claim();
     }
 
-    private void testFunctionCalledForStatus(Function<Response, Object> function, int statusCode)
-    {
+    private void testFunctionCalledForStatus(Function<Response, Object> function, int statusCode) {
         testFunctionCalledForStatus(
                 newBuilder()
                         .informational(informationalFunction)
@@ -459,8 +393,7 @@ public final class ResponseTransformationTest
                 statusCode);
     }
 
-    private void testFunctionCalledForStatus(ResponseTransformation<Object> responseTransformation, Function<Response, Object> function, int statusCode)
-    {
+    private void testFunctionCalledForStatus(ResponseTransformation<Object> responseTransformation, Function<Response, Object> function, int statusCode) {
         when(response.getStatusCode()).thenReturn(statusCode);
         responseSettableFuture.set(response);
 
@@ -470,13 +403,11 @@ public final class ResponseTransformationTest
         verifyNoMoreInteractions(allFunctionsAsArray());
     }
 
-    private ResponseTransformation.Builder<Object> newBuilder()
-    {
+    private ResponseTransformation.Builder<Object> newBuilder() {
         return DefaultResponseTransformation.builder();
     }
 
-    private ResponseTransformation<Object> rangesBuilder()
-    {
+    private ResponseTransformation<Object> rangesBuilder() {
         return newBuilder()
                 .successful(successfulFunction)
                 .informational(informationalFunction)
@@ -487,13 +418,11 @@ public final class ResponseTransformationTest
                 .build();
     }
 
-    private Function[] allFunctionsAsArray()
-    {
+    private Function[] allFunctionsAsArray() {
         return toArray(allFunctions, Function.class);
     }
 
-    private void resetAllMocks()
-    {
+    private void resetAllMocks() {
         Mockito.reset(allFunctionsAsArray());
         responseSettableFuture = SettableFuture.create();
     }

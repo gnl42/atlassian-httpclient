@@ -70,6 +70,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
@@ -80,24 +84,17 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
 
 import static com.atlassian.util.concurrent.Promises.rejected;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
-public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean
-{
+public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private static final Supplier<String> httpClientVersion = Suppliers.memoize(new Supplier<String>()
-    {
+    private static final Supplier<String> httpClientVersion = Suppliers.memoize(new Supplier<String>() {
         @Override
-        public String get()
-        {
+        public String get() {
             return MavenUtils.getVersion("com.atlassian.httpclient", "atlassian-httpclient-api");
         }
     });
@@ -113,44 +110,38 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private final FlushableHttpCacheStorage httpCacheStorage;
 
     public ApacheAsyncHttpClient(EventPublisher eventConsumer, ApplicationProperties applicationProperties,
-                                 ThreadLocalContextManager<C> threadLocalContextManager)
-    {
+                                 ThreadLocalContextManager<C> threadLocalContextManager) {
         this(eventConsumer, applicationProperties, threadLocalContextManager, new HttpClientOptions());
     }
 
     public ApacheAsyncHttpClient(EventPublisher eventConsumer,
-            ApplicationProperties applicationProperties,
-            ThreadLocalContextManager<C> threadLocalContextManager,
-            HttpClientOptions options)
-    {
+                                 ApplicationProperties applicationProperties,
+                                 ThreadLocalContextManager<C> threadLocalContextManager,
+                                 HttpClientOptions options) {
         this(new DefaultApplicationNameSupplier(applicationProperties),
                 new EventConsumerFunction(eventConsumer),
                 threadLocalContextManager,
                 options);
     }
 
-    public ApacheAsyncHttpClient(String applicationName)
-    {
+    public ApacheAsyncHttpClient(String applicationName) {
         this(applicationName, new HttpClientOptions());
     }
 
-    public ApacheAsyncHttpClient(String applicationName, final HttpClientOptions options)
-    {
+    public ApacheAsyncHttpClient(String applicationName, final HttpClientOptions options) {
         this(Suppliers.ofInstance(applicationName), Functions.constant((Void) null), new NoOpThreadLocalContextManager<C>(), options);
     }
 
     public ApacheAsyncHttpClient(final Supplier<String> applicationName,
-            final Function<Object, Void> eventConsumer,
-            final ThreadLocalContextManager<C> threadLocalContextManager,
-            final HttpClientOptions options)
-    {
+                                 final Function<Object, Void> eventConsumer,
+                                 final ThreadLocalContextManager<C> threadLocalContextManager,
+                                 final HttpClientOptions options) {
         this.eventConsumer = checkNotNull(eventConsumer);
         this.applicationName = checkNotNull(applicationName);
         this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
         this.httpClientOptions = checkNotNull(options);
 
-        try
-        {
+        try {
             final IOReactorConfig reactorConfig = IOReactorConfig.custom()
                     .setIoThreadCount(options.getIoThreadCount())
                     .setSelectInterval(options.getIoSelectInterval())
@@ -158,18 +149,15 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     .build();
 
             final DefaultConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(reactorConfig);
-            ioReactor.setExceptionHandler(new IOReactorExceptionHandler()
-            {
+            ioReactor.setExceptionHandler(new IOReactorExceptionHandler() {
                 @Override
-                public boolean handle(final IOException e)
-                {
+                public boolean handle(final IOException e) {
                     log.error("IO exception in reactor ", e);
                     return false;
                 }
 
                 @Override
-                public boolean handle(final RuntimeException e)
-                {
+                public boolean handle(final RuntimeException e) {
                     log.error("Fatal runtime error", e);
                     return false;
                 }
@@ -182,11 +170,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     DefaultSchemePortResolver.INSTANCE,
                     SystemDefaultDnsResolver.INSTANCE,
                     options.getConnectionPoolTimeToLive(),
-                    TimeUnit.MILLISECONDS)
-            {
+                    TimeUnit.MILLISECONDS) {
                 @Override
-                protected void finalize() throws Throwable
-                {
+                protected void finalize() throws Throwable {
                     // prevent the PoolingClientAsyncConnectionManager from logging - this causes exceptions due to
                     // the ClassLoader probably having been removed when the plugin shuts down.  Added a
                     // PluginEventListener to make sure the shutdown method is called while the plugin classloader
@@ -212,17 +198,13 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     .setUserAgent(getUserAgent(options))
                     .setDefaultRequestConfig(requestConfig);
 
-            ProxyConfigFactory.getProxyHost(options).foreach(new Effect<HttpHost>()
-            {
+            ProxyConfigFactory.getProxyHost(options).foreach(new Effect<HttpHost>() {
                 @Override
-                public void apply(final HttpHost httpHost)
-                {
+                public void apply(final HttpHost httpHost) {
                     clientBuilder.setProxy(httpHost);
-                    ProxyCredentialsProvider.build(options).foreach(new Effect<ProxyCredentialsProvider>()
-                    {
+                    ProxyCredentialsProvider.build(options).foreach(new Effect<ProxyCredentialsProvider>() {
                         @Override
-                        public void apply(final ProxyCredentialsProvider proxyCredentialsProvider)
-                        {
+                        public void apply(final ProxyCredentialsProvider proxyCredentialsProvider) {
                             clientBuilder.setProxyAuthenticationStrategy(ProxyAuthenticationStrategy.INSTANCE);
                             clientBuilder.setDefaultCredentialsProvider(proxyCredentialsProvider);
                         }
@@ -245,17 +227,13 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             this.callbackExecutor = options.getCallbackExecutor();
 
             nonCachingHttpClient.start();
-        }
-        catch (IOReactorException e)
-        {
+        } catch (IOReactorException e) {
             throw new RuntimeException("Reactor " + options.getThreadPrefix() + "not set up correctly", e);
         }
     }
 
-    private Registry<SchemeIOSessionStrategy> getRegistry(final HttpClientOptions options)
-    {
-        try
-        {
+    private Registry<SchemeIOSessionStrategy> getRegistry(final HttpClientOptions options) {
+        try {
             final TrustSelfSignedStrategy strategy = options.trustSelfSignedCertificates() ?
                     new TrustSelfSignedStrategy() : null;
 
@@ -275,54 +253,41 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     .register("http", NoopIOSessionStrategy.INSTANCE)
                     .register("https", sslioSessionStrategy)
                     .build();
-        }
-        catch (KeyManagementException e)
-        {
+        } catch (KeyManagementException e) {
             return getFallbackRegistry(e);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
+        } catch (NoSuchAlgorithmException e) {
             return getFallbackRegistry(e);
-        }
-        catch (KeyStoreException e)
-        {
+        } catch (KeyStoreException e) {
             return getFallbackRegistry(e);
         }
     }
 
-    private X509HostnameVerifier getSelfSignedVerifier()
-    {
-        return new X509HostnameVerifier()
-        {
+    private X509HostnameVerifier getSelfSignedVerifier() {
+        return new X509HostnameVerifier() {
             @Override
-            public void verify(final String host, final SSLSocket ssl) throws IOException
-            {
+            public void verify(final String host, final SSLSocket ssl) throws IOException {
                 log.debug("Verification for certificates from {0} disabled", host);
             }
 
             @Override
-            public void verify(final String host, final X509Certificate cert) throws SSLException
-            {
+            public void verify(final String host, final X509Certificate cert) throws SSLException {
                 log.debug("Verification for certificates from {0} disabled", host);
             }
 
             @Override
-            public void verify(final String host, final String[] cns, final String[] subjectAlts) throws SSLException
-            {
+            public void verify(final String host, final String[] cns, final String[] subjectAlts) throws SSLException {
                 log.debug("Verification for certificates from {0} disabled", host);
             }
 
             @Override
-            public boolean verify(final String host, final SSLSession sslSession)
-            {
+            public boolean verify(final String host, final SSLSession sslSession) {
                 log.debug("Verification for certificates from {0} disabled", host);
                 return true;
             }
         };
     }
 
-    private Registry<SchemeIOSessionStrategy> getFallbackRegistry(final GeneralSecurityException e)
-    {
+    private Registry<SchemeIOSessionStrategy> getFallbackRegistry(final GeneralSecurityException e) {
         log.error("Error when creating scheme session strategy registry", e);
         return RegistryBuilder.<SchemeIOSessionStrategy>create()
                 .register("http", NoopIOSessionStrategy.INSTANCE)
@@ -330,8 +295,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 .build();
     }
 
-    private String getUserAgent(HttpClientOptions options)
-    {
+    private String getUserAgent(HttpClientOptions options) {
         return format("Atlassian HttpClient %s / %s / %s",
                 httpClientVersion.get(),
                 applicationName.get(),
@@ -339,28 +303,22 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     }
 
     @Override
-    public final ResponsePromise execute(final Request request)
-    {
-        try
-        {
+    public final ResponsePromise execute(final Request request) {
+        try {
             return doExecute(request);
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
             return ResponsePromises.toResponsePromise(rejected(t, Response.class));
         }
     }
 
-    private ResponsePromise doExecute(final Request request)
-    {
+    private ResponsePromise doExecute(final Request request) {
         httpClientOptions.getRequestPreparer().apply(request);
 
         final long start = System.currentTimeMillis();
         final HttpRequestBase op;
         final String uri = request.getUri().toString();
         final Request.Method method = request.getMethod();
-        switch (method)
-        {
+        switch (method) {
             case GET:
                 op = new HttpGet(uri);
                 break;
@@ -385,42 +343,33 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             default:
                 throw new UnsupportedOperationException(method.toString());
         }
-        if (request.hasEntity())
-        {
+        if (request.hasEntity()) {
             new RequestEntityEffect(request).apply(op);
         }
 
-        for (Map.Entry<String, String> entry : request.getHeaders().entrySet())
-        {
+        for (Map.Entry<String, String> entry : request.getHeaders().entrySet()) {
             op.setHeader(entry.getKey(), entry.getValue());
         }
 
         final PromiseHttpAsyncClient asyncClient = getPromiseHttpAsyncClient(request);
         return ResponsePromises.toResponsePromise(asyncClient.execute(op, new BasicHttpContext()).fold(
-                new Function<Throwable, Response>()
-                {
+                new Function<Throwable, Response>() {
                     @Override
-                    public Response apply(Throwable ex)
-                    {
+                    public Response apply(Throwable ex) {
                         final long requestDuration = System.currentTimeMillis() - start;
                         Throwable exception = maybeTranslate(ex);
                         publishEvent(request, requestDuration, exception);
                         throw Throwables.propagate(exception);
                     }
                 },
-                new Function<HttpResponse, Response>()
-                {
+                new Function<HttpResponse, Response>() {
                     @Override
-                    public Response apply(HttpResponse httpResponse)
-                    {
+                    public Response apply(HttpResponse httpResponse) {
                         final long requestDuration = System.currentTimeMillis() - start;
                         publishEvent(request, requestDuration, httpResponse.getStatusLine().getStatusCode());
-                        try
-                        {
+                        try {
                             return translate(httpResponse);
-                        }
-                        catch (IOException e)
-                        {
+                        } catch (IOException e) {
                             throw Throwables.propagate(e);
                         }
                     }
@@ -428,19 +377,15 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         ));
     }
 
-    private void publishEvent(Request request, long requestDuration, int statusCode)
-    {
-        if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code)
-        {
+    private void publishEvent(Request request, long requestDuration, int statusCode) {
+        if (HttpStatus.OK.code <= statusCode && statusCode < HttpStatus.MULTIPLE_CHOICES.code) {
             eventConsumer.apply(new HttpRequestCompletedEvent(
                     request.getUri().toString(),
                     request.getMethod().name(),
                     statusCode,
                     requestDuration,
                     request.getAttributes()));
-        }
-        else
-        {
+        } else {
             eventConsumer.apply(new HttpRequestFailedEvent(
                     request.getUri().toString(),
                     request.getMethod().name(),
@@ -450,8 +395,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
     }
 
-    private void publishEvent(Request request, long requestDuration, Throwable ex)
-    {
+    private void publishEvent(Request request, long requestDuration, Throwable ex) {
         eventConsumer.apply(new HttpRequestFailedEvent(
                 request.getUri().toString(),
                 request.getMethod().name(),
@@ -460,33 +404,26 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 request.getAttributes()));
     }
 
-    private PromiseHttpAsyncClient getPromiseHttpAsyncClient(Request request)
-    {
+    private PromiseHttpAsyncClient getPromiseHttpAsyncClient(Request request) {
         return new SettableFuturePromiseHttpPromiseAsyncClient<>(
                 request.isCacheDisabled() ? nonCachingHttpClient : httpClient,
                 threadLocalContextManager, callbackExecutor);
     }
 
-    private Throwable maybeTranslate(Throwable ex)
-    {
-        if (ex instanceof EntityTooLargeException)
-        {
+    private Throwable maybeTranslate(Throwable ex) {
+        if (ex instanceof EntityTooLargeException) {
             EntityTooLargeException tooLarge = (EntityTooLargeException) ex;
-            try
-            {
+            try {
                 // don't include the cause to ensure that the HttpResponse is released
                 return new ResponseTooLargeException(translate(tooLarge.getResponse()), ex.getMessage());
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 // could not translate, just return the original exception
             }
         }
         return ex;
     }
 
-    private Response translate(HttpResponse httpResponse) throws IOException
-    {
+    private Response translate(HttpResponse httpResponse) throws IOException {
         StatusLine status = httpResponse.getStatusLine();
         Response.Builder responseBuilder = DefaultResponse.builder()
                 .setMaxEntitySize(httpClientOptions.getMaxEntitySize())
@@ -494,62 +431,51 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                 .setStatusText(status.getReasonPhrase());
 
         Header[] httpHeaders = httpResponse.getAllHeaders();
-        for (Header httpHeader : httpHeaders)
-        {
+        for (Header httpHeader : httpHeaders) {
             responseBuilder.setHeader(httpHeader.getName(), httpHeader.getValue());
         }
         final HttpEntity entity = httpResponse.getEntity();
-        if (entity != null)
-        {
+        if (entity != null) {
             responseBuilder.setEntityStream(entity.getContent());
         }
         return responseBuilder.build();
     }
 
     @Override
-    public void destroy() throws Exception
-    {
+    public void destroy() throws Exception {
         callbackExecutor.shutdown();
         nonCachingHttpClient.close();
     }
 
     @Override
-    public void flushCacheByUriPattern(Pattern urlPattern)
-    {
+    public void flushCacheByUriPattern(Pattern urlPattern) {
         httpCacheStorage.flushByUriPattern(urlPattern);
     }
 
-    private static final class NoOpThreadLocalContextManager<C> implements ThreadLocalContextManager<C>
-    {
+    private static final class NoOpThreadLocalContextManager<C> implements ThreadLocalContextManager<C> {
         @Override
-        public C getThreadLocalContext()
-        {
+        public C getThreadLocalContext() {
             return null;
         }
 
         @Override
-        public void setThreadLocalContext(C context)
-        {
+        public void setThreadLocalContext(C context) {
         }
 
         @Override
-        public void clearThreadLocalContext()
-        {
+        public void clearThreadLocalContext() {
         }
     }
 
-    private static final class DefaultApplicationNameSupplier implements Supplier<String>
-    {
+    private static final class DefaultApplicationNameSupplier implements Supplier<String> {
         private final ApplicationProperties applicationProperties;
 
-        public DefaultApplicationNameSupplier(ApplicationProperties applicationProperties)
-        {
+        public DefaultApplicationNameSupplier(ApplicationProperties applicationProperties) {
             this.applicationProperties = checkNotNull(applicationProperties);
         }
 
         @Override
-        public String get()
-        {
+        public String get() {
             return format("%s-%s (%s)",
                     applicationProperties.getDisplayName(),
                     applicationProperties.getVersion(),
@@ -557,27 +483,22 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
     }
 
-    private static class EventConsumerFunction implements Function<Object, Void>
-    {
+    private static class EventConsumerFunction implements Function<Object, Void> {
         private final EventPublisher eventPublisher;
 
-        public EventConsumerFunction(EventPublisher eventPublisher)
-        {
+        public EventConsumerFunction(EventPublisher eventPublisher) {
             this.eventPublisher = eventPublisher;
         }
 
         @Override
-        public Void apply(Object event)
-        {
+        public Void apply(Object event) {
             eventPublisher.publish(event);
             return null;
         }
     }
 
-    private static String[] split(final String s)
-    {
-        if (TextUtils.isBlank(s))
-        {
+    private static String[] split(final String s) {
+        if (TextUtils.isBlank(s)) {
             return null;
         }
         return s.split(" *, *");

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.atlassian.pom</groupId>
         <artifactId>public-pom</artifactId>
@@ -17,24 +17,6 @@
     <name>Atlassian HttpClientProject</name>
     <description>Project for the HttpClient</description>
     <inceptionYear>2012</inceptionYear>
-
-    <scm>
-        <connection>scm:git:git@bitbucket.org:atlassian/atlassian-httpclient.git</connection>
-        <developerConnection>scm:git:git@bitbucket.org:atlassian/atlassian-httpclient.git</developerConnection>
-        <url>https://bitbucket.org/atlassian/atlassian-httpclient</url>
-        <tag>HEAD</tag>
-    </scm>
-
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://ecosystem.atlassian.net/browse/AHTTP</url>
-    </issueManagement>
-
-    <ciManagement>
-        <system>Bamboo</system>
-        <url>https://ecosystem-bamboo.internal.atlassian.com/browse/AHCP</url>
-    </ciManagement>
-
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -48,22 +30,20 @@
         <module>httpclient-plugin</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>jira</id>
-            <properties>
-                <product>jira</product>
-                <product.version>7.5.1</product.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>confluence</id>
-            <properties>
-                <product>confluence</product>
-                <product.version>6.4.3</product.version>
-            </properties>
-        </profile>
-    </profiles>
+    <scm>
+        <connection>scm:git:git@bitbucket.org:atlassian/atlassian-httpclient.git</connection>
+        <developerConnection>scm:git:git@bitbucket.org:atlassian/atlassian-httpclient.git</developerConnection>
+        <url>https://bitbucket.org/atlassian/atlassian-httpclient</url>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://ecosystem.atlassian.net/browse/AHTTP</url>
+    </issueManagement>
+    <ciManagement>
+        <system>Bamboo</system>
+        <url>https://ecosystem-bamboo.internal.atlassian.com/browse/AHCP</url>
+    </ciManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -278,4 +258,21 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>jira</id>
+            <properties>
+                <product>jira</product>
+                <product.version>7.5.1</product.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>confluence</id>
+            <properties>
+                <product>confluence</product>
+                <product.version>6.4.3</product.version>
+            </properties>
+        </profile>
+    </profiles>
 </project>

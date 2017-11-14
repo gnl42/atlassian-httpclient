@@ -17,12 +17,10 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-public class MultiPartEntityBuilderTest
-{
+public class MultiPartEntityBuilderTest {
 
     @Test
-    public void testBuildMultipartEntity() throws IOException, URISyntaxException
-    {
+    public void testBuildMultipartEntity() throws IOException, URISyntaxException {
         final File file = new File(getClass().getResource("/com/atlassian/httpclient/apache/httpcomponents/multipart-test-file").toURI());
         HttpEntity multipartEntity = MultipartEntityBuilder.create()
                 .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)

@@ -6,8 +6,7 @@ import java.util.Map;
 /**
  * A basic contract to be implemented by all entity builders.
  */
-public interface EntityBuilder
-{
+public interface EntityBuilder {
     /**
      * Builds an {@link Entity}.
      *
@@ -18,8 +17,7 @@ public interface EntityBuilder
     /**
      * Represents a built entity consisting of a set of HTTP headers and an {@link InputStream}.
      */
-    static interface Entity
-    {
+    static interface Entity {
         /**
          * Gets all HTTP headers for the represented entity.  At a minimum, this should include
          * an appropriate "Content-Type" header.

@@ -6,9 +6,8 @@ import java.util.Map;
 /**
  * An interface for building and executing HTTP requests.
  */
-public interface Request extends Message
-{
-    enum Method { GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE }
+public interface Request extends Message {
+    enum Method {GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE}
 
     /**
      * Returns this request's URI, if set.
@@ -45,8 +44,7 @@ public interface Request extends Message
 
     Method getMethod();
 
-    interface Builder extends Common<Builder>, Buildable<Request>
-    {
+    interface Builder extends Common<Builder>, Buildable<Request> {
         /**
          * Sets this request's URI.  Must not be null by the time the request is executed.
          *
@@ -74,7 +72,7 @@ public interface Request extends Message
          * Sets an attribute on the request.  Attributes are request metadata that are forwarded to the
          * analytics plugin when enabled.
          *
-         * @param name The attribute name
+         * @param name  The attribute name
          * @param value The attribute value
          * @return This object, for builder-style chaining
          */

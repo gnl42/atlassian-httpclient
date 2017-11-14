@@ -15,56 +15,47 @@ import java.util.Map;
 /**
  * Builder for HttpEntities with multipart/form data.
  */
-public class MultiPartEntityBuilder implements EntityBuilder
-{
+public class MultiPartEntityBuilder implements EntityBuilder {
     private final HttpEntity apacheMultipartEntity;
 
     /**
      * @deprecated since 0.22. Use {@link #MultiPartEntityBuilder(org.apache.http.HttpEntity)} instead.
      */
     @Deprecated
-    public MultiPartEntityBuilder(final MultipartEntity multipartEntity)
-    {
+    public MultiPartEntityBuilder(final MultipartEntity multipartEntity) {
         this.apacheMultipartEntity = multipartEntity;
     }
 
     /**
      * @since 0.22
      */
-    public MultiPartEntityBuilder(final HttpEntity multipartEntity)
-    {
+    public MultiPartEntityBuilder(final HttpEntity multipartEntity) {
         this.apacheMultipartEntity = multipartEntity;
     }
 
-    private static class MultiPartEntity implements Entity
-    {
+    private static class MultiPartEntity implements Entity {
         private final Map<String, String> headers;
         private final InputStream inputStream;
 
-        public MultiPartEntity(Map<String, String> headers, InputStream inputStream)
-        {
+        public MultiPartEntity(Map<String, String> headers, InputStream inputStream) {
             this.headers = headers;
             this.inputStream = inputStream;
         }
 
         @Override
-        public Map<String, String> getHeaders()
-        {
+        public Map<String, String> getHeaders() {
             return this.headers;
         }
 
         @Override
-        public InputStream getInputStream()
-        {
+        public InputStream getInputStream() {
             return this.inputStream;
         }
     }
 
     @Override
-    public Entity build()
-    {
-        try
-        {
+    public Entity build() {
+        try {
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             apacheMultipartEntity.writeTo(outputStream);
             final InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -72,9 +63,7 @@ public class MultiPartEntityBuilder implements EntityBuilder
             final Map<String, String> headers = Maps.newHashMap();
             headers.put(header.getName(), header.getValue());
             return new MultiPartEntity(headers, inputStream);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

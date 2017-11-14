@@ -9,19 +9,16 @@ import java.io.InputStreamReader;
 
 import static junit.framework.Assert.assertEquals;
 
-public class DefaultFormBuilderTest
-{
+public class DefaultFormBuilderTest {
     @Test
-    public void testOneEmptyParam()
-    {
+    public void testOneEmptyParam() {
         FormBuilder form = new DefaultFormBuilder();
         form.addParam("foo");
         assertEquals("foo", toString(form));
     }
 
     @Test
-    public void testTwoLikeEmptyParams()
-    {
+    public void testTwoLikeEmptyParams() {
         FormBuilder form = new DefaultFormBuilder();
         form.addParam("foo");
         form.addParam("foo");
@@ -29,8 +26,7 @@ public class DefaultFormBuilderTest
     }
 
     @Test
-    public void testTwoEmptyParams()
-    {
+    public void testTwoEmptyParams() {
         FormBuilder form = new DefaultFormBuilder();
         form.addParam("foo");
         form.addParam("bar");
@@ -38,16 +34,14 @@ public class DefaultFormBuilderTest
     }
 
     @Test
-    public void testOneParam()
-    {
+    public void testOneParam() {
         FormBuilder form = new DefaultFormBuilder();
         form.addParam("foo", "bar");
         assertEquals("foo=bar", toString(form));
     }
 
     @Test
-    public void testTwoLikeParams()
-    {
+    public void testTwoLikeParams() {
         FormBuilder form = new DefaultFormBuilder();
         form.addParam("one", "a");
         form.addParam("one", "b");
@@ -55,8 +49,7 @@ public class DefaultFormBuilderTest
     }
 
     @Test
-    public void testTwoParams()
-    {
+    public void testTwoParams() {
         FormBuilder form = new DefaultFormBuilder();
         form.addParam("one", "1");
         form.addParam("two", "2");
@@ -64,8 +57,7 @@ public class DefaultFormBuilderTest
     }
 
     @Test
-    public void testUrlEncoding()
-    {
+    public void testUrlEncoding() {
         FormBuilder form = new DefaultFormBuilder();
         form.addParam("one param", "one value");
         form.addParam("two/param", "two/value");
@@ -75,21 +67,16 @@ public class DefaultFormBuilderTest
     }
 
     @Test
-    public void testHeaders()
-    {
+    public void testHeaders() {
         FormBuilder form = new DefaultFormBuilder();
         EntityBuilder.Entity entity = form.build();
         assertEquals("application/x-www-form-urlencoded; charset=UTF-8", entity.getHeaders().get("Content-Type"));
     }
 
-    private static String toString(final FormBuilder form)
-    {
-        try
-        {
+    private static String toString(final FormBuilder form) {
+        try {
             return CharStreams.toString(new InputStreamReader(form.build().getInputStream(), Charsets.UTF_8));
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

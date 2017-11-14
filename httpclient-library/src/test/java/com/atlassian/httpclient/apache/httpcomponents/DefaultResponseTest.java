@@ -12,11 +12,9 @@ import static org.junit.Assert.assertEquals;
 /**
  *
  */
-public class DefaultResponseTest
-{
+public class DefaultResponseTest {
     @Test
-    public void testRetrievalWithinLimits() throws ExecutionException, InterruptedException, IOException
-    {
+    public void testRetrievalWithinLimits() throws ExecutionException, InterruptedException, IOException {
         Response response = DefaultResponse.builder()
                 .setMaxEntitySize(100)
                 .setHeader("Content-Length", "50")
@@ -27,8 +25,7 @@ public class DefaultResponseTest
     }
 
     @Test
-    public void testRetrievalWithinLimitsNoLength() throws ExecutionException, InterruptedException, IOException
-    {
+    public void testRetrievalWithinLimitsNoLength() throws ExecutionException, InterruptedException, IOException {
         Response response = DefaultResponse.builder()
                 .setMaxEntitySize(100)
                 .setEntityStream(new GeneratingInputStream('x', 50L))
@@ -38,8 +35,7 @@ public class DefaultResponseTest
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testRetrievalOutsideLimitsWithLength() throws ExecutionException, InterruptedException, IOException
-    {
+    public void testRetrievalOutsideLimitsWithLength() throws ExecutionException, InterruptedException, IOException {
         Response response = DefaultResponse.builder()
                 .setMaxEntitySize(100)
                 .setHeader("Content-Length", "110")
@@ -49,8 +45,7 @@ public class DefaultResponseTest
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testRetrievalOutsideLimitsNoLength() throws ExecutionException, InterruptedException, IOException
-    {
+    public void testRetrievalOutsideLimitsNoLength() throws ExecutionException, InterruptedException, IOException {
         Response response = DefaultResponse.builder()
                 .setMaxEntitySize(100)
                 .setEntityStream(new GeneratingInputStream('x', 150L))
@@ -59,8 +54,7 @@ public class DefaultResponseTest
     }
 
     @Test
-    public void testRetrievingContentLengthFromHeader()
-    {
+    public void testRetrievingContentLengthFromHeader() {
         Response response = DefaultResponse.builder()
                 .setMaxEntitySize(100)
                 .setEntityStream(new GeneratingInputStream('x', 150L))

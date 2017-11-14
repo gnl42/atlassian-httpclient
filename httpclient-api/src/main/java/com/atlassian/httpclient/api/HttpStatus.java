@@ -3,15 +3,14 @@ package com.atlassian.httpclient.api;
 /**
  * HTTP Status code, for reference see:
  * <ul>
- *     <li><a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">the wikipedia page.</a></li>
- *     <li>Hypertext Transfer Protocol -- HTTP/1.1, <a href="https://tools.ietf.org/html/rfc2616">RFC 2616</a></li>
- *     <li>HTTP Extensions for Web Distributed Authoring and Versioning (WebDAV), <a href="https://tools.ietf.org/html/rfc4918">RFC 4918</a></li>
- *     <li>Binding Extensions to Web Distributed Authoring and Versioning (WebDAV), <a href="https://tools.ietf.org/html/rfc5842">RFC 5842</a></li>
- *     <li>Delta encoding in HTTP, <a href="https://tools.ietf.org/html/rfc3229">RFC 3229</a></li>
+ * <li><a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">the wikipedia page.</a></li>
+ * <li>Hypertext Transfer Protocol -- HTTP/1.1, <a href="https://tools.ietf.org/html/rfc2616">RFC 2616</a></li>
+ * <li>HTTP Extensions for Web Distributed Authoring and Versioning (WebDAV), <a href="https://tools.ietf.org/html/rfc4918">RFC 4918</a></li>
+ * <li>Binding Extensions to Web Distributed Authoring and Versioning (WebDAV), <a href="https://tools.ietf.org/html/rfc5842">RFC 5842</a></li>
+ * <li>Delta encoding in HTTP, <a href="https://tools.ietf.org/html/rfc3229">RFC 3229</a></li>
  * </ul>
  */
-public enum HttpStatus
-{
+public enum HttpStatus {
     /**
      * <p>This means that the server has received the request headers, and that the client should proceed to send the
      * request body (in the case of a request for which a body needs to be sent; for example, a POST request).
@@ -458,17 +457,13 @@ public enum HttpStatus
 
     public final int code;
 
-    private HttpStatus(int code)
-    {
+    private HttpStatus(int code) {
         this.code = code;
     }
 
-    static HttpStatus fromCode(int code)
-    {
-        for (HttpStatus status : values())
-        {
-            if (status.code == code)
-            {
+    static HttpStatus fromCode(int code) {
+        for (HttpStatus status : values()) {
+            if (status.code == code) {
                 return status;
             }
         }
@@ -476,8 +471,7 @@ public enum HttpStatus
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return name() + "(" + code + ")";
     }
 }

@@ -4,8 +4,7 @@ package com.atlassian.httpclient.api;
  * Thrown to indicate that a response completed normally but that produced an
  * unexpected status code.
  */
-public class UnexpectedResponseException extends RuntimeException
-{
+public class UnexpectedResponseException extends RuntimeException {
     private Response response;
 
     /**
@@ -13,8 +12,7 @@ public class UnexpectedResponseException extends RuntimeException
      *
      * @param response The unexpected response
      */
-    public UnexpectedResponseException(Response response)
-    {
+    public UnexpectedResponseException(Response response) {
         this.response = response;
     }
 
@@ -23,14 +21,12 @@ public class UnexpectedResponseException extends RuntimeException
      *
      * @return The response
      */
-    public Response getResponse()
-    {
+    public Response getResponse() {
         return response;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Unexpected response '").append(response.getStatusCode()).append("' with message '");
         sb.append(response.getStatusText()).append("'");

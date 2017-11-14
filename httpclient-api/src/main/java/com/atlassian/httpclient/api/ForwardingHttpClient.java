@@ -11,51 +11,43 @@ import java.util.regex.Pattern;
  * methods to modify the behavior of the backing HTTP Client as desired per the
  * <a href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  */
-public abstract class ForwardingHttpClient extends ForwardingObject implements HttpClient
-{
+public abstract class ForwardingHttpClient extends ForwardingObject implements HttpClient {
     /**
      * Constructor for use by subclasses.
      */
-    protected ForwardingHttpClient()
-    {
+    protected ForwardingHttpClient() {
     }
 
     @Override
     protected abstract HttpClient delegate();
 
     @Override
-    public Request.Builder newRequest()
-    {
+    public Request.Builder newRequest() {
         return delegate().newRequest();
     }
 
     @Override
-    public Request.Builder newRequest(URI uri)
-    {
+    public Request.Builder newRequest(URI uri) {
         return delegate().newRequest(uri);
     }
 
     @Override
-    public Request.Builder newRequest(String uri)
-    {
+    public Request.Builder newRequest(String uri) {
         return delegate().newRequest(uri);
     }
 
     @Override
-    public Request.Builder newRequest(URI uri, String contentType, String entity)
-    {
+    public Request.Builder newRequest(URI uri, String contentType, String entity) {
         return delegate().newRequest(uri, contentType, entity);
     }
 
     @Override
-    public Request.Builder newRequest(String uri, String contentType, String entity)
-    {
+    public Request.Builder newRequest(String uri, String contentType, String entity) {
         return delegate().newRequest(uri, contentType, entity);
     }
 
     @Override
-    public void flushCacheByUriPattern(Pattern uriPattern)
-    {
+    public void flushCacheByUriPattern(Pattern uriPattern) {
         delegate().flushCacheByUriPattern(uriPattern);
     }
 }

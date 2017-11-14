@@ -102,6 +102,7 @@ public class BoundedAsyncResponseConsumer extends AbstractAsyncResponseConsumer<
             super.ensureCapacity(Math.min(requiredCapacity, maxSize));
         }
     }
+
     private static class BufferFullException extends RuntimeException {
     }
 }

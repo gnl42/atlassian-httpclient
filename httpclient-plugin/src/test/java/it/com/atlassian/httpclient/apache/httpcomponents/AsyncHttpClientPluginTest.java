@@ -27,14 +27,11 @@ import static org.hamcrest.Matchers.is;
 /**
  * Tests that we can start the plugin.
  */
-public class AsyncHttpClientPluginTest
-{
+public class AsyncHttpClientPluginTest {
     @Test
-    public void testPluginStarts() throws IOException
-    {
+    public void testPluginStarts() throws IOException {
         String baseurl = System.getProperty("baseurl");
-        if (!baseurl.endsWith("/"))
-        {
+        if (!baseurl.endsWith("/")) {
             baseurl = baseurl + "/";
         }
 

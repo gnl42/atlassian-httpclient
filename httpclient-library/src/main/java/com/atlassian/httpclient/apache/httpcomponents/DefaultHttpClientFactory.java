@@ -13,10 +13,9 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class DefaultHttpClientFactory<C> implements HttpClientFactory, DisposableBean
-{
+public final class DefaultHttpClientFactory<C> implements HttpClientFactory, DisposableBean {
     private final EventPublisher eventPublisher;
     private final ApplicationProperties applicationProperties;
     private final ThreadLocalContextManager<C> threadLocalContextManager;
@@ -25,8 +24,7 @@ public final class DefaultHttpClientFactory<C> implements HttpClientFactory, Dis
     public DefaultHttpClientFactory(
             @Nonnull EventPublisher eventPublisher,
             @Nonnull ApplicationProperties applicationProperties,
-            @Nonnull ThreadLocalContextManager<C> threadLocalContextManager)
-    {
+            @Nonnull ThreadLocalContextManager<C> threadLocalContextManager) {
         this.eventPublisher = checkNotNull(eventPublisher);
         this.applicationProperties = checkNotNull(applicationProperties);
         this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
@@ -34,41 +32,31 @@ public final class DefaultHttpClientFactory<C> implements HttpClientFactory, Dis
 
     @Override
     @Nonnull
-    public HttpClient create(@Nonnull HttpClientOptions options)
-    {
+    public HttpClient create(@Nonnull HttpClientOptions options) {
         return doCreate(options, threadLocalContextManager);
     }
 
     @Override
     @Nonnull
-    public <C> HttpClient create(@Nonnull HttpClientOptions options, @Nonnull ThreadLocalContextManager<C> threadLocalContextManager)
-    {
+    public <C> HttpClient create(@Nonnull HttpClientOptions options, @Nonnull ThreadLocalContextManager<C> threadLocalContextManager) {
         return doCreate(options, threadLocalContextManager);
     }
 
     @Override
-    public void dispose(@Nonnull final HttpClient httpClient) throws Exception
-    {
-        if (httpClient instanceof ApacheAsyncHttpClient)
-        {
+    public void dispose(@Nonnull final HttpClient httpClient) throws Exception {
+        if (httpClient instanceof ApacheAsyncHttpClient) {
             final ApacheAsyncHttpClient client = (ApacheAsyncHttpClient) httpClient;
-            if (httpClients.remove(client))
-            {
+            if (httpClients.remove(client)) {
                 client.destroy();
-            }
-            else
-            {
+            } else {
                 throw new IllegalStateException("Client is already disposed");
             }
-        }
-        else
-        {
+        } else {
             throw new IllegalArgumentException("Given client is not disposable");
         }
     }
 
-    private <C> HttpClient doCreate(@Nonnull HttpClientOptions options, ThreadLocalContextManager<C> threadLocalContextManager)
-    {
+    private <C> HttpClient doCreate(@Nonnull HttpClientOptions options, ThreadLocalContextManager<C> threadLocalContextManager) {
         checkNotNull(options);
         final ApacheAsyncHttpClient<C> httpClient = new ApacheAsyncHttpClient<>(eventPublisher, applicationProperties, threadLocalContextManager, options);
         httpClients.add(httpClient);
@@ -76,18 +64,15 @@ public final class DefaultHttpClientFactory<C> implements HttpClientFactory, Dis
     }
 
     @Override
-    public void destroy() throws Exception
-    {
-        for (ApacheAsyncHttpClient httpClient : httpClients)
-        {
+    public void destroy() throws Exception {
+        for (ApacheAsyncHttpClient httpClient : httpClients) {
             httpClient.destroy();
         }
     }
 
     @VisibleForTesting
     @Nonnull
-    Iterable<ApacheAsyncHttpClient> getHttpClients()
-    {
+    Iterable<ApacheAsyncHttpClient> getHttpClients() {
         return httpClients;
     }
 }

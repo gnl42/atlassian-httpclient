@@ -3,15 +3,14 @@ package com.atlassian.httpclient.api;
 import java.io.InputStream;
 import java.util.Map;
 
-public interface Common<B extends Common<B>>
-{
+public interface Common<B extends Common<B>> {
 
     /**
      * Sets an HTTP header on this object.  If the header's name is "Content-Type", the value
      * will be parsed into this object's content type and content charset properties, as
      * appropriate.
      *
-     * @param name The name of the header to be set
+     * @param name  The name of the header to be set
      * @param value The value of the header to be set
      * @return This object, for builder-style chaining
      */
@@ -80,7 +79,7 @@ public interface Common<B extends Common<B>>
      * nonsensical to set the charset of an entity stream for binary media types (e.g. image/*, etc).
      *
      * @param entityStream An entity input stream ready to be read
-     * @param charset The charset in which the entity stream is encoded
+     * @param charset      The charset in which the entity stream is encoded
      * @return This object, for builder-style chaining
      */
     B setEntityStream(InputStream entityStream, String charset);

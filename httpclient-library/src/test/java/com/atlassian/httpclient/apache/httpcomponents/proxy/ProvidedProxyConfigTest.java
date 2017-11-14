@@ -13,11 +13,9 @@ import java.util.Map;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ProvidedProxyConfigTest
-{
+public class ProvidedProxyConfigTest {
     @Test
-    public void proxyConfigured()
-    {
+    public void proxyConfigured() {
         Map<Scheme, Host> proxies = new HashMap<Scheme, Host>();
         proxies.put(Scheme.HTTP, new Host("localhost", 3128));
         ProxyConfig config = new ProvidedProxyConfig(proxies, new HashMap<Scheme, List<String>>());
@@ -30,8 +28,7 @@ public class ProvidedProxyConfigTest
     }
 
     @Test
-    public void noProxyConfigured()
-    {
+    public void noProxyConfigured() {
         Map<Scheme, Host> proxies = new HashMap<Scheme, Host>();
         ProxyConfig config = new ProvidedProxyConfig(proxies, new HashMap<Scheme, List<String>>());
 
