@@ -2,7 +2,8 @@ package com.atlassian.httpclient.api.factory;
 
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.sal.api.executor.ThreadLocalContextManager;
-import com.atlassian.util.concurrent.NotNull;
+
+import javax.annotation.Nonnull;
 
 /**
  * Creates configured instances of {@link com.atlassian.httpclient.api.HttpClient}
@@ -16,22 +17,23 @@ public interface HttpClientFactory
      * @return The new instance.  Will never be null
      * @see #create(HttpClientOptions, ThreadLocalContextManager)
      */
-    @NotNull HttpClient create(@NotNull HttpClientOptions options);
+    @Nonnull HttpClient create(@Nonnull HttpClientOptions options);
 
     /**
      * Creates a new instance of {@link com.atlassian.httpclient.api.HttpClient}
      *
      * @param options The http client options.  Cannot be null.
      * @param threadLocalContextManager the manager for thread local variables. Cannot be null.
+     * @param <C> the context type
      * @return The new instance.  Will never be null
      * @see #create(HttpClientOptions)
      */
-    @NotNull HttpClient create(@NotNull HttpClientOptions options, @NotNull ThreadLocalContextManager threadLocalContextManager);
+    @Nonnull <C> HttpClient create(@Nonnull HttpClientOptions options, @Nonnull ThreadLocalContextManager<C> threadLocalContextManager);
 
     /**
      * Disposes the given instance of {@link com.atlassian.httpclient.api.HttpClient}
      * @param httpClient The httpClient to dispose. Cannot be null.
      * @throws Exception in case of shutdown errors.
      */
-    void dispose(@NotNull HttpClient httpClient) throws Exception;
+    void dispose(@Nonnull HttpClient httpClient) throws Exception;
 }

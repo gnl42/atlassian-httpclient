@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.atlassian.httpclient</groupId>
         <artifactId>atlassian-httpclient-parent</artifactId>
-        <version>0.23.6-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>atlassian-httpclient-plugin</artifactId>
@@ -31,22 +31,17 @@
     <dependencies>
         <dependency>
             <groupId>com.atlassian.httpclient</groupId>
-            <artifactId>atlassian-httpclient-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>atlassian-httpclient-library</artifactId>
         </dependency>
-
-        <!-- Host provided dependencies -->
         <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
             <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.atlassian.event</groupId>
             <artifactId>atlassian-event</artifactId>
             <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.atlassian.analytics</groupId>
@@ -54,105 +49,20 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.plugins</groupId>
-            <artifactId>atlassian-plugins-osgi</artifactId>
-            <version>${atlassian-plugins.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>com.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.atlassian.bundles</groupId>
-            <artifactId>jsr305</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Http client -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpasyncclient-cache</artifactId>
-            <version>${httpasyncclient.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient-cache</artifactId>
-            <version>${httpcore.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpasyncclient</artifactId>
-            <version>${httpasyncclient.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>${httpclient.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>com.atlassian.junit</groupId>
-            <artifactId>atlassian-junit</artifactId>
-            <version>0.1</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-server</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-servlet</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>7.6.8.v20121106</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>7.6.8.v20121106</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -166,32 +76,33 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <version>1.5.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.5.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.5.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.5.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -202,24 +113,23 @@
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-amps-plugin</artifactId>
                 <configuration>
+                    <product>${product}</product>
+                    <productVersion>${product.version}</productVersion>
+                    <productDataVersion>${product.data.version}</productDataVersion>
                     <extractDependencies>true</extractDependencies>
                     <instructions>
                         <Import-Package>
-                            com.atlassian.sal.api*;version="${sal.version}",
-                            com.atlassian.util.concurrent*;version="${atlassian-util-concurrent-api.version}",
-                            com.google.common*;version="${guava.version}",
+                            com.atlassian.sal.api*,
+                            com.atlassian.util.concurrent*,
+                            com.google.common*,
                             javax.net.ssl,
-                            javax.servlet.*,
-                            org.osgi*,
                             org.slf4j*;version="1.5",
                             org.springframework*,
-                            org.xml.sax*,
                             com.atlassian.fugue*,
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.httpclient.api*;version="${httpclient.api.version}",
-                            com.atlassian.fugue*
                         </Export-Package>
                         <!-- Ensure plugin is spring powered - see https://extranet.atlassian.com/x/xBS9hQ -->
                         <Spring-Context>*</Spring-Context>
@@ -227,14 +137,6 @@
                     <systemPropertyVariables>
                         <http.port>${http.port}</http.port>
                     </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

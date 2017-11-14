@@ -30,12 +30,12 @@ public class DefaultHttpClientFactoryTest
     private ApplicationProperties applicationProperties;
 
     @Mock
-    private ThreadLocalContextManager threadLocalContextManager;
+    private ThreadLocalContextManager<?> threadLocalContextManager;
 
     @Test
     public void testDisposingHttpClient() throws Exception
     {
-        DefaultHttpClientFactory factory = new DefaultHttpClientFactory(eventPublisher, applicationProperties, threadLocalContextManager);
+        DefaultHttpClientFactory<?> factory = new DefaultHttpClientFactory<>(eventPublisher, applicationProperties, threadLocalContextManager);
         final HttpClient httpClient1 = factory.create(new HttpClientOptions());
         final HttpClient httpClient2 = factory.create(new HttpClientOptions());
 
@@ -55,7 +55,7 @@ public class DefaultHttpClientFactoryTest
     @Test
     public void testDisposingClientTwice() throws Exception
     {
-        DefaultHttpClientFactory factory = new DefaultHttpClientFactory(eventPublisher, applicationProperties, threadLocalContextManager);
+        DefaultHttpClientFactory<?> factory = new DefaultHttpClientFactory<>(eventPublisher, applicationProperties, threadLocalContextManager);
         final HttpClient httpClient = factory.create(new HttpClientOptions());
 
         assertThat(httpClient, notNullValue());
@@ -73,7 +73,7 @@ public class DefaultHttpClientFactoryTest
     @Test
     public void testNotDisposingNotDisposableClient() throws Exception
     {
-        DefaultHttpClientFactory factory = new DefaultHttpClientFactory(eventPublisher, applicationProperties, threadLocalContextManager);
+        DefaultHttpClientFactory<?> factory = new DefaultHttpClientFactory<>(eventPublisher, applicationProperties, threadLocalContextManager);
 
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Given client is not disposable");

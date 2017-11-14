@@ -8,18 +8,14 @@ import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
-import org.apache.http.client.AuthenticationStrategy;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.TargetAuthenticationStrategy;
-import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -31,7 +27,7 @@ import static org.hamcrest.Matchers.is;
 /**
  * Tests that we can start the plugin.
  */
-public class AsyncHttpClientTest
+public class AsyncHttpClientPluginTest
 {
     @Test
     public void testPluginStarts() throws IOException
