@@ -46,6 +46,7 @@
             <groupId>com.atlassian.analytics</groupId>
             <artifactId>analytics-api</artifactId>
             <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
