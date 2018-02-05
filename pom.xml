@@ -58,8 +58,8 @@
         <!-- dependencies not included in platform 3.1.7 -->
         <analytics.version>2.12</analytics.version>
         <httpasyncclient.version>4.1.3</httpasyncclient.version>
-        <httpcore.version>4.4.8</httpcore.version>
-        <httpclient.version>4.5.3</httpclient.version>
+        <httpcore.version>4.4.9</httpcore.version>
+        <httpclient.version>4.5.5</httpclient.version>
         <!-- upgrade to jetty 9.x once platform supports a minimum of servlets 3.1.0 -->
         <jetty.version>8.2.0.v20160908</jetty.version>
         <jackson2.version>2.9.2</jackson2.version>
