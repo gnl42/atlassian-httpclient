@@ -1,9 +1,7 @@
 package com.atlassian.httpclient.apache.httpcomponents.proxy;
 
 import com.atlassian.fugue.Option;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.hamcrest.Matchers;
@@ -18,7 +16,7 @@ import static org.junit.Assert.assertThat;
 public class SystemPropertiesProxyConfigTest {
     @Rule
     public ClearSystemProperties clearSystemPropertiesRule =
-            new ClearSystemProperties(getPropertiesNames());
+            new ClearSystemProperties(ProxyTestUtils.getProxyPropertiesNames());
 
     @Test
     public void httpsProxyConfigured() {
@@ -62,7 +60,7 @@ public class SystemPropertiesProxyConfigTest {
         ProxyConfig config = new SystemPropertiesProxyConfig();
         Iterable<ProxyConfig.AuthenticationInfo> authenticationInfos = config.getAuthenticationInfo();
 
-        assertThat(authenticationInfos, Matchers.<ProxyConfig.AuthenticationInfo>iterableWithSize(1));
+        assertThat(authenticationInfos, Matchers.iterableWithSize(1));
 
         final ProxyConfig.AuthenticationInfo authenticationInfo = Iterables.getOnlyElement(authenticationInfos);
 
@@ -85,7 +83,7 @@ public class SystemPropertiesProxyConfigTest {
         ProxyConfig config = new SystemPropertiesProxyConfig();
         Iterable<ProxyConfig.AuthenticationInfo> authenticationInfos = config.getAuthenticationInfo();
 
-        assertThat(authenticationInfos, Matchers.<ProxyConfig.AuthenticationInfo>iterableWithSize(1));
+        assertThat(authenticationInfos, Matchers.iterableWithSize(1));
 
         final ProxyConfig.AuthenticationInfo authenticationInfo = Iterables.getOnlyElement(authenticationInfos);
 
@@ -103,7 +101,7 @@ public class SystemPropertiesProxyConfigTest {
         ProxyConfig config = new SystemPropertiesProxyConfig();
         final Iterable<ProxyConfig.AuthenticationInfo> authenticationInfo = config.getAuthenticationInfo();
 
-        assertThat(authenticationInfo, Matchers.<ProxyConfig.AuthenticationInfo>iterableWithSize(0));
+        assertThat(authenticationInfo, Matchers.iterableWithSize(0));
 
         final Option<HttpHost> proxyHost = config.getProxyHost();
 
@@ -118,23 +116,13 @@ public class SystemPropertiesProxyConfigTest {
         ProxyConfig config = new SystemPropertiesProxyConfig();
 
         final Iterable<ProxyConfig.AuthenticationInfo> authenticationInfos = config.getAuthenticationInfo();
-        assertThat(authenticationInfos, Matchers.<ProxyConfig.AuthenticationInfo>iterableWithSize(1));
+        assertThat(authenticationInfos, Matchers.iterableWithSize(1));
 
         final ProxyConfig.AuthenticationInfo authenticationInfo = Iterables.getOnlyElement(authenticationInfos);
         assertThat(authenticationInfo.getCredentials().isDefined(), Matchers.is(false));
 
         final Option<HttpHost> proxyHost = config.getProxyHost();
         assertThat(proxyHost.isDefined(), Matchers.is(true));
-    }
-
-    private String[] getPropertiesNames() {
-        final ImmutableList.Builder<String> builder = ImmutableList.builder();
-        for (String scheme : Lists.newArrayList("http", "https")) {
-            for (String property : Lists.newArrayList("proxyHost", "proxyPort", "proxyUser", "proxyPassword")) {
-                builder.add(scheme + "." + property);
-            }
-        }
-        return builder.build().toArray(new String[8]);
     }
 
 }

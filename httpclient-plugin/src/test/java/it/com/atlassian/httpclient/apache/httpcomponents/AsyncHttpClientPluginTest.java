@@ -48,8 +48,7 @@ public class AsyncHttpClientPluginTest {
         context.setAuthCache(authCache);
         context.setCredentialsProvider(credentialsProvider);
 
-        HttpClient client = HttpClientBuilder.create()
-                .build();
+        HttpClient client = HttpClientBuilder.create().build();
         URI pluginStateUri = baseUri.resolve("rest/plugins/1.0/com.atlassian.httpclient.atlassian-httpclient-plugin-key");
         HttpGet request = new HttpGet(pluginStateUri);
         HttpResponse response = client.execute(request, context);

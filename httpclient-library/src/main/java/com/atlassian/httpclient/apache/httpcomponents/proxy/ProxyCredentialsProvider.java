@@ -23,12 +23,9 @@ public class ProxyCredentialsProvider implements CredentialsProvider {
     }
 
     public static Option<ProxyCredentialsProvider> build(final HttpClientOptions options) {
-        final Iterable<AuthenticationInfo> authenticationInfos = Iterables.filter(ProxyConfigFactory.getProxyAuthentication(options), new Predicate<AuthenticationInfo>() {
-            @Override
-            public boolean apply(final AuthenticationInfo authenticationInfo) {
-                return authenticationInfo.getCredentials().isDefined();
-            }
-        });
+        final Iterable<AuthenticationInfo> authenticationInfos = Iterables.filter(
+                ProxyConfigFactory.getProxyAuthentication(options),
+                authenticationInfo -> authenticationInfo.getCredentials().isDefined());
 
         return Iterables.isEmpty(authenticationInfos) ? Option.<ProxyCredentialsProvider>none() : Option.some(createCredentialProvider(authenticationInfos));
     }
@@ -37,12 +34,8 @@ public class ProxyCredentialsProvider implements CredentialsProvider {
         final SystemDefaultCredentialsProvider credentialsProvider = new SystemDefaultCredentialsProvider();
 
         for (final AuthenticationInfo authenticationInfo : authenticationInfos) {
-            authenticationInfo.getCredentials().foreach(new Effect<Credentials>() {
-                @Override
-                public void apply(final Credentials credentials) {
-                    credentialsProvider.setCredentials(authenticationInfo.getAuthScope(), credentials);
-                }
-            });
+            authenticationInfo.getCredentials().foreach(credentials ->
+                    credentialsProvider.setCredentials(authenticationInfo.getAuthScope(), credentials));
         }
 
         return new ProxyCredentialsProvider(credentialsProvider);

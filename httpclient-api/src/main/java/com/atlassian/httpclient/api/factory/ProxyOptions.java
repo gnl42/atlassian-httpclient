@@ -44,11 +44,11 @@ public class ProxyOptions {
         return proxyMode;
     }
 
-    private Map<Scheme, Host> proxyHostMap = new HashMap<Scheme, Host>();
+    private final Map<Scheme, Host> proxyHostMap;
 
-    private Map<Scheme, List<String>> nonProxyHosts = new HashMap<Scheme, List<String>>();
+    private final Map<Scheme, List<String>> nonProxyHosts;
 
-    private ProxyMode proxyMode = ProxyMode.SYSTEM_PROPERTIES;
+    private final ProxyMode proxyMode;
 
     private ProxyOptions(ProxyMode mode, Map<Scheme, Host> proxyHostMap, Map<Scheme, List<String>> nonProxyHosts) {
         this.proxyMode = mode;
@@ -135,8 +135,8 @@ public class ProxyOptions {
             Preconditions.checkNotNull(nonProxyHosts, "Non proxy hosts cannot be null");
             Preconditions.checkNotNull(scheme, "Scheme must not be null");
 
+            // this does not impact whether we consider our mode to be - only proxy host/port can determine that
             this.nonProxyHosts.put(scheme, nonProxyHosts);
-            proxyMode = ProxyMode.CONFIGURED;
             return this;
         }
 

@@ -12,7 +12,7 @@ public enum Scheme {
         return schemeName;
     }
 
-    private Scheme(String name) {
+    Scheme(String name) {
         schemeName = name;
     }
 }
