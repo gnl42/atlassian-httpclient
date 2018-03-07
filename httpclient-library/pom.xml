@@ -88,11 +88,6 @@
             <artifactId>commons-lang3</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <!--<scope>bundled</scope>-->
-        </dependency>
 
         <!-- Http client -->
         <dependency>

@@ -38,7 +38,7 @@ public class RestrictedResolverTest {
     public void testSmallRange() throws UnknownHostException {
         Resolver restrictedResolver = new RestrictedResolver(ImmutableList.of("192.168.0.1/30"));
 
-        restrictedResolver.resolve("192.168.0.3");
+        restrictedResolver.resolve("192.168.0.4");
 
         expectedException.expectMessage(BLOCKED_HOST_MATCHER);
         restrictedResolver.resolve("192.168.0.2");

@@ -1,7 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.httpclient.api.Resolver;
-import org.apache.commons.net.util.SubnetUtils;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -11,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class RestrictedResolver implements Resolver {
 
-    private final List<SubnetUtils.SubnetInfo> cidrs;
+    private final List<IpAddressMatcher> cidrs;
 
     /**
      *
@@ -19,7 +18,7 @@ public class RestrictedResolver implements Resolver {
      */
     public RestrictedResolver(List<String> restrictedCIDRs) {
         cidrs = restrictedCIDRs.stream()
-                .map(cidr -> new SubnetUtils(cidr).getInfo())
+                .map(IpAddressMatcher::new)
                 .collect(Collectors.toList());
     }
 
@@ -29,11 +28,11 @@ public class RestrictedResolver implements Resolver {
     }
 
     private InetAddress[] restrict(InetAddress[] addresses) throws UnknownHostException {
-        for (SubnetUtils.SubnetInfo cidr : cidrs) {
+        for (IpAddressMatcher cidr : cidrs) {
             for (InetAddress address : addresses) {
                 if (address instanceof Inet4Address) {
                     String hostAddress = address.getHostAddress();
-                    if (cidr.getAddress().equalsIgnoreCase(hostAddress) || cidr.isInRange(hostAddress)) {
+                    if (cidr.matches(hostAddress)) {
                         throw new UnknownHostException("This host has been blocked for access");
                     }
                 }
