@@ -1,5 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.httpclient.api.BannedHostException;
 import com.atlassian.httpclient.api.HostResolver;
 
 import java.net.Inet4Address;
@@ -33,7 +34,7 @@ public class RestrictedHostResolver implements HostResolver {
                 if (address instanceof Inet4Address) {
                     String hostAddress = address.getHostAddress();
                     if (cidr.matches(hostAddress)) {
-                        throw new UnknownHostException("This host has been blocked for access");
+                        throw new BannedHostException("This host has been blocked for access");
                     }
                 }
             }
