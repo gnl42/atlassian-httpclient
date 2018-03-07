@@ -1,6 +1,7 @@
 package com.atlassian.httpclient.api.factory;
 
 import com.atlassian.httpclient.api.Request;
+import com.atlassian.httpclient.api.Resolver;
 import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Effects;
 import com.atlassian.util.concurrent.ThreadFactories;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -56,6 +58,8 @@ public final class HttpClientOptions {
     private ExecutorService callbackExecutor;
 
     private ProxyOptions proxyOptions = ProxyOptions.ProxyOptionsBuilder.create().build();
+
+    private Resolver hostResolver;
 
     /**
      * Whether or not to ignore cookies.
@@ -174,6 +178,17 @@ public final class HttpClientOptions {
      */
     public String getThreadPrefix() {
         return threadPrefix;
+    }
+
+    /**
+     * @return Dns resolver
+     */
+    public Optional<Resolver> getHostResolver() {
+        return Optional.ofNullable(hostResolver);
+    }
+
+    public void setHostResolver(Resolver resolver) {
+        this.hostResolver = resolver;
     }
 
     /**

@@ -6,13 +6,7 @@ import com.atlassian.httpclient.apache.httpcomponents.cache.FlushableHttpCacheSt
 import com.atlassian.httpclient.apache.httpcomponents.cache.LoggingHttpCacheStorage;
 import com.atlassian.httpclient.apache.httpcomponents.proxy.ProxyConfigFactory;
 import com.atlassian.httpclient.apache.httpcomponents.proxy.ProxyCredentialsProvider;
-import com.atlassian.httpclient.api.HttpClient;
-import com.atlassian.httpclient.api.HttpStatus;
-import com.atlassian.httpclient.api.Request;
-import com.atlassian.httpclient.api.Response;
-import com.atlassian.httpclient.api.ResponsePromise;
-import com.atlassian.httpclient.api.ResponsePromises;
-import com.atlassian.httpclient.api.ResponseTooLargeException;
+import com.atlassian.httpclient.api.*;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.base.AbstractHttpClient;
 import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
@@ -20,11 +14,7 @@ import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.executor.ThreadLocalContextManager;
 import com.atlassian.util.concurrent.ThreadFactories;
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.google.common.base.Throwables;
+import com.google.common.base.*;
 import com.google.common.primitives.Ints;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -32,14 +22,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpTrace;
+import org.apache.http.client.methods.*;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.ssl.SSLContextBuilder;
@@ -49,7 +32,6 @@ import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
-import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
@@ -162,7 +144,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     ManagedNHttpClientConnectionFactory.INSTANCE,
                     getRegistry(options),
                     DefaultSchemePortResolver.INSTANCE,
-                    SystemDefaultDnsResolver.INSTANCE,
+                    host -> options.getHostResolver()
+                            .orElse(new DefaultResolver())
+                            .resolve(host),
                     options.getConnectionPoolTimeToLive(),
                     TimeUnit.MILLISECONDS) {
                 @SuppressWarnings("MethodDoesntCallSuperMethod")
