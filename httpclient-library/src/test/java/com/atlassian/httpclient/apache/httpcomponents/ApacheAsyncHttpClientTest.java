@@ -68,11 +68,11 @@ public final class ApacheAsyncHttpClientTest {
     public void testGoingToAWSEndpoint() {
         HttpClientOptions options = new HttpClientOptions();
         options.setTrustSelfSignedCertificates(true);
-        options.setHostResolver(new RestrictedResolver(
+        options.setHostHostResolver(new RestrictedHostResolver(
                 ImmutableList.of("169.0.0.0/8")
         ));
 
-        HttpClient client = new ApacheAsyncHttpClient<>("trust-client", options);
+        final HttpClient client = new ApacheAsyncHttpClient<>("trust-client", options);
 
         // a valid request should work
         client.newRequest(serverUrl()).get().claim();

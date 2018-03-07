@@ -1,6 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
-import com.atlassian.httpclient.api.Resolver;
+import com.atlassian.httpclient.api.HostResolver;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RestrictedResolver implements Resolver {
+public class RestrictedHostResolver implements HostResolver {
 
     private final List<IpAddressMatcher> cidrs;
 
@@ -16,7 +16,7 @@ public class RestrictedResolver implements Resolver {
      *
      * @param restrictedCIDRs list of cidrs to block from resolving
      */
-    public RestrictedResolver(List<String> restrictedCIDRs) {
+    public RestrictedHostResolver(List<String> restrictedCIDRs) {
         cidrs = restrictedCIDRs.stream()
                 .map(IpAddressMatcher::new)
                 .collect(Collectors.toList());
@@ -24,7 +24,7 @@ public class RestrictedResolver implements Resolver {
 
     @Override
     public InetAddress[] resolve(String host) throws UnknownHostException {
-        return restrict(DefaultResolver.INSTANCE.resolve(host));
+        return restrict(DefaultHostResolver.INSTANCE.resolve(host));
     }
 
     private InetAddress[] restrict(InetAddress[] addresses) throws UnknownHostException {

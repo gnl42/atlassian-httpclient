@@ -1,14 +1,14 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
-import com.atlassian.httpclient.api.Resolver;
+import com.atlassian.httpclient.api.HostResolver;
 import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class DefaultResolver implements Resolver {
+public class DefaultHostResolver implements HostResolver {
 
-    public static final Resolver INSTANCE = new DefaultResolver();
+    public static final HostResolver INSTANCE = new DefaultHostResolver();
 
     @Override
     public InetAddress[] resolve(String host) throws UnknownHostException {
