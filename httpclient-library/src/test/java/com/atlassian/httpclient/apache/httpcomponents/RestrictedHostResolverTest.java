@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.fail;
 
 public class RestrictedHostResolverTest {
 
@@ -21,16 +22,32 @@ public class RestrictedHostResolverTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testNoAddressesBlocked() throws UnknownHostException {
-        HostResolver restrictedHostResolver = new RestrictedHostResolver(new ArrayList<>());
-        restrictedHostResolver.resolve(AWS_META_HOST);
-    }
-
-    @Test
     public void testBlockSingleIP() throws UnknownHostException {
         HostResolver restrictedHostResolver = new RestrictedHostResolver(ImmutableList.of(AWS_META_HOST + "/32"));
 
         expectedException.expectMessage(BLOCKED_HOST_MATCHER);
+        restrictedHostResolver.resolve(AWS_META_HOST);
+    }
+
+    @Test
+    public void testIpv6AddressesCanBeBlocked() {
+        ImmutableList<String> banList = ImmutableList.of("fd12:3456:7890:1423:ffff:ffff:ffff:ffff", "0:0:0:0:0:ffff:808:808");
+        HostResolver resolver = new RestrictedHostResolver(banList);
+
+        assertAllIpsFail(banList, resolver);
+    }
+
+    @Test
+    public void testListRestricted() {
+        ImmutableList<String> banList = ImmutableList.of("1.1.1.1", "2.2.2.2", "3.3.3.3", "4.4.4.4");
+        HostResolver resolver = new RestrictedHostResolver(banList);
+
+        assertAllIpsFail(banList, resolver);
+    }
+
+    @Test
+    public void testNoAddressesBlocked() throws UnknownHostException {
+        HostResolver restrictedHostResolver = new RestrictedHostResolver(new ArrayList<>());
         restrictedHostResolver.resolve(AWS_META_HOST);
     }
 
@@ -42,6 +59,16 @@ public class RestrictedHostResolverTest {
 
         expectedException.expectMessage(BLOCKED_HOST_MATCHER);
         restrictedHostResolver.resolve("192.168.0.2");
+    }
+
+    private void assertAllIpsFail(ImmutableList<String> banList, HostResolver resolver) {
+        for (String ip : banList) {
+            try {
+                resolver.resolve(ip);
+                fail("Resolution should fail for ip " + ip);
+            } catch (UnknownHostException ignored) {
+            }
+        }
     }
 
 }
