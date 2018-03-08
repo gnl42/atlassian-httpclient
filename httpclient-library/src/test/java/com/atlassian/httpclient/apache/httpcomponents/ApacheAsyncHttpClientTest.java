@@ -1,5 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
+import com.atlassian.httpclient.api.BannedHostException;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.api.factory.ProxyOptions;
@@ -24,7 +25,7 @@ import java.net.InetSocketAddress;
 import java.security.*;
 import java.security.cert.CertificateException;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertEquals;
 
 public final class ApacheAsyncHttpClientTest {
@@ -68,7 +69,7 @@ public final class ApacheAsyncHttpClientTest {
     public void testGoingToAWSEndpoint() {
         HttpClientOptions options = new HttpClientOptions();
         options.setTrustSelfSignedCertificates(true);
-        options.setHostHostResolver(new RestrictedHostResolver(
+        options.setHostHostResolver(new BannedHostResolver(
                 ImmutableList.of("169.0.0.0/8")
         ));
 
@@ -76,7 +77,7 @@ public final class ApacheAsyncHttpClientTest {
 
         // a valid request should work
         client.newRequest(serverUrl()).get().claim();
-        expectedException.expectMessage(containsString("This host has been blocked for access"));
+        expectedException.expectCause(isA(BannedHostException.class));
         client.newRequest("http://169.254.169.254").get().claim();
     }
 

@@ -181,7 +181,7 @@ public final class HttpClientOptions {
     }
 
     /**
-     * @return Dns resolver
+     * @return either a dns host resolver, or {@link Optional#empty()}
      */
     public Optional<HostResolver> getHostHostResolver() {
         return Optional.ofNullable(hostHostResolver);

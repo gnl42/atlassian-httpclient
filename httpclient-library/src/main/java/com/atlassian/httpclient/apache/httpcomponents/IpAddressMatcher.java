@@ -17,7 +17,7 @@
  */
 package com.atlassian.httpclient.apache.httpcomponents;
 
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
@@ -47,7 +47,6 @@ public final class IpAddressMatcher {
      *                  come.
      */
     public IpAddressMatcher(String ipAddress) {
-
         if (ipAddress.indexOf('/') > 0) {
             String[] addressAndMask = StringUtils.split(ipAddress, "/");
             ipAddress = addressAndMask[0];
