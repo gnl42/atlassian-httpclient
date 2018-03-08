@@ -17,8 +17,6 @@
  */
 package com.atlassian.httpclient.apache.httpcomponents;
 
-import org.apache.commons.lang3.StringUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -48,7 +46,7 @@ public final class IpAddressMatcher {
      */
     public IpAddressMatcher(String ipAddress) {
         if (ipAddress.indexOf('/') > 0) {
-            String[] addressAndMask = StringUtils.split(ipAddress, "/");
+            String[] addressAndMask = ipAddress.split("/");
             ipAddress = addressAndMask[0];
             nMaskBits = Integer.parseInt(addressAndMask[1]);
         } else {
