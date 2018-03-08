@@ -12,6 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Retrieved on 8-March-2018 from https://raw.githubusercontent.com/spring-projects/spring-security/f221920a1990f458b26b185c8fbe5b3623dbd8c1/web/src/main/java/org/springframework/security/web/util/matcher/IpAddressMatcher.java
  */
 package com.atlassian.httpclient.apache.httpcomponents;
 
