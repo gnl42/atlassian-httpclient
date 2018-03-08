@@ -69,9 +69,7 @@ public final class ApacheAsyncHttpClientTest {
     public void testGoingToAWSEndpoint() {
         HttpClientOptions options = new HttpClientOptions();
         options.setTrustSelfSignedCertificates(true);
-        options.setHostResolver(new BannedHostResolver(
-                ImmutableList.of("169.0.0.0/8")
-        ));
+        options.setBlacklistedAddresses(ImmutableList.of("169.0.0.0/8"));
 
         final HttpClient client = new ApacheAsyncHttpClient<>("trust-client", options);
 
