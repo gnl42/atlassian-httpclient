@@ -179,6 +179,9 @@ public final class HttpClientOptions {
         return threadPrefix;
     }
 
+    /**
+     * @param blacklistedAddresses a list of addresses or cidr ranges that this http client cannot connect to
+     */
     public void setBlacklistedAddresses(@Nonnull List<String> blacklistedAddresses) {
         this.blacklistedAddresses = Collections.unmodifiableList(blacklistedAddresses);
     }
