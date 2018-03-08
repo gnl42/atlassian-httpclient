@@ -1,21 +1,19 @@
 package com.atlassian.httpclient.api.factory;
 
-import com.atlassian.httpclient.api.Request;
 import com.atlassian.httpclient.api.HostResolver;
+import com.atlassian.httpclient.api.Request;
 import com.atlassian.util.concurrent.Effect;
 import com.atlassian.util.concurrent.Effects;
 import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * Configuration options for the http client instance and its caching system
@@ -25,6 +23,7 @@ public final class HttpClientOptions {
     public static final String OPTION_THREAD_WORK_QUEUE_LIMIT = OPTION_PROPERTY_PREFIX + ".threadWorkQueueLimit";
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private List<String> blacklistedAddresses;
 
     private String threadPrefix = "httpclient";
     private boolean ignoreCookies = false;
@@ -180,15 +179,16 @@ public final class HttpClientOptions {
         return threadPrefix;
     }
 
-    /**
-     * @return either a dns host resolver, or {@link Optional#empty()}
-     */
-    public Optional<HostResolver> getHostResolver() {
-        return Optional.ofNullable(hostResolver);
+    public void setBlacklistedAddresses(@Nonnull List<String> blacklistedAddresses) {
+        this.blacklistedAddresses = Collections.unmodifiableList(blacklistedAddresses);
     }
 
-    public void setHostResolver(HostResolver hostResolver) {
-        this.hostResolver = hostResolver;
+    @Nonnull
+    public List<String> getBlacklistedAddresses() {
+        if (blacklistedAddresses == null) {
+            return ImmutableList.of();
+        }
+        return blacklistedAddresses;
     }
 
     /**
