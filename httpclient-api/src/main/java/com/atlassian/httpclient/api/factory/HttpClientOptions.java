@@ -59,7 +59,7 @@ public final class HttpClientOptions {
 
     private ProxyOptions proxyOptions = ProxyOptions.ProxyOptionsBuilder.create().build();
 
-    private HostResolver hostHostResolver;
+    private HostResolver hostResolver;
 
     /**
      * Whether or not to ignore cookies.
@@ -183,12 +183,12 @@ public final class HttpClientOptions {
     /**
      * @return either a dns host resolver, or {@link Optional#empty()}
      */
-    public Optional<HostResolver> getHostHostResolver() {
-        return Optional.ofNullable(hostHostResolver);
+    public Optional<HostResolver> getHostResolver() {
+        return Optional.ofNullable(hostResolver);
     }
 
-    public void setHostHostResolver(HostResolver hostResolver) {
-        this.hostHostResolver = hostResolver;
+    public void setHostResolver(HostResolver hostResolver) {
+        this.hostResolver = hostResolver;
     }
 
     /**

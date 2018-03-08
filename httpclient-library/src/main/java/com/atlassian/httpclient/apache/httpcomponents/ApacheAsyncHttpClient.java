@@ -161,7 +161,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     ManagedNHttpClientConnectionFactory.INSTANCE,
                     getRegistry(options),
                     DefaultSchemePortResolver.INSTANCE,
-                    host -> options.getHostHostResolver()
+                    host -> options.getHostResolver()
                             .orElse(DefaultHostResolver.INSTANCE)
                             .resolve(host),
                     options.getConnectionPoolTimeToLive(),
