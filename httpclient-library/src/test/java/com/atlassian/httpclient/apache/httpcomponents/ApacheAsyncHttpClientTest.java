@@ -3,13 +3,16 @@ package com.atlassian.httpclient.apache.httpcomponents;
 import com.atlassian.httpclient.api.HttpClient;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.atlassian.httpclient.api.factory.ProxyOptions;
+import com.google.common.collect.ImmutableList;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -18,19 +21,19 @@ import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 
 public final class ApacheAsyncHttpClientTest {
     private HttpsServer server;
 
     private int port;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -59,6 +62,22 @@ public final class ApacheAsyncHttpClientTest {
         } catch (RuntimeException expected) {
             assertEquals(SSLHandshakeException.class, expected.getCause().getClass());
         }
+    }
+
+    @Test
+    public void testGoingToAWSEndpoint() {
+        HttpClientOptions options = new HttpClientOptions();
+        options.setTrustSelfSignedCertificates(true);
+        options.setHostHostResolver(new RestrictedHostResolver(
+                ImmutableList.of("169.0.0.0/8")
+        ));
+
+        final HttpClient client = new ApacheAsyncHttpClient<>("trust-client", options);
+
+        // a valid request should work
+        client.newRequest(serverUrl()).get().claim();
+        expectedException.expectMessage(containsString("This host has been blocked for access"));
+        client.newRequest("http://169.254.169.254").get().claim();
     }
 
     @Test

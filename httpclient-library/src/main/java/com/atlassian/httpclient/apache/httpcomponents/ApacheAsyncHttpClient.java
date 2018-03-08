@@ -49,7 +49,6 @@ import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
-import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
@@ -162,7 +161,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     ManagedNHttpClientConnectionFactory.INSTANCE,
                     getRegistry(options),
                     DefaultSchemePortResolver.INSTANCE,
-                    SystemDefaultDnsResolver.INSTANCE,
+                    host -> options.getHostHostResolver()
+                            .orElse(DefaultHostResolver.INSTANCE)
+                            .resolve(host),
                     options.getConnectionPoolTimeToLive(),
                     TimeUnit.MILLISECONDS) {
                 @SuppressWarnings("MethodDoesntCallSuperMethod")
