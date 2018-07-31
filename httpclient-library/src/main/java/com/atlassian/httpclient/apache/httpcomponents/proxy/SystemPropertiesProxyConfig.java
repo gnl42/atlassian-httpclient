@@ -1,7 +1,7 @@
 package com.atlassian.httpclient.apache.httpcomponents.proxy;
 
-import com.atlassian.fugue.Option;
-import com.atlassian.fugue.Options;
+import io.atlassian.fugue.Option;
+import io.atlassian.fugue.Options;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;

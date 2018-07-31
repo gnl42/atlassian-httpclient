@@ -64,7 +64,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.atlassian.fugue</groupId>
+            <groupId>io.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
             <scope>provided</scope>
         </dependency>

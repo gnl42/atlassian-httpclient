@@ -1,6 +1,6 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.fugue.Option;
+import io.atlassian.fugue.Option;
 
 import java.io.InputStream;
 import java.util.Map;

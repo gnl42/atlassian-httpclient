@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.atlassian.pom</groupId>
         <artifactId>public-pom</artifactId>
-        <version>5.0.8</version>
+        <version>5.0.20</version>
     </parent>
 
     <groupId>com.atlassian.httpclient</groupId>
@@ -53,7 +53,7 @@
         <product.data.version>${product.version}</product.data.version>
 
         <amps.version>6.3.7</amps.version>
-        <platform.version>3.1.7</platform.version>
+        <platform.version>5.0.0-5f726d6</platform.version>
 
         <!-- dependencies not included in platform 3.1.7 -->
         <analytics.version>2.12</analytics.version>
