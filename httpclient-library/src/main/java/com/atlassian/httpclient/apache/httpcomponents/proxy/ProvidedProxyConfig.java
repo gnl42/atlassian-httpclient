@@ -1,7 +1,7 @@
 package com.atlassian.httpclient.apache.httpcomponents.proxy;
 
-import com.atlassian.fugue.Option;
-import com.atlassian.fugue.Options;
+import io.atlassian.fugue.Option;
+import io.atlassian.fugue.Options;
 import com.atlassian.httpclient.api.factory.Host;
 import com.atlassian.httpclient.api.factory.Scheme;
 import com.google.common.base.Preconditions;

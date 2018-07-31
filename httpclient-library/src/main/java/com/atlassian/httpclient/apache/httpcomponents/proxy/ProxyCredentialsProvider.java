@@ -1,10 +1,8 @@
 package com.atlassian.httpclient.apache.httpcomponents.proxy;
 
-import com.atlassian.fugue.Effect;
-import com.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import io.atlassian.fugue.Option;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.client.CredentialsProvider;

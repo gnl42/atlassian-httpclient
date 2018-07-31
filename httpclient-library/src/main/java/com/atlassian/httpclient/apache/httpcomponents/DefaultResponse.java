@@ -1,6 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
-import com.atlassian.fugue.Option;
+import io.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.Response;
 import com.google.common.base.Function;
 import org.slf4j.Logger;
