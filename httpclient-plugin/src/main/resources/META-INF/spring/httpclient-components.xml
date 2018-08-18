@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
-             xmlns:osgi="http://www.springframework.org/schema/osgi"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-                                 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
-
-    <osgi:service id="httpClientService" ref="httpClient" interface="com.atlassian.httpclient.api.HttpClient"/>
-    <osgi:service id="httpClientFactoryService" ref="httpClientFactory" interface="com.atlassian.httpclient.api.factory.HttpClientFactory"/>
-
-    <beans:bean id="httpClient" class="com.atlassian.httpclient.apache.httpcomponents.ApacheAsyncHttpClient">
-        <beans:constructor-arg ref="eventPublisher"/>
-        <beans:constructor-arg ref="applicationProperties"/>
-        <beans:constructor-arg ref="threadLocalContextManager" />
-        <beans:constructor-arg>
-            <beans:bean class="com.atlassian.httpclient.api.factory.HttpClientOptions">
-                <beans:property name="ignoreCookies" value="true"/>
-            </beans:bean>
-        </beans:constructor-arg>
-    </beans:bean>
-
-    <beans:bean id="httpClientFactory" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClientFactory">
-        <beans:constructor-arg ref="eventPublisher"/>
-        <beans:constructor-arg ref="applicationProperties"/>
-        <beans:constructor-arg ref="threadLocalContextManager" />
-    </beans:bean>
-</beans:beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:atlassian-scanner="http://www.atlassian.com/schema/atlassian-scanner/2"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.atlassian.com/schema/atlassian-scanner/2
+        http://www.atlassian.com/schema/atlassian-scanner/2/atlassian-scanner.xsd"
+       default-autowire="constructor">
+    <atlassian-scanner:scan-indexes/>
+</beans>
