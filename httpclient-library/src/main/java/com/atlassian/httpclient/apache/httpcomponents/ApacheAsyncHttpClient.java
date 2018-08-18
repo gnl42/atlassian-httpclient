@@ -71,7 +71,6 @@ import static com.atlassian.util.concurrent.Promises.rejected;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-@Component
 public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 

@@ -1,15 +1,16 @@
 package com.atlassian.httpclient.plugin;
 
 import com.atlassian.httpclient.api.HttpClient;
+import com.atlassian.httpclient.api.factory.HttpClientFactory;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceRegistration;
 
 public class HttpClientFactoryWrapper implements ServiceFactory {
-    private com.atlassian.httpclient.api.factory.HttpClientFactory defaultHttpClientFactory;
+    private HttpClientFactory defaultHttpClientFactory;
             
-    public HttpClientFactoryWrapper(com.atlassian.httpclient.api.factory.HttpClientFactory httpClientFactory) {
+    public HttpClientFactoryWrapper(HttpClientFactory httpClientFactory) {
         this.defaultHttpClientFactory = httpClientFactory;
     }
 
