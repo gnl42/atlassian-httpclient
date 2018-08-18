@@ -20,7 +20,7 @@ public final class DefaultHttpClientFactory<C> implements HttpClientFactory, Dis
     private final ApplicationProperties applicationProperties;
     private final ThreadLocalContextManager<C> threadLocalContextManager;
     private final Set<ApacheAsyncHttpClient> httpClients = new CopyOnWriteArraySet<ApacheAsyncHttpClient>();
-
+    
     public DefaultHttpClientFactory(
             @Nonnull EventPublisher eventPublisher,
             @Nonnull ApplicationProperties applicationProperties,

@@ -50,6 +50,7 @@ import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -67,8 +68,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.atlassian.util.concurrent.Promises.rejected;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -113,10 +114,10 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                                  final Function<Object, Void> eventConsumer,
                                  final ThreadLocalContextManager<C> threadLocalContextManager,
                                  final HttpClientOptions options) {
-        this.eventConsumer = checkNotNull(eventConsumer);
-        this.applicationName = checkNotNull(applicationName);
-        this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
-        this.httpClientOptions = checkNotNull(options);
+        this.eventConsumer = requireNonNull(eventConsumer, "eventConsumer can't be null");
+        this.applicationName = requireNonNull(applicationName, "applicationName can't be null");
+        this.threadLocalContextManager = requireNonNull(threadLocalContextManager, "threadLocalContextManager can't be null");
+        this.httpClientOptions = requireNonNull(options, "options can't be null");
 
         try {
             final IOReactorConfig reactorConfig = IOReactorConfig.custom()
@@ -445,7 +446,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         private final ApplicationProperties applicationProperties;
 
         public DefaultApplicationNameSupplier(ApplicationProperties applicationProperties) {
-            this.applicationProperties = checkNotNull(applicationProperties);
+            this.applicationProperties = requireNonNull(applicationProperties);
         }
 
         @Override
