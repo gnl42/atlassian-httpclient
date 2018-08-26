@@ -7,6 +7,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceRegistration;
 
+/**
+ * This wrapper is used to make HttpClientFactory implement ServiceFactory to make it possible to export not only factory
+ * itself, but also httpclient as a service
+ */
 public class HttpClientFactoryWrapper implements ServiceFactory {
     private HttpClientFactory defaultHttpClientFactory;
             
