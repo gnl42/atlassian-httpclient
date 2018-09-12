@@ -1,17 +1,18 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.util.concurrent.Effect;
-import com.atlassian.util.concurrent.Promise;
-import com.google.common.base.Function;
-import com.google.common.util.concurrent.SettableFuture;
+import io.atlassian.util.concurrent.Promise;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
 
-import static com.atlassian.util.concurrent.Promises.forListenableFuture;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static io.atlassian.util.concurrent.Promises.forCompletionStage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -24,8 +25,8 @@ public final class WrappingResponsePromiseTest {
     public final void testThatWhenMapFunctionThrowsExceptionThenMappedPromiseIsFailWithException() {
         final String message = "This is the message for the test!";
 
-        final SettableFuture<Response> future = SettableFuture.create();
-        final ResponsePromise responsePromise = new WrappingResponsePromise(forListenableFuture(future));
+        final CompletableFuture<Response> future = new CompletableFuture<>();
+        final ResponsePromise responsePromise = new WrappingResponsePromise(forCompletionStage(future));
 
         final OnTimeEffect onFail = new OnTimeEffect() {
             @Override
@@ -36,21 +37,21 @@ public final class WrappingResponsePromiseTest {
 
         final Promise<Object> mappedPromise = responsePromise.map(newExceptionFunction(message)).fail(onFail);
 
-        future.set(response);
+        future.complete(response);
 
         assertTrue(onFail.isCalled());
         assertTrue(mappedPromise.isDone());
     }
 
     private <I, O> ExceptionThrowingFunction<I, O> newExceptionFunction(String message) {
-        return new ExceptionThrowingFunction<I, O>(message);
+        return new ExceptionThrowingFunction<>(message);
     }
 
-    private static abstract class OnTimeEffect implements Effect<Throwable> {
-        private boolean called = false;
+    private static abstract class OnTimeEffect implements Consumer<Throwable> {
+        private boolean called;
 
         @Override
-        public void apply(Throwable t) {
+        public void accept(Throwable t) {
             if (called) {
                 throw new IllegalStateException("This effect method already has been called!");
             }
@@ -68,7 +69,7 @@ public final class WrappingResponsePromiseTest {
     private static final class ExceptionThrowingFunction<I, O> implements Function<I, O> {
         private final String message;
 
-        public ExceptionThrowingFunction(String message) {
+        ExceptionThrowingFunction(String message) {
             this.message = message;
         }
 

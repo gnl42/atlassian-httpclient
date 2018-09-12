@@ -31,7 +31,7 @@ public class DefaultRequest extends DefaultMessage implements Request {
 
     private DefaultRequest(URI uri, boolean cacheDisabled, Map<String, String> attributes,
                            Headers headers, Method method, InputStream entityStream, Option<Long> contentLength) {
-        super(headers, entityStream, Option.<Long>none());
+        super(headers, entityStream, Option.none());
         this.uri = uri;
         this.cacheDisabled = cacheDisabled;
         this.attributes = attributes;
@@ -112,8 +112,8 @@ public class DefaultRequest extends DefaultMessage implements Request {
 
         public DefaultRequestBuilder(final HttpClient httpClient) {
             this.httpClient = httpClient;
-            this.attributes = new HashMap<String, String>();
-            commonBuilder = new CommonBuilder<DefaultRequest>();
+            this.attributes = new HashMap<>();
+            commonBuilder = new CommonBuilder<>();
             setAccept("*/*");
             contentLength = Option.none();
         }

@@ -1,9 +1,8 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.util.concurrent.Promise;
-import com.google.common.base.Function;
+import io.atlassian.util.concurrent.Promise;
 
-import javax.annotation.Nullable;
+import java.util.function.Function;
 
 /**
  * Helper methods for working with response promises
@@ -17,11 +16,8 @@ public final class ResponsePromises {
     }
 
     public static <T> Function<Response, T> newUnexpectedResponseFunction() {
-        return new Function<Response, T>() {
-            @Override
-            public T apply(@Nullable Response response) {
-                throw new UnexpectedResponseException(response);
-            }
+        return response -> {
+            throw new UnexpectedResponseException(response);
         };
     }
 }

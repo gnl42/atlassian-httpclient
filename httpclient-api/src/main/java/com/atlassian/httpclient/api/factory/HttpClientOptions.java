@@ -2,11 +2,9 @@ package com.atlassian.httpclient.api.factory;
 
 import com.atlassian.httpclient.api.HostResolver;
 import com.atlassian.httpclient.api.Request;
-import com.atlassian.util.concurrent.Effect;
-import com.atlassian.util.concurrent.Effects;
-import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import io.atlassian.util.concurrent.ThreadFactories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +12,7 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 /**
  * Configuration options for the http client instance and its caching system
@@ -50,7 +49,7 @@ public final class HttpClientOptions {
 
     private boolean trustSelfSignedCertificates = false;
 
-    private Effect<Request> requestPreparer = Effects.noop();
+    private Consumer<Request> requestPreparer = request -> {};
 
     private String userAgent = "Default";
 
@@ -276,14 +275,14 @@ public final class HttpClientOptions {
     /**
      * @return The effect to apply before the request is executed
      */
-    public Effect<Request> getRequestPreparer() {
+    public Consumer<Request> getRequestPreparer() {
         return requestPreparer;
     }
 
     /**
      * @param requestPreparer The effect to apply before the request is executed
      */
-    public void setRequestPreparer(Effect<Request> requestPreparer) {
+    public void setRequestPreparer(Consumer<Request> requestPreparer) {
         this.requestPreparer = requestPreparer;
     }
 
@@ -344,7 +343,7 @@ public final class HttpClientOptions {
                 getMaxCallbackThreadPoolSize(),
                 60L,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(threadWorkQueueLimit),
+                new LinkedBlockingQueue<>(threadWorkQueueLimit),
                 threadFactory,
                 (r, e) -> log.warn(
                         "Exceeded the limit of requests waiting for execution. " +

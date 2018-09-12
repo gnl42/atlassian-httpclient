@@ -12,7 +12,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -39,15 +39,15 @@ public class DefaultHttpClientFactoryTest {
 
         assertThat(httpClient1, notNullValue());
         assertThat(httpClient2, notNullValue());
-        assertThat(factory.getHttpClients(), Matchers.<ApacheAsyncHttpClient>iterableWithSize(2));
+        assertThat(factory.getHttpClients(), Matchers.iterableWithSize(2));
 
         factory.dispose(httpClient1);
 
-        assertThat(factory.getHttpClients(), Matchers.<ApacheAsyncHttpClient>iterableWithSize(1));
+        assertThat(factory.getHttpClients(), Matchers.iterableWithSize(1));
 
         factory.dispose(httpClient2);
 
-        assertThat(factory.getHttpClients(), Matchers.<ApacheAsyncHttpClient>iterableWithSize(0));
+        assertThat(factory.getHttpClients(), Matchers.iterableWithSize(0));
     }
 
     @Test
@@ -56,11 +56,11 @@ public class DefaultHttpClientFactoryTest {
         final HttpClient httpClient = factory.create(new HttpClientOptions());
 
         assertThat(httpClient, notNullValue());
-        assertThat(factory.getHttpClients(), Matchers.<ApacheAsyncHttpClient>iterableWithSize(1));
+        assertThat(factory.getHttpClients(), Matchers.iterableWithSize(1));
 
         factory.dispose(httpClient);
 
-        assertThat(factory.getHttpClients(), Matchers.<ApacheAsyncHttpClient>iterableWithSize(0));
+        assertThat(factory.getHttpClients(), Matchers.iterableWithSize(0));
 
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Client is already disposed");

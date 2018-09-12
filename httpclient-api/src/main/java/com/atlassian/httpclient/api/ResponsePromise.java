@@ -1,7 +1,8 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.util.concurrent.Promise;
-import com.google.common.base.Function;
+import io.atlassian.util.concurrent.Promise;
+
+import java.util.function.Function;
 
 /**
  * A specific type of Promise for transforming a promise with a response into another object
@@ -13,7 +14,7 @@ public interface ResponsePromise extends Promise<Response> {
      * new {@code T}.
      *
      * @param <T> the type of the expected object once transformed.
-     * @return a {@link com.atlassian.util.concurrent.Promise<T>}
+     * @return a {@link Promise<T>}
      */
-    public <T> Promise<T> transform(ResponseTransformation<T> transformation);
+    <T> Promise<T> transform(ResponseTransformation<T> transformation);
 }

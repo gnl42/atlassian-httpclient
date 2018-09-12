@@ -72,6 +72,5 @@ public interface HttpClient {
 
     <A> ResponseTransformation.Builder<A> transformation();
 
-    abstract ResponsePromise execute(Request request);
-
+    ResponsePromise execute(Request request);
 }
