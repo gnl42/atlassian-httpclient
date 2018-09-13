@@ -1,7 +1,8 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.util.concurrent.Promise;
-import com.google.common.base.Function;
+import io.atlassian.util.concurrent.Promise;
+
+import java.util.function.Function;
 
 /**
  * Transforms the {@link ResponsePromise} into a target object, allowing for transforming functions based on different
@@ -31,7 +32,7 @@ public interface ResponseTransformation<T> {
          * @param status The HTTP status to select on
          * @param f      The transformation function
          * @return This instance for chaining
-         * @see #on(int, com.google.common.base.Function)
+         * @see #on(int, Function)
          */
         Builder<T> on(HttpStatus status, Function<Response, ? extends T> f);
 
@@ -39,13 +40,13 @@ public interface ResponseTransformation<T> {
          * <p>Register a function to transform HTTP responses with a specific status code.
          * Use this as a fallback if the status code you're interested in does not have
          * a more explicit registration method for it.
-         * <p>Prefer the {@link #on(HttpStatus, com.google.common.base.Function)} method if you're using <em>standard</em>
+         * <p>Prefer the {@link #on(HttpStatus, Function)} method if you're using <em>standard</em>
          * HTTP status.
          *
          * @param statusCode The code to select on
          * @param f          The transformation function
          * @return This instance for chaining
-         * @see #on(HttpStatus, com.google.common.base.Function)
+         * @see #on(HttpStatus, Function)
          */
         Builder<T> on(int statusCode, Function<Response, ? extends T> f);
 

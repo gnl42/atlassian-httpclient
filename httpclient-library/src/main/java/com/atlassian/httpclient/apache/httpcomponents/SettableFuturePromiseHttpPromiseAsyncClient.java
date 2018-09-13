@@ -1,16 +1,17 @@
 package com.atlassian.httpclient.apache.httpcomponents;
 
 import com.atlassian.sal.api.executor.ThreadLocalContextManager;
-import com.atlassian.util.concurrent.Promise;
-import com.atlassian.util.concurrent.Promises;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.util.concurrent.SettableFuture;
+import io.atlassian.util.concurrent.Promise;
+import io.atlassian.util.concurrent.Promises;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.nio.client.HttpAsyncClient;
 import org.apache.http.protocol.HttpContext;
 
+import javax.annotation.Nonnull;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeoutException;
 
@@ -24,45 +25,30 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
     SettableFuturePromiseHttpPromiseAsyncClient(HttpAsyncClient client, ThreadLocalContextManager<C> threadLocalContextManager, Executor executor) {
         this.client = checkNotNull(client);
         this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
-        this.executor = new ThreadLocalDelegateExecutor<C>(threadLocalContextManager, executor);
+        this.executor = new ThreadLocalDelegateExecutor<>(threadLocalContextManager, executor);
     }
 
     @Override
     public Promise<HttpResponse> execute(HttpUriRequest request, HttpContext context) {
-        final SettableFuture<HttpResponse> future = SettableFuture.create();
+        final CompletableFuture<HttpResponse> future = new CompletableFuture<>();
         client.execute(request, context, new ThreadLocalContextAwareFutureCallback<C, HttpResponse>(threadLocalContextManager) {
             @Override
             void doCompleted(final HttpResponse httpResponse) {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        future.set(httpResponse);
-                    }
-                });
+                executor.execute(() -> future.complete(httpResponse));
             }
 
             @Override
             void doFailed(final Exception ex) {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        future.setException(ex);
-                    }
-                });
+                executor.execute(() -> future.completeExceptionally(ex));
             }
 
             @Override
             void doCancelled() {
                 final TimeoutException timeoutException = new TimeoutException();
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        future.setException(timeoutException);
-                    }
-                });
+                executor.execute(() -> future.completeExceptionally(timeoutException));
             }
         });
-        return Promises.forListenableFuture(future);
+        return Promises.forCompletionStage(future);
     }
 
     @VisibleForTesting
@@ -98,32 +84,17 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
 
         @Override
         public final void completed(final HttpResponse response) {
-            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, new Runnable() {
-                @Override
-                public void run() {
-                    doCompleted(response);
-                }
-            });
+            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, () -> doCompleted(response));
         }
 
         @Override
         public final void failed(final Exception ex) {
-            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, new Runnable() {
-                @Override
-                public void run() {
-                    doFailed(ex);
-                }
-            });
+            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, () -> doFailed(ex));
         }
 
         @Override
         public final void cancelled() {
-            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, new Runnable() {
-                @Override
-                public void run() {
-                    doCancelled();
-                }
-            });
+            runInContext(threadLocalContextManager, threadLocalContext, contextClassLoader, this::doCancelled);
         }
     }
 
@@ -136,8 +107,8 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
             this.manager = checkNotNull(manager);
         }
 
-        public void execute(final Runnable runnable) {
-            delegate.execute(new ThreadLocalDelegateRunnable<C>(manager, runnable));
+        public void execute(@Nonnull final Runnable runnable) {
+            delegate.execute(new ThreadLocalDelegateRunnable<>(manager, runnable));
         }
     }
 
@@ -155,12 +126,7 @@ final class SettableFuturePromiseHttpPromiseAsyncClient<C> implements PromiseHtt
         }
 
         public void run() {
-            runInContext(manager, context, contextClassLoader, new Runnable() {
-                @Override
-                public void run() {
-                    delegate.run();
-                }
-            });
+            runInContext(manager, context, contextClassLoader, delegate);
         }
     }
 }

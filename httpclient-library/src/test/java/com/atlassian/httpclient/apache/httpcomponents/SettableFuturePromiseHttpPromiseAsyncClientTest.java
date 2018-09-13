@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,12 +30,9 @@ public final class SettableFuturePromiseHttpPromiseAsyncClientTest {
 
         final Object newThreadLocalContext = new Object();
         try {
-            runInContext(threadLocalContextManager, newThreadLocalContext, this.getClass().getClassLoader(), new Runnable() {
-                @Override
-                public void run() {
-                    run.set(true);
-                    throw new RuntimeException(); // this shouldn't affect things
-                }
+            runInContext(threadLocalContextManager, newThreadLocalContext, this.getClass().getClassLoader(), () -> {
+                run.set(true);
+                throw new RuntimeException(); // this shouldn't affect things
             });
         } catch (Exception e) {
             // ignore

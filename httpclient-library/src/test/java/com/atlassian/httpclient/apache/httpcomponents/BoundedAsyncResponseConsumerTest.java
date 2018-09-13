@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -145,7 +145,7 @@ public class BoundedAsyncResponseConsumerTest {
         }
 
         @Override
-        public int read(ByteBuffer dst) throws IOException {
+        public int read(ByteBuffer dst) {
             int bytesRead = 0;
             while (remaining > 0 && available > 0 && dst.hasRemaining()) {
                 dst.put(CONTENT);
