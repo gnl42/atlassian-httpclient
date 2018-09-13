@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.atlassian.pom</groupId>
         <artifactId>public-pom</artifactId>
-        <version>5.0.20</version>
+        <version>5.0.21</version>
     </parent>
 
     <groupId>com.atlassian.httpclient</groupId>
@@ -49,11 +48,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <product>refapp</product>
-        <product.version>5.0.0-SNAPSHOT</product.version>
+        <product.version>5.0.0-m1</product.version>
         <product.data.version>${product.version}</product.data.version>
 
         <amps.version>6.3.18</amps.version>
-        <platform.version>5.0.0-SNAPSHOT</platform.version>
+        <platform.version>5.0.0-ad8a559</platform.version>
 
         <!-- Non-platform dependencies -->
         <analytics.version>2.12</analytics.version>
