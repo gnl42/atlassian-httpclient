@@ -32,7 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Copied from {@link org.apache.http.impl.client.cache.CacheMap} v4.1.2
+ * Copied from {@code org.apache.http.impl.client.cache.CacheMap} v4.1.2
  */
 final class CacheMap extends LinkedHashMap<String, HttpCacheEntry> {
 

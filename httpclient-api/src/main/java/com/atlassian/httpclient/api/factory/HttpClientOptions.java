@@ -61,7 +61,7 @@ public final class HttpClientOptions {
 
     /**
      * Whether or not to ignore cookies.
-     * <p/>
+     * <p>
      * Default: <code>false</code>
      */
     public boolean getIgnoreCookies() {
@@ -77,7 +77,7 @@ public final class HttpClientOptions {
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
-     * <p/>
+     * <p>
      * Default: <code>10</code>
      */
     public int getIoThreadCount() {
@@ -95,7 +95,7 @@ public final class HttpClientOptions {
     /**
      * Determines time interval in milliseconds at which the I/O reactor wakes up to check for
      * timed out sessions and session requests.
-     * <p/>
+     * <p>
      * Default: <code>1000</code> milliseconds.
      */
     public long getIoSelectInterval() {

@@ -14,7 +14,7 @@ public interface ResponsePromise extends Promise<Response> {
      * new {@code T}.
      *
      * @param <T> the type of the expected object once transformed.
-     * @return a {@link Promise<T>}
+     * @return a {@link Promise}
      */
     <T> Promise<T> transform(ResponseTransformation<T> transformation);
 }
