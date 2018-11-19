@@ -56,14 +56,13 @@
 
         <!-- Non-platform dependencies -->
         <analytics.version>2.12</analytics.version>
+        <commons-codec.version>1.9</commons-codec.version>
         <httpasyncclient.version>4.1.4</httpasyncclient.version>
         <httpcore.version>4.4.10</httpcore.version>
         <httpclient.version>4.5.5</httpclient.version>
         <jetty.version>9.4.12.v20180830</jetty.version>
         <jackson2.version>2.9.2</jackson2.version>
         <log4j.version>1.2.17</log4j.version>
-        <commons-codec.version>1.9</commons-codec.version>
-        <felix.osgi.version>1.2.0</felix.osgi.version>
     </properties>
 
     <dependencyManagement>
@@ -94,6 +93,58 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.atlassian.analytics</groupId>
+                <artifactId>analytics-api</artifactId>
+                <version>${analytics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.junit</groupId>
+                <artifactId>atlassian-junit</artifactId>
+                <version>0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-server</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-servlet</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.stefanbirkner</groupId>
+                <artifactId>system-rules</artifactId>
+                <version>1.5.0</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpasyncclient</artifactId>
@@ -147,37 +198,17 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.atlassian.analytics</groupId>
-                <artifactId>analytics-api</artifactId>
-                <version>${analytics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commons-codec.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson2.version}</version>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -185,16 +216,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <configuration>
-                        <excludes>
-                            <exclude>**/*$*</exclude>
-                            <exclude>it/**</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
                 <plugin>
                     <groupId>com.atlassian.maven.plugins</groupId>
                     <artifactId>amps-maven-plugin</artifactId>
@@ -206,6 +227,7 @@
                     <artifactId>amps-dispatcher-maven-plugin</artifactId>
                     <version>${amps.version}</version>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>

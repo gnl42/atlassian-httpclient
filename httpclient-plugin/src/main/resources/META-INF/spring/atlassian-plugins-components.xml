@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:osgi="http://www.springframework.org/schema/osgi"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/osgi
+                           http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+    <bean id="httpClientFactory" class="com.atlassian.httpclient.apache.httpcomponents.DefaultHttpClientFactory">
+        <constructor-arg ref="eventPublisher"/>
+        <constructor-arg ref="applicationProperties"/>
+        <constructor-arg ref="threadLocalContextManager"/>
+    </bean>
+    <osgi:service id="httpClientFactory_osgiService" ref="httpClientFactory"
+                  interface="com.atlassian.httpclient.api.factory.HttpClientFactory"/>
+
+    <bean id="httpClient" factory-bean="httpClientFactory" factory-method="create">
+        <constructor-arg>
+            <bean class="com.atlassian.httpclient.api.factory.HttpClientOptions">
+                <property name="ignoreCookies" value="true"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+    <osgi:service id="httpClient_osgiService" ref="httpClient"
+                  interface="com.atlassian.httpclient.api.HttpClient"/>
+
+</beans>
