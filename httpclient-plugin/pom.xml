@@ -131,6 +131,7 @@
                             org.apache.commons*,
                             org.slf4j*;version="1.5",
                             org.springframework.*,
+                            *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.httpclient.api*;version="${httpclient.api.version}",
