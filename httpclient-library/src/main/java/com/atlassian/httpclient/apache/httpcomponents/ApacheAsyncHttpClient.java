@@ -13,9 +13,10 @@ import com.atlassian.httpclient.base.event.HttpRequestCompletedEvent;
 import com.atlassian.httpclient.base.event.HttpRequestFailedEvent;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.executor.ThreadLocalContextManager;
-import com.atlassian.util.concurrent.ThreadFactories;
-import com.google.common.base.*;
+import com.google.common.base.Throwables;
 import com.google.common.primitives.Ints;
+import io.atlassian.fugue.Suppliers;
+import io.atlassian.util.concurrent.ThreadFactories;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -55,6 +56,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -64,11 +66,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import static com.atlassian.util.concurrent.Promises.rejected;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static io.atlassian.util.concurrent.Promises.rejected;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -106,17 +110,17 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     }
 
     public ApacheAsyncHttpClient(String applicationName, final HttpClientOptions options) {
-        this(Suppliers.ofInstance(applicationName), Functions.constant(null), new NoOpThreadLocalContextManager<>(), options);
+        this(Suppliers.ofInstance(applicationName), input -> null, new NoOpThreadLocalContextManager<>(), options);
     }
 
     public ApacheAsyncHttpClient(final Supplier<String> applicationName,
                                  final Function<Object, Void> eventConsumer,
                                  final ThreadLocalContextManager<C> threadLocalContextManager,
                                  final HttpClientOptions options) {
-        this.eventConsumer = checkNotNull(eventConsumer);
-        this.applicationName = checkNotNull(applicationName);
-        this.threadLocalContextManager = checkNotNull(threadLocalContextManager);
-        this.httpClientOptions = checkNotNull(options);
+        this.eventConsumer = requireNonNull(eventConsumer, "eventConsumer can't be null");
+        this.applicationName = requireNonNull(applicationName, "applicationName can't be null");
+        this.threadLocalContextManager = requireNonNull(threadLocalContextManager, "threadLocalContextManager can't be null");
+        this.httpClientOptions = requireNonNull(options, "options can't be null");
 
         try {
             final IOReactorConfig reactorConfig = IOReactorConfig.custom()
@@ -287,12 +291,12 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         try {
             return doExecute(request);
         } catch (Throwable t) {
-            return ResponsePromises.toResponsePromise(rejected(t, Response.class));
+            return ResponsePromises.toResponsePromise(rejected(t));
         }
     }
 
     private ResponsePromise doExecute(final Request request) {
-        httpClientOptions.getRequestPreparer().apply(request);
+        httpClientOptions.getRequestPreparer().accept(request);
 
         final long start = System.currentTimeMillis();
         final HttpRequestBase op;
@@ -337,7 +341,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     final long requestDuration = System.currentTimeMillis() - start;
                     Throwable exception = maybeTranslate(ex);
                     publishEvent(request, requestDuration, exception);
-                    throw Throwables.propagate(exception);
+                    Throwables.throwIfUnchecked(exception);
+                    throw new RuntimeException(exception);
                 },
                 httpResponse -> {
                     final long requestDuration = System.currentTimeMillis() - start;
@@ -345,7 +350,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     try {
                         return translate(httpResponse);
                     } catch (IOException e) {
-                        throw Throwables.propagate(e);
+                        throw new UncheckedIOException(e);
                     }
                 }
         ));
@@ -444,8 +449,8 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private static final class DefaultApplicationNameSupplier implements Supplier<String> {
         private final ApplicationProperties applicationProperties;
 
-        public DefaultApplicationNameSupplier(ApplicationProperties applicationProperties) {
-            this.applicationProperties = checkNotNull(applicationProperties);
+        DefaultApplicationNameSupplier(ApplicationProperties applicationProperties) {
+            this.applicationProperties = requireNonNull(applicationProperties);
         }
 
         @Override
@@ -460,7 +465,7 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private static class EventConsumerFunction implements Function<Object, Void> {
         private final EventPublisher eventPublisher;
 
-        public EventConsumerFunction(EventPublisher eventPublisher) {
+        EventConsumerFunction(EventPublisher eventPublisher) {
             this.eventPublisher = eventPublisher;
         }
 

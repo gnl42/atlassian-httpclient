@@ -1,6 +1,6 @@
 package com.atlassian.httpclient.apache.httpcomponents.proxy;
 
-import com.atlassian.fugue.Option;
+import io.atlassian.fugue.Option;
 import com.atlassian.httpclient.api.factory.HttpClientOptions;
 import com.google.common.collect.Lists;
 import org.apache.http.HttpHost;

@@ -1,12 +1,11 @@
 package com.atlassian.httpclient.api;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
+import java.util.function.Function;
 
 final class ResponsePromiseMapFunction<O> implements Function<Response, O> {
     private final ImmutableMap<StatusRange, Function<Response, ? extends O>> functions;
@@ -43,12 +42,7 @@ final class ResponsePromiseMapFunction<O> implements Function<Response, O> {
     @Override
     public O apply(Response response) {
         final int statusCode = response.getStatusCode();
-        final Map<StatusRange, Function<Response, ? extends O>> matchingFunctions = Maps.filterKeys(functions, new Predicate<StatusRange>() {
-            @Override
-            public boolean apply(StatusRange input) {
-                return input.isIn(statusCode);
-            }
-        });
+        final Map<StatusRange, Function<Response, ? extends O>> matchingFunctions = Maps.filterKeys(functions, input -> input.isIn(statusCode));
 
         if (matchingFunctions.isEmpty()) {
             if (othersFunction != null) {
@@ -64,7 +58,7 @@ final class ResponsePromiseMapFunction<O> implements Function<Response, O> {
         }
     }
 
-    static interface StatusRange {
+    interface StatusRange {
         boolean isIn(int code);
     }
 }

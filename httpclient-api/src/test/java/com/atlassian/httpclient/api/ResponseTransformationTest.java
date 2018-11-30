@@ -1,25 +1,23 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.util.concurrent.Promise;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.SettableFuture;
+import io.atlassian.util.concurrent.Promise;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static com.atlassian.httpclient.api.ResponsePromises.toResponsePromise;
-import static com.atlassian.util.concurrent.Promises.forFuture;
-import static com.atlassian.util.concurrent.Promises.forListenableFuture;
 import static com.google.common.collect.Iterables.toArray;
+import static io.atlassian.util.concurrent.Promises.forCompletionStage;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -85,11 +83,11 @@ public final class ResponseTransformationTest {
 
     private Set<Function<Response, Object>> allFunctions;
 
-    private SettableFuture<Response> responseSettableFuture;
+    private CompletableFuture<Response> responseSettableFuture;
 
     @Before
     public void setUp() {
-        responseSettableFuture = SettableFuture.create();
+        responseSettableFuture = new CompletableFuture<>();
         allFunctions = ImmutableSet.<Function<Response, Object>>builder()
                 .add(informationalFunction)
                 .add(successfulFunction)
@@ -207,14 +205,11 @@ public final class ResponseTransformationTest {
 
     @Test(expected = IllegalStateException.class)
     public void testFailThrowsException() {
-        ResponseTransformation<Object> responseTransformation = newBuilder().fail(new Function<Throwable, Object>() {
-            @Override
-            public Object apply(@Nullable Throwable input) {
-                throw new IllegalStateException("foo");
-            }
+        ResponseTransformation<Object> responseTransformation = newBuilder().fail(input -> {
+            throw new IllegalStateException("foo");
         }).build();
-        responseSettableFuture.setException(new RuntimeException());
-        Promise<Object> promise = toResponsePromise(forListenableFuture(responseSettableFuture)).transform(responseTransformation);
+        responseSettableFuture.completeExceptionally(new RuntimeException());
+        Promise<Object> promise = toResponsePromise(forCompletionStage(responseSettableFuture)).transform(responseTransformation);
         promise.claim();
     }
 
@@ -223,23 +218,15 @@ public final class ResponseTransformationTest {
         final AtomicInteger counter = new AtomicInteger(0);
         when(this.response.getStatusCode()).thenReturn(200);
 
-        ResponsePromise responsePromise = toResponsePromise(forListenableFuture(responseSettableFuture));
+        ResponsePromise responsePromise = toResponsePromise(forCompletionStage(responseSettableFuture));
 
         ResponseTransformation<String> responseTransformation = DefaultResponseTransformation.<String>builder()
-                .ok(new Function<Response, String>() {
-                    @Override
-                    public String apply(@Nullable Response input) {
-                        return "foo" + counter.getAndIncrement();
-                    }
-                })
-                .fail(new Function<Throwable, String>() {
-                    @Override
-                    public String apply(@Nullable Throwable input) {
-                        throw new IllegalStateException();
-                    }
+                .ok(input -> "foo" + counter.getAndIncrement())
+                .fail(input -> {
+                    throw new IllegalStateException();
                 }).build();
         Promise<String> promise = responsePromise.transform(responseTransformation);
-        responseSettableFuture.set(this.response);
+        responseSettableFuture.complete(this.response);
         Assert.assertEquals("foo0", promise.claim());
     }
 
@@ -250,21 +237,13 @@ public final class ResponseTransformationTest {
         when(this.response.getStatusCode()).thenReturn(200);
 
         ResponseTransformation<String> responseTransformation = DefaultResponseTransformation.<String>builder()
-                .ok(new Function<Response, String>() {
-                    @Override
-                    public String apply(@Nullable Response input) {
-                        throw new IllegalArgumentException("foo" + counter.getAndIncrement());
-                    }
+                .ok(input -> {
+                    throw new IllegalArgumentException("foo" + counter.getAndIncrement());
                 })
-                .fail(new Function<Throwable, String>() {
-                    @Override
-                    public String apply(@Nullable Throwable input) {
-                        return null;
-                    }
-                }).build();
-        Promise<String> promise = toResponsePromise(forListenableFuture(responseSettableFuture)).transform(responseTransformation);
+                .fail(input -> null).build();
+        Promise<String> promise = toResponsePromise(forCompletionStage(responseSettableFuture)).transform(responseTransformation);
 
-        responseSettableFuture.set(this.response);
+        responseSettableFuture.complete(this.response);
         try {
             promise.claim();
         } catch (IllegalArgumentException ex) {
@@ -278,21 +257,13 @@ public final class ResponseTransformationTest {
         when(this.response.getStatusCode()).thenReturn(200);
 
         ResponseTransformation<String> responseTransformation = DefaultResponseTransformation.<String>builder()
-                .fail(new Function<Throwable, String>() {
-                    @Override
-                    public String apply(@Nullable Throwable input) {
-                        return "foo" + counter.getAndIncrement();
-                    }
-                })
-                .ok(new Function<Response, String>() {
-                    @Override
-                    public String apply(@Nullable Response input) {
-                        throw new IllegalStateException();
-                    }
+                .fail(input -> "foo" + counter.getAndIncrement())
+                .ok(input -> {
+                    throw new IllegalStateException();
                 })
                 .build();
-        responseSettableFuture.set(this.response);
-        Promise<String> promise = toResponsePromise(forListenableFuture(responseSettableFuture)).transform(responseTransformation);
+        responseSettableFuture.complete(this.response);
+        Promise<String> promise = toResponsePromise(forCompletionStage(responseSettableFuture)).transform(responseTransformation);
         Assert.assertEquals("foo0", promise.claim());
     }
 
@@ -320,7 +291,7 @@ public final class ResponseTransformationTest {
             final ResponseTransformation<Object> responseTransformation = newBuilder()
                     .error(clientErrorFunction)
                     .others(successfulFunction).build();
-            if (HttpStatus.BAD_REQUEST.code <= statusCode && statusCode < 600) {
+            if (HttpStatus.BAD_REQUEST.code <= statusCode) {
                 testFunctionCalledForStatus(responseTransformation, clientErrorFunction, statusCode);
             } else {
                 testFunctionCalledForStatus(responseTransformation, successfulFunction, statusCode);
@@ -339,37 +310,24 @@ public final class ResponseTransformationTest {
 
     @Test
     public void testFunctionAddedOnNonStandardHttpStatus() {
-        newBuilder().on(601, new Function<Response, Object>() {
-            @Override
-            public Object apply(@Nullable Response input) {
-                return null;
-            }
-        });
+        newBuilder().on(601, input -> null);
     }
 
     @Test(expected = IllegalMonitorStateException.class)
     public void testFailCanThrowExceptions() {
-        responseSettableFuture.setException(new Throwable("Some message"));
-        ResponsePromise responsePromise = toResponsePromise(forListenableFuture(responseSettableFuture));
+        responseSettableFuture.completeExceptionally(new Throwable("Some message"));
+        ResponsePromise responsePromise = toResponsePromise(forCompletionStage(responseSettableFuture));
         DefaultResponseTransformation.<String>builder()
-                .ok(new Function<Response, String>() {
-                    @Override
-                    public String apply(Response input) {
-                        return "Ok";
-                    }
-                })
-                .fail(new Function<Throwable, String>() {
-                    @Override
-                    public String apply(Throwable input) {
-                        throw new IllegalMonitorStateException();
-                    }
+                .ok(input -> "Ok")
+                .fail(input -> {
+                    throw new IllegalMonitorStateException();
                 }).build().apply(responsePromise).claim();
     }
 
     @Test(expected = IllegalMonitorStateException.class)
     public void testFailExceptionsWithoutHandlersAreThrownAtClaim() {
-        responseSettableFuture.setException(new IllegalMonitorStateException("Some message"));
-        newBuilder().build().apply(toResponsePromise(forListenableFuture(responseSettableFuture))).claim();
+        responseSettableFuture.completeExceptionally(new IllegalMonitorStateException("Some message"));
+        newBuilder().build().apply(toResponsePromise(forCompletionStage(responseSettableFuture))).claim();
     }
 
     private void testFunctionCalledForStatus(Function<Response, Object> function, int statusCode) {
@@ -395,9 +353,9 @@ public final class ResponseTransformationTest {
 
     private void testFunctionCalledForStatus(ResponseTransformation<Object> responseTransformation, Function<Response, Object> function, int statusCode) {
         when(response.getStatusCode()).thenReturn(statusCode);
-        responseSettableFuture.set(response);
+        responseSettableFuture.complete(response);
 
-        responseTransformation.apply(toResponsePromise(forFuture(responseSettableFuture)));
+        responseTransformation.apply(toResponsePromise(forCompletionStage(responseSettableFuture)));
 
         verify(function).apply(response);
         verifyNoMoreInteractions(allFunctionsAsArray());
@@ -418,12 +376,12 @@ public final class ResponseTransformationTest {
                 .build();
     }
 
-    private Function[] allFunctionsAsArray() {
+    private Object[] allFunctionsAsArray() {
         return toArray(allFunctions, Function.class);
     }
 
     private void resetAllMocks() {
         Mockito.reset(allFunctionsAsArray());
-        responseSettableFuture = SettableFuture.create();
+        responseSettableFuture = new CompletableFuture<>();
     }
 }

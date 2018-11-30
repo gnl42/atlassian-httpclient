@@ -1,9 +1,8 @@
 package com.atlassian.httpclient.api;
 
-import com.atlassian.util.concurrent.Promise;
-import com.google.common.base.Function;
+import io.atlassian.util.concurrent.Promise;
 
-import javax.annotation.Nullable;
+import java.util.function.Function;
 
 import static com.atlassian.httpclient.api.ResponsePromiseMapFunction.StatusRange;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -164,24 +163,14 @@ public final class DefaultResponseTransformation<T> implements ResponseTransform
 
         @Override
         public Builder<T> otherwise(final Function<Throwable, T> callback) {
-            others(new Function<Response, T>() {
-                @Override
-                public T apply(@Nullable Response input) {
-                    return callback.apply(new UnexpectedResponseException(input));
-                }
-            });
+            others(input -> callback.apply(new UnexpectedResponseException(input)));
             fail(callback);
             return this;
         }
 
         @Override
         public Builder<T> done(final Function<Response, T> f) {
-            others(new Function<Response, T>() {
-                @Override
-                public T apply(@Nullable Response input) {
-                    return f.apply(input);
-                }
-            });
+            others(f);
             return this;
         }
 
@@ -205,16 +194,12 @@ public final class DefaultResponseTransformation<T> implements ResponseTransform
             return this;
         }
 
-
         private Function<Throwable, ? extends T> defaultThrowableHandler() {
-            return new Function<Throwable, T>() {
-                @Override
-                public T apply(Throwable throwable) {
-                    if (throwable instanceof RuntimeException) {
-                        throw (RuntimeException) throwable;
-                    }
-                    throw new ResponseTransformationException(throwable);
+            return throwable -> {
+                if (throwable instanceof RuntimeException) {
+                    throw (RuntimeException) throwable;
                 }
+                throw new ResponseTransformationException(throwable);
             };
         }
 
