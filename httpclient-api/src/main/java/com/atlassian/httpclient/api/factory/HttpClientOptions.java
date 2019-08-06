@@ -23,6 +23,7 @@ public final class HttpClientOptions {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private List<String> blacklistedAddresses;
+    private String[] supportedProtocols;
 
     private String threadPrefix = "httpclient";
     private boolean ignoreCookies = false;
@@ -66,6 +67,17 @@ public final class HttpClientOptions {
      */
     public boolean getIgnoreCookies() {
         return ignoreCookies;
+    }
+
+    /**
+     * Gets the supported protocols that are to be used in favor of the protocols specified by the "https.protocols"
+     * system property.
+     *
+     * @return an array of supported protocols, or {@code null} to use the protocols specified by the "https.protocols"
+     * system property.
+     */
+    public String[] getSupportedProtocols() {
+        return supportedProtocols;
     }
 
     /**
@@ -155,6 +167,15 @@ public final class HttpClientOptions {
      */
     public void setRequestTimeout(int requestTimeout, TimeUnit timeUnit) {
         this.requestTimeout = timeUnit.toMillis(requestTimeout);
+    }
+
+    /**
+     * Override the default supported protocols specified by the system property "https.protocols"
+     *
+     * @param supportedProtocols The list of supported protocols (e.g. "TLSv1.2", "TLSv1.3")
+     */
+    public void setSupportedProtocols(String... supportedProtocols) {
+        this.supportedProtocols = supportedProtocols;
     }
 
     /**
