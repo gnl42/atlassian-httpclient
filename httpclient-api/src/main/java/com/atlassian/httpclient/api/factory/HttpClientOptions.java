@@ -75,6 +75,7 @@ public final class HttpClientOptions {
      *
      * @return an array of supported protocols, or {@code null} to use the protocols specified by the "https.protocols"
      * system property.
+     * @since 2.1.0
      */
     public String[] getSupportedProtocols() {
         return supportedProtocols;
@@ -173,6 +174,7 @@ public final class HttpClientOptions {
      * Override the default supported protocols specified by the system property "https.protocols"
      *
      * @param supportedProtocols The list of supported protocols (e.g. "TLSv1.2", "TLSv1.3")
+     * @since 2.1.0
      */
     public void setSupportedProtocols(String... supportedProtocols) {
         this.supportedProtocols = supportedProtocols;
