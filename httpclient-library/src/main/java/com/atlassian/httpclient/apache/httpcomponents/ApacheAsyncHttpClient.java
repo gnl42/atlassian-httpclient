@@ -26,9 +26,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
@@ -47,21 +45,20 @@ import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -73,6 +70,9 @@ import java.util.regex.Pattern;
 import static io.atlassian.util.concurrent.Promises.rejected;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.apache.http.conn.ssl.SSLConnectionSocketFactory.TLS;
+import static org.apache.http.nio.conn.ssl.SSLIOSessionStrategy.getDefaultHostnameVerifier;
 
 public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -225,17 +225,16 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             final TrustSelfSignedStrategy strategy = options.trustSelfSignedCertificates() ?
                     new TrustSelfSignedStrategy() : null;
 
-            final SSLContext sslContext = new SSLContextBuilder()
-                    .useTLS()
+            final SSLContext sslContext = SSLContexts.custom()
+                    .setProtocol(TLS)
                     .loadTrustMaterial(null, strategy)
                     .build();
 
             final SSLIOSessionStrategy sslioSessionStrategy = new SSLIOSessionStrategy(
                     sslContext,
-                    split(System.getProperty("https.protocols")),
+                    firstNonNull(options.getSupportedProtocols(), split(System.getProperty("https.protocols"))),
                     split(System.getProperty("https.cipherSuites")),
-                    options.trustSelfSignedCertificates() ?
-                            getSelfSignedVerifier() : SSLIOSessionStrategy.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+                    options.trustSelfSignedCertificates() ? getSelfSignedVerifier() : getDefaultHostnameVerifier());
 
             return RegistryBuilder.<SchemeIOSessionStrategy>create()
                     .register("http", NoopIOSessionStrategy.INSTANCE)
@@ -246,28 +245,10 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
         }
     }
 
-    private X509HostnameVerifier getSelfSignedVerifier() {
-        return new X509HostnameVerifier() {
-            @Override
-            public void verify(final String host, final SSLSocket ssl) {
-                log.debug("Verification for certificates from {0} disabled", host);
-            }
-
-            @Override
-            public void verify(final String host, final X509Certificate cert) {
-                log.debug("Verification for certificates from {0} disabled", host);
-            }
-
-            @Override
-            public void verify(final String host, final String[] cns, final String[] subjectAlts) {
-                log.debug("Verification for certificates from {0} disabled", host);
-            }
-
-            @Override
-            public boolean verify(final String host, final SSLSession sslSession) {
-                log.debug("Verification for certificates from {0} disabled", host);
-                return true;
-            }
+    private HostnameVerifier getSelfSignedVerifier() {
+        return (host, session) -> {
+            log.debug("Verification for certificates from {} disabled", host);
+            return true;
         };
     }
 
