@@ -1,0 +1,28 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## [2.1.1] - 2020-05-29
+
+## [2.1.0] - 2018-12-01
+
+### Bugfix
+- [BSERV-11796]: Add option to HttpClientOptions that will set the supportedProtocols on the SSLIOSessionStrategy
+
+[BSERV-11796]: https://jira.atlassian.com/browse/BSERV-11796
+
+## [2.0.1] - 2020-05-29
+
+### Updates
+- [BSP-1285]: Upgrade commons-codec to fix Insecure Input Validation
+
+[BSP-1285]: https://bulldog.internal.atlassian.com/browse/BSP-1285
+
+## [2.0.0] - 2018-12-01
+
+### Updates
+- [BSP-83]: Upgrade AMPS, platform and refapp milestones
+
+[BSP-83]: https://bulldog.internal.atlassian.com/browse/BSP-83
