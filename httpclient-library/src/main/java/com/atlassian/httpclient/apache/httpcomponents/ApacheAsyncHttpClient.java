@@ -126,10 +126,10 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
         try {
             final IOReactorConfig reactorConfig = IOReactorConfig.custom()
-                                                          .setIoThreadCount(options.getIoThreadCount())
-                                                          .setSelectInterval(options.getIoSelectInterval())
-                                                          .setInterestOpQueued(true)
-                                                          .build();
+                    .setIoThreadCount(options.getIoThreadCount())
+                    .setSelectInterval(options.getIoSelectInterval())
+                    .setInterestOpQueued(true)
+                    .build();
 
             final DefaultConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(reactorConfig);
             ioReactor.setExceptionHandler(new IOReactorExceptionHandler() {
@@ -173,22 +173,22 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
             };
 
             final RequestConfig requestConfig = RequestConfig.custom()
-                                                        .setConnectTimeout((int) options.getConnectionTimeout())
-                                                        .setConnectionRequestTimeout((int) options.getLeaseTimeout())
-                                                        .setCookieSpec(options.getIgnoreCookies() ? CookieSpecs.IGNORE_COOKIES : CookieSpecs.DEFAULT)
-                                                        .setSocketTimeout((int) options.getSocketTimeout())
-                                                        .build();
+                    .setConnectTimeout((int) options.getConnectionTimeout())
+                    .setConnectionRequestTimeout((int) options.getLeaseTimeout())
+                    .setCookieSpec(options.getIgnoreCookies() ? CookieSpecs.IGNORE_COOKIES : CookieSpecs.DEFAULT)
+                    .setSocketTimeout((int) options.getSocketTimeout())
+                    .build();
 
             connectionManager.setDefaultMaxPerRoute(options.getMaxConnectionsPerHost());
             connectionManager.setMaxTotal(options.getMaxTotalConnections());
 
             final HttpAsyncClientBuilder clientBuilder = HttpAsyncClients.custom()
-                                                                 .setThreadFactory(ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io", ThreadFactories.Type.DAEMON))
-                                                                 .setDefaultIOReactorConfig(reactorConfig)
-                                                                 .setConnectionManager(connectionManager)
-                                                                 .setRedirectStrategy(new RedirectStrategy())
-                                                                 .setUserAgent(getUserAgent(options))
-                                                                 .setDefaultRequestConfig(requestConfig);
+                    .setThreadFactory(ThreadFactories.namedThreadFactory(options.getThreadPrefix() + "-io", ThreadFactories.Type.DAEMON))
+                    .setDefaultIOReactorConfig(reactorConfig)
+                    .setConnectionManager(connectionManager)
+                    .setRedirectStrategy(new RedirectStrategy())
+                    .setUserAgent(getUserAgent(options))
+                    .setDefaultRequestConfig(requestConfig);
 
             // set up a route planner if there is proxy configuration
             ProxyConfigFactory.getProxyConfig(options).forEach(proxyConfig -> {
@@ -206,11 +206,11 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                     Ints.saturatedCast(options.getMaxEntitySize()));
 
             final CacheConfig cacheConfig = CacheConfig.custom()
-                                                    .setMaxCacheEntries(options.getMaxCacheEntries())
-                                                    .setSharedCache(false)
-                                                    .setNeverCacheHTTP10ResponsesWithQueryString(false)
-                                                    .setMaxObjectSize(options.getMaxCacheObjectSize())
-                                                    .build();
+                    .setMaxCacheEntries(options.getMaxCacheEntries())
+                    .setSharedCache(false)
+                    .setNeverCacheHTTP10ResponsesWithQueryString(false)
+                    .setMaxObjectSize(options.getMaxCacheObjectSize())
+                    .build();
 
             this.httpCacheStorage = new LoggingHttpCacheStorage(new FlushableHttpCacheStorageImpl(cacheConfig));
             this.httpClient = new CachingHttpAsyncClient(nonCachingHttpClient, httpCacheStorage, cacheConfig);
@@ -242,9 +242,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
                             getSelfSignedVerifier() : SSLIOSessionStrategy.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
 
             return RegistryBuilder.<SchemeIOSessionStrategy>create()
-                           .register("http", NoopIOSessionStrategy.INSTANCE)
-                           .register("https", sslioSessionStrategy)
-                           .build();
+                    .register("http", NoopIOSessionStrategy.INSTANCE)
+                    .register("https", sslioSessionStrategy)
+                    .build();
         } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
             return getFallbackRegistry(e);
         }
@@ -278,9 +278,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private Registry<SchemeIOSessionStrategy> getFallbackRegistry(final GeneralSecurityException e) {
         log.error("Error when creating scheme session strategy registry", e);
         return RegistryBuilder.<SchemeIOSessionStrategy>create()
-                       .register("http", NoopIOSessionStrategy.INSTANCE)
-                       .register("https", SSLIOSessionStrategy.getDefaultStrategy())
-                       .build();
+                .register("http", NoopIOSessionStrategy.INSTANCE)
+                .register("https", SSLIOSessionStrategy.getDefaultStrategy())
+                .build();
     }
 
     private String getUserAgent(HttpClientOptions options) {
@@ -409,9 +409,9 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
     private Response translate(HttpResponse httpResponse) throws IOException {
         StatusLine status = httpResponse.getStatusLine();
         Response.Builder responseBuilder = DefaultResponse.builder()
-                                                   .setMaxEntitySize(httpClientOptions.getMaxEntitySize())
-                                                   .setStatusCode(status.getStatusCode())
-                                                   .setStatusText(status.getReasonPhrase());
+                .setMaxEntitySize(httpClientOptions.getMaxEntitySize())
+                .setStatusCode(status.getStatusCode())
+                .setStatusText(status.getReasonPhrase());
 
         Header[] httpHeaders = httpResponse.getAllHeaders();
         for (Header httpHeader : httpHeaders) {
