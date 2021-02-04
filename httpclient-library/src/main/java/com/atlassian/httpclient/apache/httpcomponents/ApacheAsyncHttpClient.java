@@ -47,6 +47,7 @@ import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,7 @@ import java.util.regex.Pattern;
 import static io.atlassian.util.concurrent.Promises.rejected;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.apache.http.conn.ssl.SSLConnectionSocketFactory.TLS;
 
 public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -222,13 +224,15 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
     private Registry<SchemeIOSessionStrategy> getRegistry(final HttpClientOptions options) {
         try {
-            final TrustSelfSignedStrategy strategy = options.trustSelfSignedCertificates() ?
-                    new TrustSelfSignedStrategy() : null;
-
-            final SSLContext sslContext = new SSLContextBuilder()
-                    .useTLS()
-                    .loadTrustMaterial(null, strategy)
-                    .build();
+            final SSLContext sslContext;
+            if (options.trustSelfSignedCertificates()) {
+                sslContext = SSLContexts.custom()
+                                     .setProtocol(TLS)
+                                     .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                                     .build();
+            } else {
+                sslContext = SSLContexts.createSystemDefault();
+            }
 
             final SSLIOSessionStrategy sslioSessionStrategy = new SSLIOSessionStrategy(
                     sslContext,
