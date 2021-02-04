@@ -73,7 +73,6 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.apache.http.conn.ssl.SSLConnectionSocketFactory.TLS;
 import static org.apache.http.nio.conn.ssl.SSLIOSessionStrategy.getDefaultHostnameVerifier;
-import static org.apache.http.conn.ssl.SSLConnectionSocketFactory.TLS;
 
 public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
