@@ -73,6 +73,7 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.apache.http.conn.ssl.SSLConnectionSocketFactory.TLS;
 import static org.apache.http.nio.conn.ssl.SSLIOSessionStrategy.getDefaultHostnameVerifier;
+import static org.apache.http.conn.ssl.SSLConnectionSocketFactory.TLS;
 
 public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implements HttpClient, DisposableBean {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -222,13 +223,15 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
     private Registry<SchemeIOSessionStrategy> getRegistry(final HttpClientOptions options) {
         try {
-            final TrustSelfSignedStrategy strategy = options.trustSelfSignedCertificates() ?
-                    new TrustSelfSignedStrategy() : null;
-
-            final SSLContext sslContext = SSLContexts.custom()
-                    .setProtocol(TLS)
-                    .loadTrustMaterial(null, strategy)
-                    .build();
+            final SSLContext sslContext;
+            if (options.trustSelfSignedCertificates()) {
+                sslContext = SSLContexts.custom()
+                                     .setProtocol(TLS)
+                                     .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                                     .build();
+            } else {
+                sslContext = SSLContexts.createSystemDefault();
+            }
 
             final SSLIOSessionStrategy sslioSessionStrategy = new SSLIOSessionStrategy(
                     sslContext,
