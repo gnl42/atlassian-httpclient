@@ -222,13 +222,15 @@ public final class ApacheAsyncHttpClient<C> extends AbstractHttpClient implement
 
     private Registry<SchemeIOSessionStrategy> getRegistry(final HttpClientOptions options) {
         try {
-            final TrustSelfSignedStrategy strategy = options.trustSelfSignedCertificates() ?
-                    new TrustSelfSignedStrategy() : null;
-
-            final SSLContext sslContext = SSLContexts.custom()
-                    .setProtocol(TLS)
-                    .loadTrustMaterial(null, strategy)
-                    .build();
+            final SSLContext sslContext;
+            if (options.trustSelfSignedCertificates()) {
+                sslContext = SSLContexts.custom()
+                                     .setProtocol(TLS)
+                                     .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                                     .build();
+            } else {
+                sslContext = SSLContexts.createSystemDefault();
+            }
 
             final SSLIOSessionStrategy sslioSessionStrategy = new SSLIOSessionStrategy(
                     sslContext,
