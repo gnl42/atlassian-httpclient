@@ -52,7 +52,7 @@
         <product.data.version>${product.version}</product.data.version>
 
         <amps.version>8.0.2</amps.version>
-        <platform.version>5.0.10</platform.version>
+        <platform.version>5.2.0</platform.version>
 
         <!-- Non-platform dependencies -->
         <analytics.version>2.12</analytics.version>
