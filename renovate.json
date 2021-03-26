@@ -1,18 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>atlassian-labs/server-platform-renovate-config"
+    "github>atlassian-labs/server-platform-renovate-config:backend"
   ],
   "baseBranches": [
-    "release/2.0",
-    "release/2.1",
+    "2.0.x",
+    "2.1.x",
     "master"
   ],
   "packageRules": [
     {
       "baseBranchList": [
-        "release/2.0",
-        "release/2.1"
+        "2.0.x",
+        "2.1.x"
       ],
       "updateTypes": [
         "major",
