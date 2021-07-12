@@ -67,7 +67,7 @@
         <httpcore.version>4.4.10</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
         <jetty.version>9.4.12.v20180830</jetty.version>
-        <jackson2.version>2.9.2</jackson2.version>
+        <jackson2.version>2.12.4</jackson2.version>
         <log4j.version>1.2.17</log4j.version>
     </properties>
 
