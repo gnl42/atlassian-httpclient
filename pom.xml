@@ -51,8 +51,8 @@
         <product.version>5.0.3</product.version>
         <product.data.version>${product.version}</product.data.version>
 
-        <amps.version>8.0.4</amps.version>
-        <platform.version>5.0.31</platform.version>
+        <amps.version>8.2.3</amps.version>
+        <platform.version>5.0.30</platform.version>
 
         <!-- Platform dependencies -->
         <atlassian.event.version>4.0.4</atlassian.event.version>
