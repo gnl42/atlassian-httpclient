@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.atlassian.pom</groupId>
         <artifactId>public-pom</artifactId>
-        <version>5.0.21</version>
+        <version>5.0.29</version>
     </parent>
 
     <groupId>com.atlassian.httpclient</groupId>
@@ -51,12 +51,12 @@
         <product.version>5.0.3</product.version>
         <product.data.version>${product.version}</product.data.version>
 
-        <amps.version>8.0.2</amps.version>
+        <amps.version>8.2.3</amps.version>
         <platform.version>5.0.30</platform.version>
 
         <!-- Platform dependencies -->
-        <atlassian.event.version>4.0.3</atlassian.event.version>
-        <atlassian.sal.version>4.0.1</atlassian.sal.version>
+        <atlassian.event.version>4.0.4</atlassian.event.version>
+        <atlassian.sal.version>4.0.2</atlassian.sal.version>
         <atlassian.fugue.version>4.7.2</atlassian.fugue.version>
         <atlassian.util.concurrent.version>4.0.1</atlassian.util.concurrent.version>
 
@@ -64,11 +64,11 @@
         <analytics.version>2.12</analytics.version>
         <commons-codec.version>1.15</commons-codec.version>
         <httpasyncclient.version>4.1.4</httpasyncclient.version>
-        <httpcore.version>4.4.10</httpcore.version>
+        <httpcore.version>4.4.14</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <jetty.version>9.4.12.v20180830</jetty.version>
-        <jackson2.version>2.9.2</jackson2.version>
-        <log4j.version>1.2.17</log4j.version>
+        <jetty.version>9.4.43.v20210629</jetty.version>
+        <jackson2.version>2.9.10</jackson2.version>
+        <log4j.version>1.2.17-atlassian-13</log4j.version>
     </properties>
 
     <dependencyManagement>
