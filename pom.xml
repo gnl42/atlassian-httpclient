@@ -61,7 +61,9 @@
         <httpcore.version>4.4.14</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
         <jetty.version>9.4.43.v20210629</jetty.version>
-        <jackson2.version>2.9.10.8</jackson2.version>
+        <jackson2.core.version>2.9.10</jackson2.core.version>
+        <jackson2.databind.version>2.9.10.8</jackson2.databind.version>
+        <jackson2.annotations.version>2.9.10</jackson2.annotations.version>
         <log4j.version>1.2.17-atlassian-13</log4j.version>
     </properties>
 
@@ -122,17 +124,17 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson2.version}</version>
+                <version>${jackson2.annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>${jackson2.version}</version>
+                <version>${jackson2.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson2.version}</version>
+                <version>${jackson2.databind.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.stefanbirkner</groupId>
