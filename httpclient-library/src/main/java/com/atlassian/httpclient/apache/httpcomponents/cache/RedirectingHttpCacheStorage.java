@@ -1,7 +1,5 @@
 package com.atlassian.httpclient.apache.httpcomponents.cache;
 
-import com.atlassian.httpclient.api.RedirectingHttpClient;
-import com.google.common.collect.ForwardingObject;
 import org.apache.http.client.cache.HttpCacheEntry;
 import org.apache.http.client.cache.HttpCacheStorage;
 import org.apache.http.client.cache.HttpCacheUpdateCallback;
@@ -9,14 +7,8 @@ import org.apache.http.client.cache.HttpCacheUpdateException;
 
 import java.io.IOException;
 
-/**
- * @see RedirectingHttpClient as new alternative for this class.
- * @deprecated This method will be removed on platform 6, since guava will be replaced by Java API.
- */
-@Deprecated
-public abstract class ForwardingHttpCacheStorage extends ForwardingObject implements HttpCacheStorage {
+public abstract class RedirectingHttpCacheStorage implements HttpCacheStorage {
 
-    @Override
     protected abstract HttpCacheStorage delegate();
 
     @Override
