@@ -1,2 +1,12 @@
 owner: msamujlo@atlassian.com
-file-sourceclear-tickets: true
+lowerSeverityPaths:
+  - path: httpclient-api/src/test/**
+      reasoning: "This is a test directory"
+  - path: httpclient-library/src/test/**
+      reasoning: "This is a test directory"
+  - path: atlassian-profiling/src/test/**
+      reasoning: "This is a test directory"
+  - path: httpclient-plugin/src/test/**
+      reasoning: "This is a test directory"
+
+fileSnykTicketsWithFutureSLODates: true
