@@ -4,8 +4,6 @@ lowerSeverityPaths:
       reasoning: "This is a test directory"
   - path: httpclient-library/src/test/**
       reasoning: "This is a test directory"
-  - path: atlassian-profiling/src/test/**
-      reasoning: "This is a test directory"
   - path: httpclient-plugin/src/test/**
       reasoning: "This is a test directory"
 
