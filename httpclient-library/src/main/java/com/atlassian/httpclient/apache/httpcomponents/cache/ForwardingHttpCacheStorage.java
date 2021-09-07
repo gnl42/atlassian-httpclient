@@ -8,8 +8,12 @@ import org.apache.http.client.cache.HttpCacheUpdateException;
 
 import java.io.IOException;
 
-
+/**
+ * @see RedirectingHttpCacheStorage
+ * @deprecated This method will be removed on platform 6, since guava will be replaced by Java API.
+ */
 public abstract class ForwardingHttpCacheStorage extends ForwardingObject implements HttpCacheStorage {
+
     @Override
     protected abstract HttpCacheStorage delegate();
 
