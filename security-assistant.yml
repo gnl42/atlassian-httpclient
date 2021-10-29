@@ -1,10 +1,10 @@
 owner: msamujlo@atlassian.com
 lowerSeverityPaths:
   - path: httpclient-api/src/test/**
-      reasoning: "This is a test directory"
+    reasoning: "This is a test directory"
   - path: httpclient-library/src/test/**
-      reasoning: "This is a test directory"
+    reasoning: "This is a test directory"
   - path: httpclient-plugin/src/test/**
-      reasoning: "This is a test directory"
+    reasoning: "This is a test directory"
 
 fileSnykTicketsWithFutureSLODates: true
