@@ -6,13 +6,17 @@
   "baseBranches": [
     "2.0.x",
     "2.1.x",
+    "2.2.x",
+    "3.0.x",
     "master"
   ],
   "packageRules": [
     {
       "baseBranchList": [
         "2.0.x",
-        "2.1.x"
+        "2.1.x",
+        "2.2.x",
+        "3.0.x"
       ],
       "updateTypes": [
         "major",
