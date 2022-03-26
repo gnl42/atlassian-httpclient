@@ -70,7 +70,7 @@
         <jackson2.core.version>2.9.10</jackson2.core.version>
         <jackson2.databind.version>2.9.10.8</jackson2.databind.version>
         <jackson2.annotations.version>2.9.10</jackson2.annotations.version>
-        <log4j.version>1.2.17-atlassian-15</log4j.version>
+        <log4j.version>1.2.17-atlassian-16</log4j.version>
     </properties>
 
     <dependencyManagement>
